@@ -33,10 +33,10 @@ public class PkceAccessToken
     [JsonPropertyName("refresh_token")] public string? RefreshToken { get; set; } = null;
 
     [JsonIgnore] public AccessTokenResult Result { get; set; } = AccessTokenResult.Success;
-    [JsonIgnore] private int CreationTimeSeconds { get; } = DateTime.Now.TimeOfDay.Seconds;
+    [JsonIgnore] private long CreationTimeSeconds { get; } = (long)TimeSpan.FromTicks(DateTime.Now.Ticks).TotalSeconds;
 
     public bool IsExpired()
     {
-        return DateTime.Now.TimeOfDay.TotalSeconds - CreationTimeSeconds > ExpiresIn;
+        return (long)TimeSpan.FromTicks(DateTime.Now.Ticks).TotalSeconds - CreationTimeSeconds > ExpiresIn;
     }
 }
