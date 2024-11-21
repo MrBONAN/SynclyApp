@@ -1,4 +1,5 @@
-﻿using RestSharp;
+﻿using System.Diagnostics;
+using RestSharp;
 using dotenv.net;
 using Infrastructure.API.SpotifyAPI.QuestionCreator;
 
@@ -16,11 +17,13 @@ public static class SpotifyApi
 
     private static void LoadEnvFiles()
     {
-        DotEnv.Fluent().WithExceptions().WithEnvFiles("../../../../Infrastructure/API/SpotifyAPI/.env").Load();
-        ClientId = Environment.GetEnvironmentVariable("CLIENT_ID") ??
-                   throw new FileLoadException("App client id was not found");
-        ClientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET") ??
-                       throw new FileLoadException("App client secret was not found");
+        // DotEnv.Fluent().WithExceptions().WithEnvFiles(".env").Load();
+        // ClientId = Environment.GetEnvironmentVariable("CLIENT_ID") ??
+        //            throw new FileLoadException("App client id was not found");
+        // ClientSecret = Environment.GetEnvironmentVariable("CLIENT_SECRET") ??
+        //                throw new FileLoadException("App client secret was not found");
+        ClientId = "90f13d35881a49c4b1d1f7c4ba4f040c";
+        ClientSecret = "2056153472184920bee57c72cb4d9f0d";
     }
 
     public static async Task<AccessToken?> GetAppAccessToken()

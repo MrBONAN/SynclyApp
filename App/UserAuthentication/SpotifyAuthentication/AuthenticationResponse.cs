@@ -27,16 +27,16 @@ public enum AccessTokenResult
 
 public class PkceAccessToken
 {
-    [JsonPropertyName("access_token")] public string? AccessToken { get; } = null;
-    [JsonPropertyName("refresh_token")] public string? RefreshToken { get; } = null;
-    [JsonPropertyName("expires_in")] public int? ExpiresIn { get; } = null;
-    [JsonPropertyName("token_type")] public string? TokenType { get; } = null;
+    [JsonPropertyName("access_token")] public string? AccessToken { get; set; } = null;
+    [JsonPropertyName("token_type")] public string? TokenType { get; set; } = null;
+    [JsonPropertyName("expires_in")] public int? ExpiresIn { get; set; } = null;
+    [JsonPropertyName("refresh_token")] public string? RefreshToken { get; set; } = null;
 
     [JsonIgnore] public AccessTokenResult Result { get; set; } = AccessTokenResult.Success;
-    [JsonIgnore] private DateTime CreationTime { get; } = DateTime.Now;
+    [JsonIgnore] private int CreationTimeSeconds { get; } = DateTime.Now.TimeOfDay.Seconds;
 
     public bool IsExpired()
     {
-        return DateTime.Now.TimeOfDay.TotalSeconds - CreationTime.TimeOfDay.Seconds > ExpiresIn;
+        return DateTime.Now.TimeOfDay.TotalSeconds - CreationTimeSeconds > ExpiresIn;
     }
 }

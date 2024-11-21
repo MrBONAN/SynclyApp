@@ -6,14 +6,14 @@ using RestSharp;
 
 namespace App.UserAuthentication.SpotifyAuthentication;
 
-public class SpotifyPkceAuthentication
+public static class SpotifyPkceAuthentication
 {
-    private readonly string ClientId = SpotifyApi.ClientId;
-    private const string RedirectUri = "syncly-auth://callback";
-    private const string AuthorizeUrl = "https://accounts.spotify.com/authorize";
-    private const string Scope = "user-read-private user-read-email";
+    private static readonly string ClientId = SpotifyApi.ClientId;
+    private static string RedirectUri = "syncly-auth://callback";
+    private static string AuthorizeUrl = "https://accounts.spotify.com/authorize";
+    private static string Scope = "user-read-private user-read-email";
 
-    private async Task<AuthenticationPkceResponse> AuthenticateWithPKCEAsync()
+    public static async Task<AuthenticationPkceResponse> AuthenticateWithPkceAsync()
     {
         var codeVerifier = GenerateCodeVerifier();
         var codeChallenge = GenerateCodeChallengeBase64(codeVerifier);
@@ -41,7 +41,6 @@ public class SpotifyPkceAuthentication
 
             if (result.Properties.TryGetValue("code", out var code))
             {
-                Debug.WriteLine($"Код авторизации получен: {code}");
                 return new AuthenticationPkceResponse(AuthenticationResult.Success, code, codeVerifier, null);
             }
 
@@ -77,7 +76,7 @@ public class SpotifyPkceAuthentication
             .Replace('/', '_');
     }
 
-    private async Task<PkceAccessToken> ExchangeCodeForPkceTokenAsync(string code, string codeVerifier)
+    public static async Task<PkceAccessToken> ExchangeCodeForPkceTokenAsync(string code, string codeVerifier)
     {
         var client = new RestClient("https://accounts.spotify.com/api/token");
 
@@ -98,6 +97,28 @@ public class SpotifyPkceAuthentication
         }
 
         Debug.WriteLine($"Ошибка при получении токена: {response.ErrorMessage ?? response.Content}");
+        return new PkceAccessToken() { Result = AccessTokenResult.Error };
+    }
+
+    public static async Task<PkceAccessToken?> RefreshTokenAsync(string refreshToken)
+    {
+        var client = new RestClient("https://accounts.spotify.com/api/token");
+
+        var request = new RestRequest()
+            .AddHeader("Content-Type", "application/x-www-form-urlencoded")
+            .AddParameter("grant_type", "refresh_token")
+            .AddParameter("refresh_token", refreshToken)
+            .AddParameter("client_id", ClientId);
+
+        var response = await client.ExecutePostAsync<PkceAccessToken>(request);
+
+        if (response.IsSuccessful && response.Data != null)
+        {
+            Console.WriteLine("Токен успешно обновлён");
+            return response.Data;
+        }
+
+        Console.WriteLine($"Ошибка при обновлении токена: {response.ErrorMessage ?? response.Content}");
         return new PkceAccessToken() { Result = AccessTokenResult.Error };
     }
 }
