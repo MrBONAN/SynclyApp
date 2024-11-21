@@ -16,14 +16,6 @@ public partial class MainPage : ContentPage
     private async void OnCounterClicked(object sender, EventArgs e)
     {
         await Authenticate();
-        // count++;
-        //
-        // if (count == 1)
-        //     CounterBtn.Text = $"Clicked {count} time";
-        // else
-        //     CounterBtn.Text = $"Fuck it {count} times";
-        //
-        // SemanticScreenReader.Announce(CounterBtn.Text);
     }
 
     private async Task Authenticate()
