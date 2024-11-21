@@ -6,7 +6,7 @@ namespace Infrastructure.API.SpotifyAPI;
 
 public static class SpotifyApi
 {
-    private static string ClientId { get; set; }
+    public static string ClientId { get; private set; }
     private static string ClientSecret { get; set; }
 
     static SpotifyApi()
@@ -33,7 +33,6 @@ public static class SpotifyApi
             .AddParameter("client_secret", ClientSecret);
 
         var accessToken = (await client.ExecutePostAsync<AccessToken>(request)).Data;
-        Console.WriteLine($"Response: {accessToken?.TokenValue}");
         return accessToken;
     }
 
