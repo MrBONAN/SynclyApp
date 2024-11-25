@@ -26,9 +26,9 @@
 
             <Button
                 x:Name="CounterBtn"
-                Text="Click me" 
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked"
+                Text="Open map" 
+                SemanticProperties.Hint="openes map"
+                Clicked="OnMapOpened"
                 HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>
