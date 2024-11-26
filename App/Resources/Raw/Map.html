@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Leaflet Map</title>
+    <title>Leaflet Map with Geolocation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -15,15 +15,12 @@
 <body>
 <div id="map"></div>
 <script>
-    var map = L.map('map').setView([51.505, -0.09], 13);
+    var map = L.map('map').setView([56.83793, 60.65957], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
     }).addTo(map);
-
-    L.marker([51.505, -0.09]).addTo(map)
-        .bindPopup('A pretty marker.<br> Easily customizable.')
-        .openPopup();
 </script>
 </body>
 </html>

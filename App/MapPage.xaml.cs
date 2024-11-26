@@ -4,36 +4,56 @@ namespace App;
 
 public partial class MapPage : ContentPage
 {
-    int count = 0;
+    private CancellationTokenSource _cancelTokenSource;
+    private bool _isCheckingLocation;
 
     public MapPage()
     {
         InitializeComponent();
     }
 
-    protected override void OnAppearing()
+    protected async override void OnAppearing()
     {
         base.OnAppearing();
+
+        using var stream = await FileSystem.OpenAppPackageFileAsync("Map.html");
+        using var reader = new StreamReader(stream);
+
+        var htmlContent = reader.ReadToEnd();
+        LeafletWebView.Source = new HtmlWebViewSource
+        {
+            Html = htmlContent
+        };
+    }
+
+    protected async void OnClickedMoveToMyLocation(object sender, EventArgs e)
+    {
+        GetCurrentLocation();
+    }
+    
+    public async Task GetCurrentLocation()
+    {
+        try
         
-        var assembly1 = typeof(MapPage).Assembly;
-        string[] resourceNames = assembly1.GetManifestResourceNames();
-
-        foreach (var resourceName in resourceNames)
         {
-            Console.WriteLine(resourceName);
+            _isCheckingLocation = true;
+            
+            GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(5));
+
+            _cancelTokenSource = new CancellationTokenSource();
+
+            Location location = await Geolocation.Default.GetLocationAsync(request, _cancelTokenSource.Token);
+
+            if (location != null)
+                DisplayAlert("Success", $"Широта: {location.Latitude}, Долгота: {location.Longitude}, Altitude: {location.Altitude}", "OK");
         }
-
-        var assembly = typeof(MapPage).Assembly;
-        string resourcePath = "App.Resources.Raw.Map.html";
-
-        using (Stream stream = assembly.GetManifestResourceStream(resourcePath))
-        using (StreamReader reader = new StreamReader(stream))
+        catch (Exception ex)
         {
-            string htmlContent = reader.ReadToEnd();
-            LeafletWebView.Source = new HtmlWebViewSource
-            {
-                Html = htmlContent
-            };
+            DisplayAlert("Warning", "Location could not be retrieved: " + ex.Message, "OK");
+        }
+        finally
+        {
+            _isCheckingLocation = false;
         }
     }
 }
