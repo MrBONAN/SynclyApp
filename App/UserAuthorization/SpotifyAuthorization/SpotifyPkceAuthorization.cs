@@ -4,16 +4,16 @@ using System.Text;
 using Infrastructure.API.SpotifyAPI;
 using RestSharp;
 
-namespace App.UserAuthentication.SpotifyAuthentication;
+namespace App.UserAuthorization.SpotifyAuthorization;
 
-public static class SpotifyPkceAuthentication
+public static class SpotifyPkceAuthorization
 {
     private static readonly string ClientId = SpotifyApi.ClientId;
     private static string RedirectUri = "syncly-auth://callback";
     private static string AuthorizeUrl = "https://accounts.spotify.com/authorize";
     private static string Scope = "user-read-private user-read-email";
 
-    public static async Task<AuthenticationPkceResponse> AuthenticateWithPkceAsync()
+    public static async Task<AuthorizationPkceResponse> AuthorizeWithPkceAsync()
     {
         var codeVerifier = GenerateCodeVerifier();
         var codeChallenge = GenerateCodeChallengeBase64(codeVerifier);
@@ -35,23 +35,23 @@ public static class SpotifyPkceAuthentication
         };
         try
         {
-            Debug.WriteLine("Аутентификация начата с PKCE.");
+            Debug.WriteLine("Авторизация начата с PKCE.");
             var result = await WebAuthenticator.Default.AuthenticateAsync(options);
-            Debug.WriteLine("Аутентификация завершена!");
 
             if (result.Properties.TryGetValue("code", out var code))
             {
-                return new AuthenticationPkceResponse(AuthenticationResult.Success, code, codeVerifier, null);
+                Debug.WriteLine("Авторизация завершена!");
+                return new AuthorizationPkceResponse(AuthorizationResult.Success, code, codeVerifier, null);
             }
 
             Debug.WriteLine("Не удалось получить код авторизации.");
             result.Properties.TryGetValue("error", out var errorInfo);
-            return new AuthenticationPkceResponse(AuthenticationResult.Error, null, codeVerifier, errorInfo);
+            return new AuthorizationPkceResponse(AuthorizationResult.Error, null, codeVerifier, errorInfo);
         }
         catch (TaskCanceledException)
         {
-            Debug.WriteLine("Пользователь отменил аутентификацию или произошла ошибка.");
-            return new AuthenticationPkceResponse(AuthenticationResult.Canceled, null, codeVerifier, null);
+            Debug.WriteLine("Пользователь отменил авторизацию или произошла ошибка.");
+            return new AuthorizationPkceResponse(AuthorizationResult.Canceled, null, codeVerifier, null);
         }
     }
 
@@ -97,7 +97,7 @@ public static class SpotifyPkceAuthentication
         }
 
         Debug.WriteLine($"Ошибка при получении токена: {response.ErrorMessage ?? response.Content}");
-        return new PkceAccessToken() { Result = AccessTokenResult.Error };
+        return new PkceAccessToken() { Result = PkceAccessTokenResult.ReceiveError };
     }
 
     public static async Task<PkceAccessToken?> RefreshTokenAsync(string refreshToken)
@@ -119,6 +119,6 @@ public static class SpotifyPkceAuthentication
         }
 
         Console.WriteLine($"Ошибка при обновлении токена: {response.ErrorMessage ?? response.Content}");
-        return new PkceAccessToken() { Result = AccessTokenResult.Error };
+        return new PkceAccessToken() { Result = PkceAccessTokenResult.RefreshError };
     }
 }

@@ -3,16 +3,16 @@ using System.Diagnostics;
 using Infrastructure.API.SpotifyAPI;
 using RestSharp;
 
-namespace App.UserAuthentication.SpotifyAuthentication;
+namespace App.UserAuthorization.SpotifyAuthorization;
 
-public class SpotifyAuthentication
+public class SpotifyFlowCodeAuthorization
 {
     private string ClientId = SpotifyApi.ClientId;
     private const string RedirectUri = "syncly-auth://callback";
     private const string AuthorizeUrl = "https://accounts.spotify.com/authorize";
     private const string Scope = "user-read-private user-read-email";
 
-    private async Task<AuthenticationResponse> AuthenticateAsync()
+    private async Task<AuthorizationResponse> AuthenticateAsync()
     {
         try
         {
@@ -37,16 +37,16 @@ public class SpotifyAuthentication
 
             if (result.Properties.TryGetValue("code", out var code))
             {
-                return new AuthenticationResponse(AuthenticationResult.Success, code);
+                return new AuthorizationResponse(AuthorizationResult.Success, code);
             }
 
             Debug.WriteLine("Не удалось получить код авторизации.");
-            return new AuthenticationResponse(AuthenticationResult.Error, null);
+            return new AuthorizationResponse(AuthorizationResult.Error, null);
         }
         catch (TaskCanceledException)
         {
             Debug.WriteLine("Пользователь отменил аутентификацию или произошла ошибка.");
-            return new AuthenticationResponse(AuthenticationResult.Canceled, null);
+            return new AuthorizationResponse(AuthorizationResult.Canceled, null);
         }
     }
 

@@ -1,28 +1,29 @@
 using System.Text.Json.Serialization;
 
-namespace App.UserAuthentication.SpotifyAuthentication;
+namespace App.UserAuthorization.SpotifyAuthorization;
 
-public record AuthenticationResponse(AuthenticationResult Result, string? Code);
+public record AuthorizationResponse(AuthorizationResult Result, string? Code);
 
-public enum AuthenticationResult
+public enum AuthorizationResult
 {
     Success,
     Error,
     Canceled
 }
 
-public record AuthenticationPkceResponse(
-    AuthenticationResult Result,
+public record AuthorizationPkceResponse(
+    AuthorizationResult Result,
     string? Code,
     string? CodeVerifier,
     string? ErrorInfo)
 {
 }
 
-public enum AccessTokenResult
+public enum PkceAccessTokenResult
 {
     Success,
-    Error,
+    ReceiveError,
+    RefreshError
 }
 
 public class PkceAccessToken
@@ -32,7 +33,7 @@ public class PkceAccessToken
     [JsonPropertyName("expires_in")] public int? ExpiresIn { get; set; } = null;
     [JsonPropertyName("refresh_token")] public string? RefreshToken { get; set; } = null;
 
-    [JsonIgnore] public AccessTokenResult Result { get; set; } = AccessTokenResult.Success;
+    [JsonIgnore] public PkceAccessTokenResult Result { get; set; } = PkceAccessTokenResult.Success;
     [JsonIgnore] private long CreationTimeSeconds { get; } = (long)TimeSpan.FromTicks(DateTime.Now.Ticks).TotalSeconds;
 
     public bool IsExpired()
@@ -40,3 +41,14 @@ public class PkceAccessToken
         return (long)TimeSpan.FromTicks(DateTime.Now.Ticks).TotalSeconds - CreationTimeSeconds > ExpiresIn;
     }
 }
+
+public enum AccessTokenResult
+{
+    Success,
+    DataNotFoundError,
+    DeserializeError,
+    RefreshError,
+    Error
+}
+
+public record AccessToken(string? Value, AccessTokenResult Result);

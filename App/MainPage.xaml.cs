@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using App.UserAuthentication.SpotifyAuthentication;
+using App.UserAuthorization.SpotifyAuthorization;
 using Infrastructure.API;
 using Infrastructure.API.SpotifyAPI;
 
@@ -21,10 +21,10 @@ public partial class MainPage : ContentPage
 
     private async Task Authenticate()
     {
-        var authPkceResponse = await SpotifyPkceAuthentication.AuthenticateWithPkceAsync();
-        if (authPkceResponse.Result is not AuthenticationResult.Success)
+        var authPkceResponse = await SpotifyPkceAuthorization.AuthorizeWithPkceAsync();
+        if (authPkceResponse.Result is not AuthorizationResult.Success)
             return;
-        var accessToken = await SpotifyPkceAuthentication.ExchangeCodeForPkceTokenAsync(authPkceResponse.Code!,
+        var accessToken = await SpotifyPkceAuthorization.ExchangeCodeForPkceTokenAsync(authPkceResponse.Code!,
             authPkceResponse.CodeVerifier!);
         var response = await SpotifyApi
             .SearchFor()
@@ -34,5 +34,16 @@ public partial class MainPage : ContentPage
             .SetLimit(1)
             .AddFilter(QuestionFilter.Artist, "AJR")
             .SendRequest();
+    }
+
+    private async void SaveCurrentTime(object sender, EventArgs e)
+    {
+        await SecureStorage.Default.SetAsync("current_time", DateTime.Now.ToString("F"));
+    }
+
+    private async void DisplaySavedTime(object sender, EventArgs e)
+    {
+        var time = await SecureStorage.Default.GetAsync("current_time") ?? "null";
+        await Application.Current?.MainPage?.DisplayAlert("Сохранённое время", time, "ОК")!;
     }
 }
