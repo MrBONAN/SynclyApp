@@ -1,8 +1,9 @@
 using RestSharp;
+using Infrastructure.API.SpotifyAPI.Models;
 
-namespace Infrastructure.API.SpotifyAPI.QuestionCreator;
+namespace Infrastructure.API.SpotifyAPI.SearchQuestionCreator;
 
-public class QuestionCreator : IAddQuestionStage, IAddAccessTokenStage, IAddSettingsStage
+public class SearchQuestionCreator : IAddQuestionStage, IAddAccessTokenStage, IAddSettingsStage
 {
     private string AccessToken { get; set; } = "";
     private string Question { get; set; } = "";

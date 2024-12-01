@@ -1,6 +1,7 @@
 using RestSharp;
+using Infrastructure.API.SpotifyAPI.Models;
 
-namespace Infrastructure.API.SpotifyAPI.QuestionCreator;
+namespace Infrastructure.API.SpotifyAPI.SearchQuestionCreator;
 
 public interface IAddAccessTokenStage
 {

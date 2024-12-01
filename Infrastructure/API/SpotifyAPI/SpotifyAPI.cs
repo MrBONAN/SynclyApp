@@ -1,11 +1,10 @@
-﻿using System.Diagnostics;
+﻿using Infrastructure.API.SpotifyAPI.Models;
 using RestSharp;
-using dotenv.net;
-using Infrastructure.API.SpotifyAPI.QuestionCreator;
+using Infrastructure.API.SpotifyAPI.SearchQuestionCreator;
 
 namespace Infrastructure.API.SpotifyAPI;
 
-public static class SpotifyApi
+public static partial class SpotifyApi
 {
     public static string ClientId { get; private set; }
     private static string ClientSecret { get; set; }
@@ -41,6 +40,6 @@ public static class SpotifyApi
 
     public static IAddAccessTokenStage SearchFor()
     {
-        return new QuestionCreator.QuestionCreator();
+        return new SearchQuestionCreator.SearchQuestionCreator();
     }
 }

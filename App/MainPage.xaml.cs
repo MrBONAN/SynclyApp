@@ -2,8 +2,9 @@
 using System.Diagnostics;
 using System.Net;
 using App.UserAuthorization.SpotifyAuthorization.Models;
-using Infrastructure.API;
 using Infrastructure.API.SpotifyAPI;
+using Infrastructure.API;
+using Infrastructure.API.SpotifyAPI.Models;
 
 namespace App;
 
@@ -67,6 +68,8 @@ public partial class MainPage : ContentPage
             $"url: {trackData.ExternalUrls!.Spotify!}, " +
             $"artist: {trackData.Artists!.First().Name}",
             "OK")!;
+        token = await SpotifyAccessToken.Get();
+        var tmp = await SpotifyApi.GetUserTopItemsAsync<Track>(token.Value!);
     }
 
     private async void SaveCurrentTime(object sender, EventArgs e)
