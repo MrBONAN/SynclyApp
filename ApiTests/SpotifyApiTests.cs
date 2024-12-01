@@ -12,8 +12,8 @@ public class Tests
         var synclyAccessToken = await SpotifyApi.GetAppAccessToken();
         var response = await SpotifyApi
             .SearchFor()
-            .AddQuestion("The maybe man")
             .AddAccessToken(synclyAccessToken)
+            .AddQuestion("The maybe man")
             .SetType(QuestionType.Track)
             .SetLimit(1)
             .AddFilter(QuestionFilter.Artist, "AJR")

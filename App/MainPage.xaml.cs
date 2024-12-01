@@ -9,8 +9,6 @@ namespace App;
 
 public partial class MainPage : ContentPage
 {
-    int count = 0;
-
     public MainPage()
     {
         InitializeComponent();
@@ -18,7 +16,7 @@ public partial class MainPage : ContentPage
 
     private async void Authenticate(object sender, EventArgs e)
     {
-        var logInResult = await SpotifyManager.LogIn();
+        var logInResult = await SpotifyAuthManager.LogIn();
         await Application.Current?.MainPage?.DisplayAlert("Результат входа", logInResult.ToString(), "ОК")!;
     }
 
@@ -41,7 +39,7 @@ public partial class MainPage : ContentPage
         }
 
         Debug.WriteLine($"Вы ввели: {question}");
-        var token = await SpotifyManager.GetAccessToken();
+        var token = await SpotifyAccessToken.Get();
         if (token.Result is not AccessTokenResult.Success)
         {
             await Application.Current.MainPage?.DisplayAlert("Ошибка при чтении токена",

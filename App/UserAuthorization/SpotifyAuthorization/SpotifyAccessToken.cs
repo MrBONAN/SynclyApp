@@ -1,35 +1,13 @@
 using System.Diagnostics;
 using System.Text.Json;
-using App.UserAuthorization.SpotifyAuthorization.Models;
 
-namespace App.UserAuthorization.SpotifyAuthorization;
+namespace App.UserAuthorization.SpotifyAuthorization.Models;
 
-public static class SpotifyManager
+public static class SpotifyAccessToken
 {
     private static PkceAccessToken? PkceAccessToken { get; set; }
 
-    public static async Task<LogInResult> LogIn()
-    {
-        var authResponse = await SpotifyPkceAuthorization.AuthorizeWithPkceAsync();
-        if (authResponse.Result is AuthorizationResult.Canceled)
-            return LogInResult.AuthorizationCancelation;
-        if (authResponse.Result is AuthorizationResult.Error)
-            return LogInResult.AuthorizationError;
-        var accessToken = await SpotifyPkceAuthorization.ExchangeCodeForPkceTokenAsync(authResponse.Code!,
-            authResponse.CodeVerifier!);
-        if (accessToken.Result is PkceAccessTokenResult.ExchangeError)
-            return LogInResult.ExchangeTokenError;
-        await SaveAccessToken(accessToken);
-        PkceAccessToken = accessToken;
-        return LogInResult.Success;
-    }
-
-    public static async Task LogOut()
-    {
-        
-    }
-
-    public static async Task<AccessToken> GetAccessToken()
+    public static async Task<AccessToken> Get()
     {
         if (PkceAccessToken is null)
         {
