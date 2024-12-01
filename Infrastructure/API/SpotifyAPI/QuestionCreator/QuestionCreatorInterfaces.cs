@@ -2,15 +2,15 @@ using RestSharp;
 
 namespace Infrastructure.API.SpotifyAPI.QuestionCreator;
 
-public interface IAddQuestionStage
-{
-    public IAddAccessTokenStage AddQuestion(string question);
-}
-
 public interface IAddAccessTokenStage
 {
-    public IAddSettingsStage AddAccessToken(string accessToken);
-    public IAddSettingsStage AddAccessToken(AccessToken accessToken);
+    public IAddQuestionStage AddAccessToken(string accessToken);
+    public IAddQuestionStage AddAccessToken(AccessToken accessToken);
+}
+
+public interface IAddQuestionStage
+{
+    public IAddSettingsStage AddQuestion(string question);
 }
 
 public interface IAddSettingsStage

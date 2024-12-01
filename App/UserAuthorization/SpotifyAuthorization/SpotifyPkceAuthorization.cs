@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Infrastructure.API.SpotifyAPI;
 using RestSharp;
+using App.UserAuthorization.SpotifyAuthorization.Models;
 
 namespace App.UserAuthorization.SpotifyAuthorization;
 
@@ -97,7 +98,7 @@ public static class SpotifyPkceAuthorization
         }
 
         Debug.WriteLine($"Ошибка при получении токена: {response.ErrorMessage ?? response.Content}");
-        return new PkceAccessToken() { Result = PkceAccessTokenResult.ReceiveError };
+        return new PkceAccessToken() { Result = PkceAccessTokenResult.ExchangeError };
     }
 
     public static async Task<PkceAccessToken?> RefreshTokenAsync(string refreshToken)

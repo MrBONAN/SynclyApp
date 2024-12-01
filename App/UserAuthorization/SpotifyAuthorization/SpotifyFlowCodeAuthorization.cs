@@ -1,7 +1,7 @@
-using Microsoft.Maui.Authentication;
 using System.Diagnostics;
 using Infrastructure.API.SpotifyAPI;
 using RestSharp;
+using App.UserAuthorization.SpotifyAuthorization.Models;
 
 namespace App.UserAuthorization.SpotifyAuthorization;
 

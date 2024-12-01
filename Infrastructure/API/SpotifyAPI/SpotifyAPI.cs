@@ -39,7 +39,7 @@ public static class SpotifyApi
         return accessToken;
     }
 
-    public static IAddQuestionStage SearchFor()
+    public static IAddAccessTokenStage SearchFor()
     {
         return new QuestionCreator.QuestionCreator();
     }

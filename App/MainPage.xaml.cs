@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
-using App.UserAuthorization.SpotifyAuthorization;
+﻿using App.UserAuthorization.SpotifyAuthorization;
+using System.Diagnostics;
+using System.Net;
+using App.UserAuthorization.SpotifyAuthorization.Models;
 using Infrastructure.API;
 using Infrastructure.API.SpotifyAPI;
 
@@ -14,26 +16,59 @@ public partial class MainPage : ContentPage
         InitializeComponent();
     }
 
-    private async void OnCounterClicked(object sender, EventArgs e)
+    private async void Authenticate(object sender, EventArgs e)
     {
-        await Authenticate();
+        var logInResult = await SpotifyManager.LogIn();
+        await Application.Current?.MainPage?.DisplayAlert("Результат входа", logInResult.ToString(), "ОК")!;
     }
 
-    private async Task Authenticate()
+    private async void FindTrack(object sender, EventArgs e)
     {
-        var authPkceResponse = await SpotifyPkceAuthorization.AuthorizeWithPkceAsync();
-        if (authPkceResponse.Result is not AuthorizationResult.Success)
+        var question = await Application.Current.MainPage.DisplayPromptAsync(
+            "Поиск трека",
+            "Пожалуйста, введите название трека:",
+            "OK",
+            "Отмена",
+            "Трек",
+            50,
+            Keyboard.Text,
+            null);
+
+        if (string.IsNullOrEmpty(question))
+        {
+            Debug.WriteLine("Вы не ввели текст");
             return;
-        var accessToken = await SpotifyPkceAuthorization.ExchangeCodeForPkceTokenAsync(authPkceResponse.Code!,
-            authPkceResponse.CodeVerifier!);
-        var response = await SpotifyApi
-            .SearchFor()
-            .AddQuestion("The maybe man")
-            .AddAccessToken(accessToken.AccessToken!)
+        }
+
+        Debug.WriteLine($"Вы ввели: {question}");
+        var token = await SpotifyManager.GetAccessToken();
+        if (token.Result is not AccessTokenResult.Success)
+        {
+            await Application.Current.MainPage?.DisplayAlert("Ошибка при чтении токена",
+                token.Result.ToString(), "ОК")!;
+            return;
+        }
+
+        var response = await SpotifyApi.SearchFor()
+            .AddAccessToken(token.Value!)
+            .AddQuestion(question)
             .SetType(QuestionType.Track)
             .SetLimit(1)
-            .AddFilter(QuestionFilter.Artist, "AJR")
             .SendRequest();
+
+        if (response.StatusCode is HttpStatusCode.Forbidden)
+        {
+            await Application.Current.MainPage?.DisplayAlert("Запрет на доступ к ресурсу",
+                "Запрошенная страница не доступна в вашем регионе", "ОК")!;
+            return;
+        }
+
+        var trackData = response.Data.Tracks.Items.First();
+        await Application.Current.MainPage?.DisplayAlert("Результат поиска",
+            $"Spotify ID: {trackData.Id}, " +
+            $"url: {trackData.ExternalUrls!.Spotify!}, " +
+            $"artist: {trackData.Artists!.First().Name}",
+            "OK")!;
     }
 
     private async void SaveCurrentTime(object sender, EventArgs e)

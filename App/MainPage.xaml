@@ -8,10 +8,17 @@
             Padding="30,0"
             Spacing="25">
             <Button
-                x:Name="CounterBtn"
+                x:Name="LogInBtn"
                 Text="Войти в Spotify" 
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked"
+                SemanticProperties.Hint="Log in button"
+                Clicked="Authenticate"
+                HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="SearchBtn"
+                Text="Найти трек" 
+                SemanticProperties.Hint="Search track button"
+                Clicked="FindTrack"
                 HorizontalOptions="Fill" />
             
             <Button
