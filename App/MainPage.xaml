@@ -22,17 +22,17 @@
                 HorizontalOptions="Fill" />
             
             <Button
-                x:Name="SaveDateTimeBtn"
-                Text="Сохранить текущее время" 
-                SemanticProperties.Hint="Save current date in SecureStorage"
-                Clicked="SaveCurrentTime"
+                x:Name="TopTracksBtn"
+                Text="Получить топ 10 треков пользователя" 
+                SemanticProperties.Hint="Get top 10 user tracks"
+                Clicked="GetTopTracks"
                 HorizontalOptions="Fill" />
             
             <Button
-                x:Name="GetSavedTimeBtn"
-                Text="Получить сохранённое время" 
-                SemanticProperties.Hint="Restore saved date from SecureStorage"
-                Clicked="DisplaySavedTime"
+                x:Name="TopAtristsBtn"
+                Text="Получить топ 10 исполнителей пользователя" 
+                SemanticProperties.Hint="Get top 10 user artists"
+                Clicked="GetTopArtists"
                 HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>

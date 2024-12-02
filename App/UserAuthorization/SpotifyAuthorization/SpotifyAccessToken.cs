@@ -17,7 +17,7 @@ public static class SpotifyAccessToken
             PkceAccessToken = pkceAccessToken!;
         }
 
-        if (PkceAccessToken.IsExpired())
+        if (true || PkceAccessToken.IsExpired())
         {
             var pkceAccessToken = await SpotifyPkceAuthorization.RefreshTokenAsync(PkceAccessToken.RefreshToken!);
             if (pkceAccessToken!.Result is PkceAccessTokenResult.RefreshError)

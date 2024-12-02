@@ -68,18 +68,23 @@ public partial class MainPage : ContentPage
             $"url: {trackData.ExternalUrls!.Spotify!}, " +
             $"artist: {trackData.Artists!.First().Name}",
             "OK")!;
-        token = await SpotifyAccessToken.Get();
-        var tmp = await SpotifyApi.GetUserTopItemsAsync<Track>(token.Value!);
     }
 
-    private async void SaveCurrentTime(object sender, EventArgs e)
+    private async void GetTopTracks(object sender, EventArgs e)
     {
-        await SecureStorage.Default.SetAsync("current_time", DateTime.Now.ToString("F"));
+        var token = await SpotifyAccessToken.Get();
+        var topTracks = await SpotifyApi.GetUserTopItemsAsync<Track>(token.Value!);
+        await Application.Current.MainPage?.DisplayAlert("Топ треков",
+            String.Join("\n", topTracks.Select((track, i) => $"{i + 1}: {track.Name}")),
+            "OK")!;
     }
 
-    private async void DisplaySavedTime(object sender, EventArgs e)
+    private async void GetTopArtists(object sender, EventArgs e)
     {
-        var time = await SecureStorage.Default.GetAsync("current_time") ?? "null";
-        await Application.Current?.MainPage?.DisplayAlert("Сохранённое время", time, "ОК")!;
+        var token = await SpotifyAccessToken.Get();
+        var topArtists = await SpotifyApi.GetUserTopItemsAsync<Artist>(token.Value!);
+        await Application.Current.MainPage?.DisplayAlert("Топ артистов",
+            String.Join("\n", topArtists.Select((artist, i) => $"{i + 1}: {artist.Name}")),
+            "OK")!;
     }
 }
