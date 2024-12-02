@@ -17,7 +17,7 @@ public static class SpotifyAccessToken
             PkceAccessToken = pkceAccessToken!;
         }
 
-        if (true || PkceAccessToken.IsExpired())
+        if (PkceAccessToken.IsExpired())
         {
             var pkceAccessToken = await SpotifyPkceAuthorization.RefreshTokenAsync(PkceAccessToken.RefreshToken!);
             if (pkceAccessToken!.Result is PkceAccessTokenResult.RefreshError)
@@ -34,6 +34,8 @@ public static class SpotifyAccessToken
 
         return new AccessToken(PkceAccessToken.AccessToken, AccessTokenResult.Success);
     }
+
+    public static void RemoveToken() => PkceAccessToken = null;
 
     private static async Task<(PkceAccessToken?, AccessTokenResult)> ReadAccessToken()
     {

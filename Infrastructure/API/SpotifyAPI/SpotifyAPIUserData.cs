@@ -7,7 +7,7 @@ public static partial class SpotifyApi
 {
     private static RestClient TopItemsClient = new RestClient("https://api.spotify.com/v1/me/");
 
-    public static async Task<UserProfile?> GetUserProfileAsync(string accessToken)
+    public static async Task<SpotifyApiResult<UserProfile>?> GetUserProfileAsync(string accessToken)
     {
         var request = new RestRequest();
         request.AddHeader("Authorization", $"Bearer {accessToken}");
@@ -15,8 +15,8 @@ public static partial class SpotifyApi
         var response = await TopItemsClient.ExecuteGetAsync<UserProfile>(request);
 
         if (response.IsSuccessful && response.Data != null)
-            return response.Data;
+            return new SpotifyApiResult<UserProfile>(ApiResult.Success, response.Data, response);
 
-        return null;
+        return new SpotifyApiResult<UserProfile>(ApiResult.Error, null, response);
     }
 }

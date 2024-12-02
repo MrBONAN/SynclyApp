@@ -8,6 +8,7 @@ public static partial class SpotifyApi
 {
     public static string ClientId { get; private set; }
     private static string ClientSecret { get; set; }
+    private static RestClient SpotifyClient = new RestClient("https://api.spotify.com/v1/");
 
     static SpotifyApi()
     {

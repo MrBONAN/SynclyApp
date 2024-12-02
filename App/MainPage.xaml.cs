@@ -74,8 +74,9 @@ public partial class MainPage : ContentPage
     {
         var token = await SpotifyAccessToken.Get();
         var topTracks = await SpotifyApi.GetUserTopItemsAsync<Track>(token.Value!);
+        if (!(topTracks?.Result is ApiResult.Success)) return;
         await Application.Current.MainPage?.DisplayAlert("Топ треков",
-            String.Join("\n", topTracks.Select((track, i) => $"{i + 1}: {track.Name}")),
+            String.Join("\n", topTracks.Data!.Select((track, i) => $"{i + 1}: {track.Name}")),
             "OK")!;
     }
 
@@ -83,8 +84,24 @@ public partial class MainPage : ContentPage
     {
         var token = await SpotifyAccessToken.Get();
         var topArtists = await SpotifyApi.GetUserTopItemsAsync<Artist>(token.Value!);
+        if (!(topArtists?.Result is ApiResult.Success)) return;
         await Application.Current.MainPage?.DisplayAlert("Топ артистов",
-            String.Join("\n", topArtists.Select((artist, i) => $"{i + 1}: {artist.Name}")),
+            String.Join("\n", topArtists.Data!.Select((artist, i) => $"{i + 1}: {artist.Name}")),
             "OK")!;
+    }
+
+    private async void GetUserData(object sender, EventArgs e)
+    {
+        var token = await SpotifyAccessToken.Get();
+        var userProfile = await SpotifyApi.GetUserProfileAsync(token.Value!);
+        if (!(userProfile?.Result is ApiResult.Success)) return;
+        await Application.Current.MainPage?.DisplayAlert("Данные пользователя",
+            $"Id: {userProfile.Data!.Id}, name: {userProfile.Data.DisplayName}",
+            "OK")!;
+    }
+
+    private void LogOut(object sender, EventArgs e)
+    {
+        SpotifyAuthManager.LogOut();
     }
 }

@@ -20,9 +20,10 @@ public static class SpotifyAuthManager
         return LogInResult.Success;
     }
 
-    public static async Task LogOut()
+    public static void LogOut()
     {
-        // TODO
+        SecureStorage.Default.Remove("spotify_token");
+        SpotifyAccessToken.RemoveToken();
     }
 
     private static async Task SaveAccessToken(PkceAccessToken accessToken)
