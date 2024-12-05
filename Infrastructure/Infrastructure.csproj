@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="API\" />
+      <Folder Include="API\MapAPI\" />
     </ItemGroup>
 
 </Project>

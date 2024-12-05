@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Shell.NavBarIsVisible="false"
              x:Class="App.MapPage">
 
     <AbsoluteLayout>
@@ -22,6 +23,17 @@
                 FontAttributes="Bold"
                 FontSize="20"
                 AbsoluteLayout.LayoutBounds="1, 1, AutoSize, AutoSize"
+                AbsoluteLayout.LayoutFlags="PositionProportional" />
+        <Button Text="X"
+                Clicked="OnClickedShowRocksi"
+                BackgroundColor="DodgerBlue"
+                TextColor="White"
+                CornerRadius="25"
+                WidthRequest="50"
+                HeightRequest="50"
+                FontAttributes="Bold"
+                FontSize="20"
+                AbsoluteLayout.LayoutBounds="0, 1, AutoSize, AutoSize"
                 AbsoluteLayout.LayoutFlags="PositionProportional" />
     </AbsoluteLayout>
 </ContentPage>
