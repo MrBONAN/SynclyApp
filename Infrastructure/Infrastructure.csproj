@@ -13,8 +13,4 @@
       <PackageReference Include="The49.Maui.BottomSheet" Version="8.0.2" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="API\" />
-    </ItemGroup>
-
 </Project>

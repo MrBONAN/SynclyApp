@@ -1,25 +1,180 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Leaflet Map with Geolocation</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>Leaflet Map with Geolocation</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         #map {
             height: 100vh;
             width: 100%;
         }
+
+        /* Стиль для модального окна */
+        #userProfileModal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+        }
+
+        /* Полупрозрачный фон для модального окна */
+        #modalOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        /* Кнопка закрытия окна */
+        .close-btn {
+            cursor: pointer;
+            color: red;
+            font-size: 20px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
     </style>
 </head>
 <body>
 <div id="map"></div>
+
+<!-- Модальное окно с профилем -->
+<div id="modalOverlay"></div>
+<div id="userProfileModal">
+    <span class="close-btn" onclick="closeUserProfile()">×</span>
+    <h3>Профиль пользователя</h3>
+    <p>Здесь будет информация о пользователе с ID: <span id="userId"></span></p>
+    <!-- Добавьте сюда дополнительные данные о пользователе -->
+</div>
+
 <script>
-    var map = L.map('map').setView([56.83793, 60.65957], 13);
+    const map = L.map('map', {
+        center: [56.83793, 60.65957],
+        zoom: 13,
+        zoomControl: true,
+        attributionControl: false,
+    });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19
     }).addTo(map);
+
+    const markers = {};
+
+    /**
+     * Функция для перемещения карты по заданным координатам и уровню зума
+     * @param {number} latitude
+     * @param {number} longitude
+     * @param {number} zoomLevel
+     */
+    function moveMap(latitude, longitude, zoomLevel) {
+        map.setView([latitude, longitude], zoomLevel);
+    }
+
+    /**
+     * Функция для добавления маркера на карту
+     * @param {number} latitude
+     * @param {number} longitude
+     * @param {string} imageName
+     * @param {string} id
+     * @param {function} onClicked
+     */
+    function addUserMarker(latitude, longitude, imageName, id, onClicked) {
+        removeMarker(id);
+
+        const customIcon = L.icon({
+            iconUrl: imageName,
+            iconSize: [50, 50],
+            iconAnchor: [25, 50],
+            popupAnchor: [0, -50]
+        });
+
+        const newMarker = L.marker([latitude, longitude], { icon: customIcon }).addTo(map);
+
+        markers[id] = { marker: newMarker, onClicked };
+
+        newMarker.on('click', function () {
+            if (markers[id].onClicked) {
+                markers[id].onClicked(id);
+            }
+        });
+    }
+
+    /**
+     * Функция для удаления маркера по id
+     * @param {string} id
+     */
+    function removeMarker(id) {
+        if (markers[id]) {
+            map.removeLayer(markers[id].marker);
+            delete markers[id];
+        }
+    }
+
+    let userCircle = null;
+
+    /**
+     * Функция для добавления круга на карту
+     * @param {number} latitude
+     * @param {number} longitude
+     * @param {number} radius
+     */
+    function addCircle(latitude, longitude, radius) {
+        removeCircle();
+
+        userCircle = L.circle([latitude, longitude], {
+            color: 'blue',
+            fillColor: 'lightblue',
+            fillOpacity: 0.5,
+            radius: radius
+        }).addTo(map);
+    }
+
+    /**
+     * Функция для удаления круга с карты
+     */
+    function removeCircle() {
+        if (userCircle) {
+            map.removeLayer(userCircle);
+            userCircle = null;
+        }
+    }
+
+    /**
+     * Функция открытия профиля на карте
+     * @param {string} id
+     */
+    function openUserProfile(id) {
+        document.getElementById('modalOverlay').style.display = 'block';
+        document.getElementById('userProfileModal').style.display = 'block';
+
+        // Отображаем ID в окне профиля
+        document.getElementById('userId').textContent = id;
+    }
+
+    /**
+     * Функция закрытия модального окна профиля
+     */
+    function closeUserProfile() {
+        document.getElementById('modalOverlay').style.display = 'none';
+        document.getElementById('userProfileModal').style.display = 'none';
+    }
 </script>
 </body>
 </html>
