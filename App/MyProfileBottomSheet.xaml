@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<the49:BottomSheet xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                   xmlns:the49="https://schemas.the49.com/dotnet/2023/maui"
+                   xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+                   x:Class="ProfileBottomSheet.Sheet"
+                   Padding="16, 32"
+                   Background="{StaticResource Black}"
+                   CornerRadius="20"
+                   HasBackdrop="True">
+
+    <the49:BottomSheet.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/BottomSheetStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </the49:BottomSheet.Resources>
+
+    <the49:BottomSheet.Detents>
+        <the49:RatioDetent Ratio="0.9" />
+        <the49:FullscreenDetent />
+    </the49:BottomSheet.Detents>
+
+    <Grid VerticalOptions="Start"
+          HorizontalOptions="FillAndExpand"
+          RowSpacing="35">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" /> <!-- Кнопка слева -->
+            <ColumnDefinition Width="*" />    <!-- Центр для текста -->
+            <ColumnDefinition Width="Auto" /> <!-- Кнопка справа -->
+        </Grid.ColumnDefinitions>
+
+        <Button Grid.Column="0"
+                x:Name="ProfileButton"
+                Style="{StaticResource BaseButtonStyle}"
+                ImageSource="profile_icon.png"
+                HorizontalOptions="Start" />
+        <Label Grid.Column="1"
+               x:Name="Username"
+               Style="{StaticResource HeaderLabelStyle}"
+               Text="Mot1x"
+               HorizontalOptions="CenterAndExpand" />
+        <Button Grid.Column="2"
+                x:Name="AddFriendButton"
+                Style="{StaticResource BaseButtonStyle}"
+                ImageSource="add_friend_icon.png"
+                HorizontalOptions="End" />
+        <Label Grid.Row="1" Grid.ColumnSpan="3"
+               x:Name="Description"
+               Style="{StaticResource DescriptionLabelStyle}"
+               Text="Здесь будет описание профиля" />
+
+        <Grid Grid.Row="2" Grid.ColumnSpan="3">
+            <Grid ColumnSpacing="19"
+                  HorizontalOptions="Start">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        x:Name="WriteMessageButton"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        ImageSource="add_friend_icon.png"
+                        HorizontalOptions="End" />
+
+                <Button Grid.Column="1"
+                        x:Name="ShowFriendButton"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        WidthRequest="-1"
+                        HorizontalOptions="End"
+                        Text="n друзей" />
+            </Grid>
+
+            <Grid ColumnSpacing="10"
+                  HorizontalOptions="End">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        x:Name="SpotifyAccountButton"
+                        Style="{StaticResource BaseButtonStyle}"
+                        ImageSource="spotify_icon.png" />
+                <Button Grid.Column="1"
+                        x:Name="YandexAccountButton"
+                        Style="{StaticResource BaseButtonStyle}"
+                        ImageSource="yandex_icon.png" />
+            </Grid>
+        </Grid>
+        <VerticalStackLayout Grid.Row="3" Grid.ColumnSpan="3" Spacing="10">
+            <Label
+                x:Name="Top10TracksLabel"
+                Style="{StaticResource HeaderLabelStyle}"
+                Text="Топ 10 треков"
+                FontSize="24" />
+
+            <ScrollView>
+                <CollectionView ItemsSource="{Binding Tracks}">
+
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" />
+                    </CollectionView.ItemsLayout>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <HorizontalStackLayout Spacing="10" Padding="10">
+                                <Grid RowSpacing="10">
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="100" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <Frame Grid.Row="0"
+                                           WidthRequest="100"
+                                           HeightRequest="100"
+                                           CornerRadius="10"
+                                           IsClippedToBounds="True">
+                                        <ActivityIndicator IsRunning="True" AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1" AbsoluteLayout.LayoutFlags="PositionProportional">
+                                            <ActivityIndicator.Triggers>
+                                                <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsImageLoaded}" Value="True">
+                                                    <Setter Property="IsVisible" Value="False" />
+                                                </DataTrigger>
+                                            </ActivityIndicator.Triggers>
+                                        </ActivityIndicator>
+                                    </Frame>
+
+                                    <StackLayout Grid.Row="1"
+                                                 Spacing="5"
+                                                 VerticalOptions="Center">
+                                        <Label Text="{Binding Title}"
+                                               LineBreakMode="TailTruncation"
+                                               FontSize="16"
+                                               TextColor="White"
+                                               FontAttributes="Bold"
+                                               WidthRequest="100" />
+                                        <Label Text="{Binding Artist}"
+                                               LineBreakMode="TailTruncation"
+                                               FontSize="14"
+                                               TextColor="Gray"
+                                               WidthRequest="100" />
+                                    </StackLayout>
+                                </Grid>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </ScrollView>
+        </VerticalStackLayout>
+        
+        <VerticalStackLayout Grid.Row="4" Grid.ColumnSpan="3" Spacing="10">
+            <Label
+                x:Name="Top10ArtistsLabel"
+                Style="{StaticResource HeaderLabelStyle}"
+                Text="Топ 10 артистов"
+                FontSize="24" />
+
+            <ScrollView>
+                <CollectionView ItemsSource="{Binding Artists}">
+
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" />
+                    </CollectionView.ItemsLayout>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <HorizontalStackLayout Spacing="10" Padding="10">
+                                <Grid RowSpacing="10">
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="100" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <Frame Grid.Row="0"
+                                           WidthRequest="100"
+                                           HeightRequest="100"
+                                           CornerRadius="50"
+                                           IsClippedToBounds="True">
+                                        <ActivityIndicator IsRunning="True" AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1" AbsoluteLayout.LayoutFlags="PositionProportional">
+                                            <ActivityIndicator.Triggers>
+                                                <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsImageLoaded}" Value="True">
+                                                    <Setter Property="IsVisible" Value="False" />
+                                                </DataTrigger>
+                                            </ActivityIndicator.Triggers>
+                                        </ActivityIndicator>
+                                    </Frame>
+
+                                    <StackLayout Grid.Row="1"
+                                                 Spacing="5"
+                                                 VerticalOptions="Center">
+                                        <Label Text="{Binding Name}"
+                                               LineBreakMode="TailTruncation"
+                                               FontSize="16"
+                                               TextColor="White"
+                                               FontAttributes="Bold"
+                                               WidthRequest="100" />
+                                    </StackLayout>
+                                </Grid>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </ScrollView>
+        </VerticalStackLayout>
+
+    </Grid>
+</the49:BottomSheet>

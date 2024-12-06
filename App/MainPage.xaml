@@ -30,6 +30,13 @@
                 SemanticProperties.Hint="openes map"
                 Clicked="OnMapOpened"
                 HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="MapButton"
+                Text="Открыть карту" 
+                SemanticProperties.Hint="Counts the number of times you click"
+                Clicked="OnMapOpened"
+                HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>
 

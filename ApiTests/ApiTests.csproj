@@ -12,10 +12,12 @@
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.0"/>
         <PackageReference Include="dotenv.net" Version="3.2.1" />
+        <PackageReference Include="FFImageLoading.Maui" Version="1.2.7" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
         <PackageReference Include="NUnit" Version="3.14.0"/>
         <PackageReference Include="NUnit.Analyzers" Version="3.9.0"/>
         <PackageReference Include="NUnit3TestAdapter" Version="4.5.0"/>
+        <PackageReference Include="The49.Maui.BottomSheet" Version="8.0.2" />
     </ItemGroup>
 
     <ItemGroup>

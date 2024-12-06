@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    
+    <!-- Общий стиль для кнопок -->
+    <Style TargetType="Button" x:Key="BaseButtonStyle">
+        <Setter Property="BackgroundColor" Value="Black" />
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="WidthRequest" Value="50" />
+        <Setter Property="HeightRequest" Value="50" />
+    </Style>
+
+    <!-- Кнопка с серым фоном -->
+    <Style TargetType="Button" x:Key="SecondaryButtonStyle" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="BackgroundColor" Value="#303030" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="FontSize" Value="24" />
+    </Style>
+
+    <!-- Стиль для заголовков -->
+    <Style TargetType="Label" x:Key="HeaderLabelStyle">
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="TextColor" Value="White" />
+    </Style>
+
+    <!-- Стиль для описания -->
+    <Style TargetType="Label" x:Key="DescriptionLabelStyle">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="TextColor" Value="#888888" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+</ResourceDictionary>

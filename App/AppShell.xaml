@@ -8,8 +8,8 @@
     Title="App">
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Title="Map"
+        ContentTemplate="{DataTemplate local:Map}"
+        Route="Map" />
 
 </Shell>
