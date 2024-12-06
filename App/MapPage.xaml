@@ -5,14 +5,12 @@
              x:Class="App.MapPage">
 
     <AbsoluteLayout>
-        <!-- WebView для карты -->
         <WebView x:Name="LeafletWebView"
                  HorizontalOptions="FillAndExpand"
                  VerticalOptions="FillAndExpand"
                  AbsoluteLayout.LayoutBounds="0, 0, 1, 1"
                  AbsoluteLayout.LayoutFlags="All" />
 
-        <!-- Кнопка в правом нижнем углу -->
         <Button Text="\/"
                 Clicked="OnClickedMoveToMyLocation"
                 BackgroundColor="DodgerBlue"

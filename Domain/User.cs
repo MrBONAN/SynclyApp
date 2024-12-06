@@ -5,7 +5,7 @@ public class User
     public string Name {get; set;}
     public Dictionary<string, string> MusicAppLinks { get; set; }
     public readonly string Id;
-    public Location Location { get; set; }
+    public MapLocation Location { get; set; }
     public IEnumerable<Track> TopTenTracks { get; set; }
     public IEnumerable<Artist> TopTenArtists { get; set; }
 
