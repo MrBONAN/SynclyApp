@@ -99,7 +99,7 @@ public class UserInformation
 {
     public async Task<Location> GetCurrentLocation()
     {
-        GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(10));
+        GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(5));
         var cancelTokenSource = new CancellationTokenSource();
         var newLocation = await Geolocation.Default.GetLocationAsync(request, cancelTokenSource.Token);
         if (newLocation == null)
