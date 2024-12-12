@@ -7,24 +7,46 @@
         <VerticalStackLayout
             Padding="30,0"
             Spacing="25">
-            <Image
-                Source="dotnet_bot.png"
-                HeightRequest="185"
-                Aspect="AspectFit"
-                SemanticProperties.Description="dot net bot in a race car number eight" />
-
             <Button
-                x:Name="CounterBtn"
-                Text="Open map" 
-                SemanticProperties.Hint="openes map"
-                Clicked="OnMapOpened"
+                x:Name="LogInBtn"
+                Text="Войти в Spotify" 
+                SemanticProperties.Hint="Log in button"
+                Clicked="Authenticate"
                 HorizontalOptions="Fill" />
             
             <Button
-                x:Name="MapButton"
-                Text="Открыть карту" 
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnMapOpened"
+                x:Name="SearchBtn"
+                Text="Найти трек" 
+                SemanticProperties.Hint="Search track button"
+                Clicked="FindTrack"
+                HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="TopTracksBtn"
+                Text="Получить топ 10 треков пользователя" 
+                SemanticProperties.Hint="Get top 10 user tracks"
+                Clicked="GetTopTracks"
+                HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="TopAtristsBtn"
+                Text="Получить топ 10 исполнителей пользователя" 
+                SemanticProperties.Hint="Get top 10 user artists"
+                Clicked="GetTopArtists"
+                HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="UserProfileBtn"
+                Text="Получить данные пользователя" 
+                SemanticProperties.Hint="Get user profile data"
+                Clicked="GetUserData"
+                HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="LogOutBtn"
+                Text="Удалить токен из памяти" 
+                SemanticProperties.Hint="Delete user access token"
+                Clicked="LogOut"
                 HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>
