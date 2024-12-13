@@ -3,18 +3,13 @@ namespace Domain;
 public class Artist
 {
     public readonly string Id;
-    public IEnumerable<Track> Tracks { get; set; }
-    public readonly string PhotoPath;
+    public readonly string Name;
+    public readonly string ProfileImageURL;
 
-    public Artist(string id, string photoPath, IEnumerable<Track> tracks)
+    public Artist(string id, string profileImageURL, string name)
     {
         Id = id;
-        PhotoPath = photoPath;
-        Tracks = tracks;
-    }
-
-    public void UpdateTracks(IEnumerable<Track> tracks)
-    {
-        Tracks = Tracks.Concat(tracks);
+        Name = name;
+        ProfileImageURL = profileImageURL;
     }
 }
