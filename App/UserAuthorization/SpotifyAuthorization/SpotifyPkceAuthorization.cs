@@ -12,7 +12,7 @@ public static class SpotifyPkceAuthorization
     private static readonly string ClientId = SpotifyApi.ClientId;
     private static string RedirectUri = "syncly-auth://callback";
     private static string AuthorizeUrl = "https://accounts.spotify.com/authorize";
-    private static string Scope = "user-read-private user-read-email user-top-read";
+    private static string Scope = "user-read-private user-read-email user-top-read user-read-playback-state";
 
     public static async Task<AuthorizationPkceResponse> AuthorizeWithPkceAsync()
     {
