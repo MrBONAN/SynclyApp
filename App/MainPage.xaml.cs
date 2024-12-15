@@ -74,7 +74,7 @@ public partial class MainPage : ContentPage
     {
         var token = await SpotifyAccessToken.Get();
         var topTracks = await SpotifyApi.GetUserTopItemsAsync<Track>(token.Value!);
-        if (topTracks?.Result is not ApiResult.Success) return;
+        if (topTracks.Result is not ApiResult.Success) return;
         await Application.Current.MainPage?.DisplayAlert("Топ треков",
             String.Join("\n", topTracks.Data!.Select((track, i) => $"{i + 1}: {track.Name}")),
             "OK")!;
@@ -84,7 +84,7 @@ public partial class MainPage : ContentPage
     {
         var token = await SpotifyAccessToken.Get();
         var topArtists = await SpotifyApi.GetUserTopItemsAsync<Artist>(token.Value!);
-        if (topArtists?.Result is not ApiResult.Success) return;
+        if (topArtists.Result is not ApiResult.Success) return;
         await Application.Current.MainPage?.DisplayAlert("Топ артистов",
             String.Join("\n", topArtists.Data!.Select((artist, i) => $"{i + 1}: {artist.Name}")),
             "OK")!;
@@ -95,7 +95,7 @@ public partial class MainPage : ContentPage
         var token = await SpotifyAccessToken.Get();
         var severalTracks = await SpotifyApi.GetSeveralEntitiesById<Track>(token.Value!,
             new[] { "26wLOs3ZuHJa2Ihhx6QIE6", "5flerg6aEao2VayZezVlgu", "7LHAKF7pBqHch8o6Yo0ad5"});
-        if (severalTracks?.Result is not ApiResult.Success) return;
+        if (severalTracks.Result is not ApiResult.Success) return;
         await Application.Current.MainPage?.DisplayAlert("Три запрошенных трека",
             String.Join("\n", severalTracks.Data!.Select((track, i) => $"{i + 1}: {track.Name}")),
             "OK")!;
@@ -106,7 +106,7 @@ public partial class MainPage : ContentPage
         var token = await SpotifyAccessToken.Get();
         var severalArtists = await SpotifyApi.GetSeveralEntitiesById<Artist>(token.Value!,
             new[] { "6s22t5Y3prQHyaHWUN1R1C", "6DdeqvIfYu3sH02gdavOu2", "0LcJLqbBmaGUft1e9Mm8HV"});
-        if (severalArtists?.Result is not ApiResult.Success) return;
+        if (severalArtists.Result is not ApiResult.Success) return;
         await Application.Current.MainPage?.DisplayAlert("Три запрошенных артиста",
             String.Join("\n", severalArtists.Data!.Select((artist, i) => $"{i + 1}: {artist.Name}")),
             "OK")!;
@@ -116,7 +116,7 @@ public partial class MainPage : ContentPage
     {
         var token = await SpotifyAccessToken.Get();
         var userProfile = await SpotifyApi.GetUserProfileAsync(token.Value!);
-        if (userProfile?.Result is not ApiResult.Success) return;
+        if (userProfile.Result is not ApiResult.Success) return;
         await Application.Current.MainPage?.DisplayAlert("Данные пользователя",
             $"Id: {userProfile.Data!.Id}, name: {userProfile.Data.DisplayName}",
             "OK")!;

@@ -7,7 +7,7 @@ public static partial class SpotifyApi
 {
     private static RestClient UserProfileClient = new RestClient("https://api.spotify.com/v1/me/");
 
-    public static async Task<SpotifyApiResult<UserProfile>?> GetUserProfileAsync(string accessToken)
+    public static async Task<SpotifyApiResult<UserProfile>> GetUserProfileAsync(string accessToken)
     {
         var request = new RestRequest();
         request.AddHeader("Authorization", $"Bearer {accessToken}");
