@@ -5,6 +5,7 @@ public class Track
     public  string Id { get; private set; }
     public  string Name { get; private set; }
     public  IEnumerable<Artist> Artists { get; private set; }
+    public string ArtistsName => String.Join(", ", Artists.Select(a => a.Name));
     public  Dictionary<MusicServices, string?> Links  { get; private set; } = new()
     {
         {MusicServices.Spotify, null},
@@ -25,7 +26,7 @@ public class Track
     {
         Id = track.Id!;
         Name = track.Name!;
-        Artists = track.Artists.Select(artist => new Artist(artist));
+        Artists = track.Artists?.Where(x => x != null).Select(artist => new Artist(artist)).ToList();
         Links[MusicServices.Spotify] = track.Uri;
         CoverUrl = track.Images.FirstOrDefault()?.Url;
     }

@@ -106,10 +106,11 @@
                 Style="{StaticResource HeaderLabelStyle}"
                 Text="Топ 10 треков"
                 FontSize="24" />
-
+            
+            <ActivityIndicator IsRunning="{Binding IsLoadingTracks}" IsVisible="{Binding IsLoadingTracks}" />
+            
             <ScrollView>
                 <CollectionView ItemsSource="{Binding Tracks}">
-
                     <CollectionView.ItemsLayout>
                         <LinearItemsLayout Orientation="Horizontal" />
                     </CollectionView.ItemsLayout>
@@ -118,7 +119,7 @@
                         <DataTemplate>
                             <HorizontalStackLayout Spacing="10" Padding="10">
                                 <Grid RowSpacing="10">
-
+                                    
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="100" />
                                         <RowDefinition Height="*" />
@@ -129,21 +130,15 @@
                                            HeightRequest="100"
                                            CornerRadius="10"
                                            IsClippedToBounds="True">
-                                        <Image>
+                                        <Image HeightRequest="100"
+                                               WidthRequest="100"
+                                               Aspect="Fill">
                                             <Image.Source>
-                                                <UriImageSource Uri="{Binding Image.Url}" 
-                                                                CachingEnabled="true" 
-                                                                CacheValidity="7.00:00:00" />
+                                                <UriImageSource Uri="{Binding CoverUrl}"
+                                                                CachingEnabled="true"
+                                                                CacheValidity="7.00:00:00"/>
                                             </Image.Source>
                                         </Image>
-                                        
-                                        <!-- <ActivityIndicator IsRunning="True" AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1" AbsoluteLayout.LayoutFlags="PositionProportional"> -->
-                                        <!--     <ActivityIndicator.Triggers> -->
-                                        <!--         <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsImageLoaded}" Value="True"> -->
-                                        <!--             <Setter Property="IsVisible" Value="False" /> -->
-                                        <!--         </DataTrigger> -->
-                                        <!--     </ActivityIndicator.Triggers> -->
-                                        <!-- </ActivityIndicator> -->
                                     </Frame>
 
                                     <StackLayout Grid.Row="1"
@@ -155,7 +150,7 @@
                                                TextColor="White"
                                                FontAttributes="Bold"
                                                WidthRequest="100" />
-                                        <Label Text="{Binding Artists}"
+                                        <Label Text="{Binding ArtistsName}"
                                                LineBreakMode="TailTruncation"
                                                FontSize="14"
                                                TextColor="Gray"
@@ -175,7 +170,9 @@
                 Style="{StaticResource HeaderLabelStyle}"
                 Text="Топ 10 артистов"
                 FontSize="24" />
-
+            
+            <ActivityIndicator IsRunning="{Binding IsLoadingArtists}" IsVisible="{Binding IsLoadingArtists}" />
+            
             <ScrollView>
                 <CollectionView ItemsSource="{Binding Artists}">
 
@@ -188,6 +185,7 @@
                             <HorizontalStackLayout Spacing="10" Padding="10">
                                 <Grid RowSpacing="10">
 
+                                    
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="100" />
                                         <RowDefinition Height="*" />
@@ -198,20 +196,15 @@
                                            HeightRequest="100"
                                            CornerRadius="50"
                                            IsClippedToBounds="True">
-                                        <Image>
+                                        <Image HeightRequest="100"
+                                               WidthRequest="100"
+                                               Aspect="Fill">
                                             <Image.Source>
-                                                <UriImageSource Uri="{Binding Images[0].Url}" 
-                                                                CachingEnabled="true" 
-                                                                CacheValidity="7.00:00:00" />
+                                                <UriImageSource Uri="{Binding ProfileImageURL}"
+                                                                CachingEnabled="true"
+                                                                CacheValidity="01:00:00"/>
                                             </Image.Source>
                                         </Image>
-                                        <!-- <ActivityIndicator IsRunning="True" AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1" AbsoluteLayout.LayoutFlags="PositionProportional"> -->
-                                        <!--     <ActivityIndicator.Triggers> -->
-                                        <!--         <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsImageLoaded}" Value="True"> -->
-                                        <!--             <Setter Property="IsVisible" Value="False" /> -->
-                                        <!--         </DataTrigger> -->
-                                        <!--     </ActivityIndicator.Triggers> -->
-                                        <!-- </ActivityIndicator> -->
                                     </Frame>
 
                                     <StackLayout Grid.Row="1"

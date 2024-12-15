@@ -24,7 +24,7 @@ public class Artist
     {
         Id = artist.Id;
         Name = artist.Name;
-        ProfileImageURL = artist.Images.FirstOrDefault()?.Url;
+        ProfileImageURL = artist.Images != null ? artist.Images.FirstOrDefault()?.Url : null;
         Links[MusicServices.Spotify] = artist.Uri;
         Genres = artist.Genres;
     }
