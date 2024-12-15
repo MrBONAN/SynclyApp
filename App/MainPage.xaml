@@ -5,7 +5,7 @@
 
     <ScrollView>
         <VerticalStackLayout
-            Padding="30,0"
+            Padding="30,50"
             Spacing="25">
             <Button
                 x:Name="LogInBtn"
@@ -14,7 +14,7 @@
                 Clicked="Authenticate"
                 HorizontalOptions="Fill" />
             
-            <Button
+            <!-- <Button
                 x:Name="SearchBtn"
                 Text="Найти трек" 
                 SemanticProperties.Hint="Search track button"
@@ -47,7 +47,7 @@
                 Text="Удалить токен из памяти" 
                 SemanticProperties.Hint="Delete user access token"
                 Clicked="LogOut"
-                HorizontalOptions="Fill" />
+                HorizontalOptions="Fill" /> -->
         </VerticalStackLayout>
     </ScrollView>
 

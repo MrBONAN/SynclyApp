@@ -1,7 +1,11 @@
 using System.Collections.ObjectModel;
+using App.UserAuthorization.SpotifyAuthorization;
+using App.UserAuthorization.SpotifyAuthorization.Models;
 using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Core.Extensions;
 using The49.Maui.BottomSheet;
 using CommunityToolkit.Maui.Views;
+using Domain;
 using Infrastructure.API.SpotifyAPI;
 
 namespace ProfileBottomSheet;
@@ -22,33 +26,33 @@ public class ProfileBottomSheetViewModel
 
     public ProfileBottomSheetViewModel()
     {
-        Tracks = new ObservableCollection<Track>
+        var accessToken = SpotifyAccessToken.Get().Result;
+        if (accessToken.Result != AccessTokenResult.Success)
         {
-            new Track { Title = "Smells Like Teen Spirit", Artist = "Nirvana", AlbumCover = "nirvana_cover.jpg" },
-            new Track { Title = "Тесно", Artist = "BUSHIDO ZHO" },
-            new Track { Title = "Тесно", Artist = "BUSHIDO ZHO" },
-            new Track { Title = "Мяу", Artist = "Heronwater" }
-        };
-        
-        Artists = new ObservableCollection<Artist>
+            throw new InvalidOperationException("Unable to get access token");
+        }
+
+        var result = Task.Run(() => SpotifyApi.GetUserTopItemsAsync<Track>(accessToken.Value)).Result;
+        if (result.Result is not ApiResult.Success)
         {
-            new Artist { Name = "Nirvana" },
-            new Artist { Name = "BUSHIDO ZHO" },
-            new Artist { Name = "Heronwater" },
-            new Artist { Name = "FORTUNA 812" }
-        };
+            Application.Current?.MainPage?.DisplayAlert("Пиздец", $"Ну что за хуйня\n{result.Response.Content}", "ОК");
+        }
+
+        Artists = Task.Run(() => SpotifyApi
+                .GetUserTopItemsAsync<Artist>(accessToken.Value)
+            ).Result
+            .Data
+            .ToObservableCollection();
     }
-}
 
-public class Track
-{
-    public string Title { get; set; }
-    public string Artist { get; set; }
-    public string AlbumCover { get; set; }
-}
-
-public class Artist
-{
-    public string Name { get; set; }
-    public string Cover { get; set; }
+    private async void GetTopTracks<T>()
+        where T : Track
+    {
+        var token = await SpotifyAccessToken.Get();
+        var topTracks = await SpotifyApi.GetUserTopItemsAsync<T>(token.Value!);
+        if (!(topTracks?.Result is ApiResult.Success)) return;
+        await Application.Current.MainPage?.DisplayAlert("Топ треков",
+            String.Join("\n", topTracks.Data!.Select((track, i) => $"{i + 1}: {track.Name}")),
+            "OK")!;
+    }
 }

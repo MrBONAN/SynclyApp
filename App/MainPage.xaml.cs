@@ -18,6 +18,11 @@ public partial class MainPage : ContentPage
     private async void Authenticate(object sender, EventArgs e)
     {
         var logInResult = await SpotifyAuthManager.LogIn();
+        if (logInResult == LogInResult.Success)
+        {
+            Application.Current.MainPage = new Map();
+        }
+            
         await Application.Current?.MainPage?.DisplayAlert("Результат входа", logInResult.ToString(), "ОК")!;
     }
 
