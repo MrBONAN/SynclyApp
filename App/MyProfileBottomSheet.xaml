@@ -129,25 +129,33 @@
                                            HeightRequest="100"
                                            CornerRadius="10"
                                            IsClippedToBounds="True">
-                                        <ActivityIndicator IsRunning="True" AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1" AbsoluteLayout.LayoutFlags="PositionProportional">
-                                            <ActivityIndicator.Triggers>
-                                                <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsImageLoaded}" Value="True">
-                                                    <Setter Property="IsVisible" Value="False" />
-                                                </DataTrigger>
-                                            </ActivityIndicator.Triggers>
-                                        </ActivityIndicator>
+                                        <Image>
+                                            <Image.Source>
+                                                <UriImageSource Uri="{Binding Image.Url}" 
+                                                                CachingEnabled="true" 
+                                                                CacheValidity="7.00:00:00" />
+                                            </Image.Source>
+                                        </Image>
+                                        
+                                        <!-- <ActivityIndicator IsRunning="True" AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1" AbsoluteLayout.LayoutFlags="PositionProportional"> -->
+                                        <!--     <ActivityIndicator.Triggers> -->
+                                        <!--         <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsImageLoaded}" Value="True"> -->
+                                        <!--             <Setter Property="IsVisible" Value="False" /> -->
+                                        <!--         </DataTrigger> -->
+                                        <!--     </ActivityIndicator.Triggers> -->
+                                        <!-- </ActivityIndicator> -->
                                     </Frame>
 
                                     <StackLayout Grid.Row="1"
                                                  Spacing="5"
                                                  VerticalOptions="Center">
-                                        <Label Text="{Binding Title}"
+                                        <Label Text="{Binding Name}"
                                                LineBreakMode="TailTruncation"
                                                FontSize="16"
                                                TextColor="White"
                                                FontAttributes="Bold"
                                                WidthRequest="100" />
-                                        <Label Text="{Binding Artist}"
+                                        <Label Text="{Binding Artists}"
                                                LineBreakMode="TailTruncation"
                                                FontSize="14"
                                                TextColor="Gray"
@@ -190,13 +198,20 @@
                                            HeightRequest="100"
                                            CornerRadius="50"
                                            IsClippedToBounds="True">
-                                        <ActivityIndicator IsRunning="True" AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1" AbsoluteLayout.LayoutFlags="PositionProportional">
-                                            <ActivityIndicator.Triggers>
-                                                <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsImageLoaded}" Value="True">
-                                                    <Setter Property="IsVisible" Value="False" />
-                                                </DataTrigger>
-                                            </ActivityIndicator.Triggers>
-                                        </ActivityIndicator>
+                                        <Image>
+                                            <Image.Source>
+                                                <UriImageSource Uri="{Binding Images[0].Url}" 
+                                                                CachingEnabled="true" 
+                                                                CacheValidity="7.00:00:00" />
+                                            </Image.Source>
+                                        </Image>
+                                        <!-- <ActivityIndicator IsRunning="True" AbsoluteLayout.LayoutBounds="0.5,0.5,-1,-1" AbsoluteLayout.LayoutFlags="PositionProportional"> -->
+                                        <!--     <ActivityIndicator.Triggers> -->
+                                        <!--         <DataTrigger TargetType="ActivityIndicator" Binding="{Binding IsImageLoaded}" Value="True"> -->
+                                        <!--             <Setter Property="IsVisible" Value="False" /> -->
+                                        <!--         </DataTrigger> -->
+                                        <!--     </ActivityIndicator.Triggers> -->
+                                        <!-- </ActivityIndicator> -->
                                     </Frame>
 
                                     <StackLayout Grid.Row="1"

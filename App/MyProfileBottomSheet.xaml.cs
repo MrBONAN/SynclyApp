@@ -5,8 +5,8 @@ using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Core.Extensions;
 using The49.Maui.BottomSheet;
 using CommunityToolkit.Maui.Views;
-using Domain;
 using Infrastructure.API.SpotifyAPI;
+using Infrastructure.API.SpotifyAPI.Models;
 
 namespace ProfileBottomSheet;
 
@@ -21,38 +21,20 @@ public partial class Sheet : BottomSheet
 
 public class ProfileBottomSheetViewModel
 {
-    public ObservableCollection<Track> Tracks { get; set; }
-    public ObservableCollection<Artist> Artists { get; set; }
+    public ObservableCollection<Track>? Tracks { get; set; }
+    public ObservableCollection<Artist>? Artists { get; set; }
 
     public ProfileBottomSheetViewModel()
     {
-        var accessToken = SpotifyAccessToken.Get().Result;
-        if (accessToken.Result != AccessTokenResult.Success)
-        {
-            throw new InvalidOperationException("Unable to get access token");
-        }
-
-        var result = Task.Run(() => SpotifyApi.GetUserTopItemsAsync<Track>(accessToken.Value)).Result;
-        if (result.Result is not ApiResult.Success)
-        {
-            Application.Current?.MainPage?.DisplayAlert("Пиздец", $"Ну что за хуйня\n{result.Response.Content}", "ОК");
-        }
-
-        Artists = Task.Run(() => SpotifyApi
-                .GetUserTopItemsAsync<Artist>(accessToken.Value)
-            ).Result
-            .Data
-            .ToObservableCollection();
+        Tracks = Task.Run(GetTop<Track>).Result;
+        Artists = Task.Run(GetTop<Artist>).Result;
     }
 
-    private async void GetTopTracks<T>()
-        where T : Track
+    private async Task<ObservableCollection<T>?> GetTop<T>()
+        where T : class
     {
         var token = await SpotifyAccessToken.Get();
-        var topTracks = await SpotifyApi.GetUserTopItemsAsync<T>(token.Value!);
-        if (!(topTracks?.Result is ApiResult.Success)) return;
-        await Application.Current.MainPage?.DisplayAlert("Топ треков",
-            String.Join("\n", topTracks.Data!.Select((track, i) => $"{i + 1}: {track.Name}")),
-            "OK")!;
+        var top = await SpotifyApi.GetUserTopItemsAsync<T>(token.Value!);
+        return top?.Result is not ApiResult.Success ? null : top.Data.ToObservableCollection();
     }
 }
