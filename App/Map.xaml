@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="App.Map"
+             Title="Map View"
+             Shell.NavBarIsVisible="false"
+             Padding="0">
+
+    <AbsoluteLayout>
+        <WebView x:Name="LeafletWebView"
+                 Navigated="OnWebViewNavigated"
+                 HorizontalOptions="FillAndExpand"
+                 VerticalOptions="FillAndExpand"
+                 AbsoluteLayout.LayoutBounds="0, 0, 1, 1"
+                 AbsoluteLayout.LayoutFlags="All" />
+
+        <!-- Прямоугольник с градиентом -->
+        <BoxView HorizontalOptions="Fill"
+                 VerticalOptions="Start"
+                 HeightRequest="120"
+                 WidthRequest="1000">
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="White" Offset="0.0" />
+                    <GradientStop Color="Transparent" Offset="1.0" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+
+        <Grid Padding="15, 60, 15,60"
+              AbsoluteLayout.LayoutBounds="0,0,1,1"
+              AbsoluteLayout.LayoutFlags="All">
+            <!-- Заголовок -->
+            <Label x:Name="CurrentTrack"
+                   Text="{Binding TopText}"
+                   FontSize="30"
+                   FontFamily="Roboto"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Start"
+                   VerticalOptions="Start"
+                   Margin="5,0,5,0"
+                   TextColor="Black"
+                   Opacity="0.8"/>
+
+            <!-- Кнопки в правом верхнем углу -->
+            <StackLayout Orientation="Vertical"
+                         HorizontalOptions="End"
+                         VerticalOptions="Start"
+                         Margin="5,5,5,0"
+                         Spacing="10">
+                <Button x:Name="ProfileButton"
+                        ImageSource="profile_icon.png"
+                        BackgroundColor="Black"
+                        Padding="8"
+                        WidthRequest="40"
+                        HeightRequest="40"/>
+
+                <Button x:Name="SettingsButton"
+                        ImageSource="settings_icon.png"
+                        BackgroundColor="Black"
+                        Padding="8"
+                        WidthRequest="40"
+                        HeightRequest="40" />
+            </StackLayout>
+
+            <!-- Кнопка внизу -->
+            <Button x:Name="ActionButton"
+                    ImageSource="soulmates_search_icon.png"
+                    Padding="15"
+                    VerticalOptions="End"
+                    HorizontalOptions="Center"
+                    WidthRequest="70"
+                    HeightRequest="70"
+                    Margin="0,0,0,0"
+                    BackgroundColor="Black"
+                    TextColor="White"
+                    FontAttributes="Bold"/>
+        </Grid>
+    </AbsoluteLayout>
+
+</ContentPage>
