@@ -90,6 +90,28 @@ public partial class MainPage : ContentPage
             "OK")!;
     }
 
+    private async void GetSeveralTracks(object sender, EventArgs e)
+    {
+        var token = await SpotifyAccessToken.Get();
+        var severalTracks = await SpotifyApi.GetSeveralEntitiesById<Track>(token.Value!,
+            new[] { "26wLOs3ZuHJa2Ihhx6QIE6", "5flerg6aEao2VayZezVlgu", "7LHAKF7pBqHch8o6Yo0ad5"});
+        if (severalTracks?.Result is not ApiResult.Success) return;
+        await Application.Current.MainPage?.DisplayAlert("Три запрошенных трека",
+            String.Join("\n", severalTracks.Data!.Select((track, i) => $"{i + 1}: {track.Name}")),
+            "OK")!;
+    }
+    
+    private async void GetSeveralArtists(object sender, EventArgs e)
+    {
+        var token = await SpotifyAccessToken.Get();
+        var severalArtists = await SpotifyApi.GetSeveralEntitiesById<Artist>(token.Value!,
+            new[] { "6s22t5Y3prQHyaHWUN1R1C", "6DdeqvIfYu3sH02gdavOu2", "0LcJLqbBmaGUft1e9Mm8HV"});
+        if (severalArtists?.Result is not ApiResult.Success) return;
+        await Application.Current.MainPage?.DisplayAlert("Три запрошенных артиста",
+            String.Join("\n", severalArtists.Data!.Select((artist, i) => $"{i + 1}: {artist.Name}")),
+            "OK")!;
+    }
+
     private async void GetUserData(object sender, EventArgs e)
     {
         var token = await SpotifyAccessToken.Get();

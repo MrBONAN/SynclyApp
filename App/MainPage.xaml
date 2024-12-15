@@ -35,6 +35,20 @@
                 SemanticProperties.Hint="Get top 10 user artists"
                 Clicked="GetTopArtists"
                 HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="SeveralTracksBtn"
+                Text="Получить несколько треков по Id"
+                SemanticProperties.Hint="Get several tracks by id"
+                Clicked="GetSeveralTracks"
+                HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="SeveralArtistsBtn"
+                Text="Получить несколько артистов по Id"
+                SemanticProperties.Hint="Get several artists by id"
+                Clicked="GetSeveralArtists"
+                HorizontalOptions="Fill" />
 
             <Button
                 x:Name="UserProfileBtn"
