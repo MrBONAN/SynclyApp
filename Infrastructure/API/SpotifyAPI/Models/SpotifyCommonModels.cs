@@ -1,13 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Infrastructure.API.SpotifyAPI;
-
-public class AccessToken
-{
-    [JsonPropertyName("access_token")] public string? TokenValue { get; set; }
-    [JsonPropertyName("token_type")] public string? TokenType { get; set; }
-    [JsonPropertyName("expires_in")] public int ExpiresIn { get; set; }
-}
+namespace Infrastructure.API.SpotifyAPI.Models;
 
 public class ExternalUrls
 {
@@ -29,6 +22,7 @@ public class Artist
     [JsonPropertyName("name")] public string? Name { get; set; }
     [JsonPropertyName("genres")] public List<string>? Genres { get; set; }
     [JsonPropertyName("images")] public List<Image>? Images { get; set; }
+    [JsonPropertyName("popularity")] public int? Popularity { get; set; }
 }
 
 public class Track
@@ -38,20 +32,5 @@ public class Track
     [JsonPropertyName("id")] public string? Id { get; set; }
     [JsonPropertyName("name")] public string? Name { get; set; }
     [JsonPropertyName("artists")] public List<Artist>? Artists { get; set; }
-}
-
-public class TracksSearchResponse
-{
-    [JsonPropertyName("items")] public List<Track>? Items { get; set; }
-}
-
-public class ArtistsSearchResponse
-{
-    [JsonPropertyName("items")] public List<Artist>? Items { get; set; }
-}
-
-public class SearchResponse
-{
-    [JsonPropertyName("tracks")] public TracksSearchResponse? Tracks { get; set; }
-    [JsonPropertyName("artists")] public ArtistsSearchResponse? Artists { get; set; }
+    [JsonPropertyName("popularity")] public int? Popularity { get; set; }
 }

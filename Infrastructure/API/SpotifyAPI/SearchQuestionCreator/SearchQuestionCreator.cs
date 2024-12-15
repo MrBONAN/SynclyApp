@@ -1,8 +1,9 @@
 using RestSharp;
+using Infrastructure.API.SpotifyAPI.Models;
 
-namespace Infrastructure.API.SpotifyAPI.QuestionCreator;
+namespace Infrastructure.API.SpotifyAPI.SearchQuestionCreator;
 
-public class QuestionCreator : IAddQuestionStage, IAddAccessTokenStage, IAddSettingsStage
+public class SearchQuestionCreator : IAddQuestionStage, IAddAccessTokenStage, IAddSettingsStage
 {
     private string AccessToken { get; set; } = "";
     private string Question { get; set; } = "";
@@ -11,21 +12,21 @@ public class QuestionCreator : IAddQuestionStage, IAddAccessTokenStage, IAddSett
     private int QuestionLimit { get; set; } = 20;
     private int QuestionOffset { get; set; }
 
-    public IAddAccessTokenStage AddQuestion(string question)
-    {
-        Question = question;
-        return this;
-    }
-
-    public IAddSettingsStage AddAccessToken(string accessToken)
+    public IAddQuestionStage AddAccessToken(string accessToken)
     {
         AccessToken = accessToken;
         return this;
     }
 
-    public IAddSettingsStage AddAccessToken(AccessToken accessToken)
+    public IAddQuestionStage AddAccessToken(AccessToken accessToken)
     {
         AccessToken = accessToken.TokenValue ?? throw new NullReferenceException("AccessToken without token");
+        return this;
+    }
+
+    public IAddSettingsStage AddQuestion(string question)
+    {
+        Question = question;
         return this;
     }
 
