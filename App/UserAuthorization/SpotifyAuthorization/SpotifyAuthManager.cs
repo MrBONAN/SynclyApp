@@ -30,5 +30,6 @@ public static class SpotifyAuthManager
     {
         var jsonAccessToken = JsonSerializer.Serialize(accessToken);
         await SecureStorage.Default.SetAsync("spotify_token", jsonAccessToken);
+        await SpotifyAccessToken.Get();
     }
 }

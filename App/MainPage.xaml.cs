@@ -79,7 +79,7 @@ public partial class MainPage : ContentPage
     {
         var token = await SpotifyAccessToken.Get();
         var topTracks = await SpotifyApi.GetUserTopItemsAsync<Track>(token.Value!);
-        if (!(topTracks?.Result is ApiResult.Success)) return;
+        if (topTracks?.Result is not ApiResult.Success) return;
         await Application.Current.MainPage?.DisplayAlert("Топ треков",
             String.Join("\n", topTracks.Data!.Select((track, i) => $"{i + 1}: {track.Name}")),
             "OK")!;
@@ -89,7 +89,7 @@ public partial class MainPage : ContentPage
     {
         var token = await SpotifyAccessToken.Get();
         var topArtists = await SpotifyApi.GetUserTopItemsAsync<Artist>(token.Value!);
-        if (!(topArtists?.Result is ApiResult.Success)) return;
+        if (topArtists?.Result is not ApiResult.Success) return;
         await Application.Current.MainPage?.DisplayAlert("Топ артистов",
             String.Join("\n", topArtists.Data!.Select((artist, i) => $"{i + 1}: {artist.Name}")),
             "OK")!;
@@ -99,9 +99,19 @@ public partial class MainPage : ContentPage
     {
         var token = await SpotifyAccessToken.Get();
         var userProfile = await SpotifyApi.GetUserProfileAsync(token.Value!);
-        if (!(userProfile?.Result is ApiResult.Success)) return;
+        if (userProfile?.Result is not ApiResult.Success) return;
         await Application.Current.MainPage?.DisplayAlert("Данные пользователя",
             $"Id: {userProfile.Data!.Id}, name: {userProfile.Data.DisplayName}",
+            "OK")!;
+    }
+
+    private async void GetCurrentTrack(object sender, EventArgs e)
+    {
+        var token = await SpotifyAccessToken.Get();
+        var currentTrack = await SpotifyApi.GetCurrentTrackAsync(token.Value!);
+        if (currentTrack.Result is not ApiResult.Success) return;
+        await Application.Current.MainPage?.DisplayAlert("Текущий трек",
+            $"Name: {currentTrack.Data!.Name}",
             "OK")!;
     }
 

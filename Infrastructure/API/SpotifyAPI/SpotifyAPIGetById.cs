@@ -9,7 +9,7 @@ public static partial class SpotifyApi
         var request = new RestRequest($"/{id}");
         request.AddHeader("Authorization", $"Bearer {accessToken}");
 
-        var response = await TopItemsClient.ExecuteGetAsync<T>(request);
+        var response = await UserProfileClient.ExecuteGetAsync<T>(request);
 
         if (response.IsSuccessful && response.Data != null)
             return new SpotifyApiResult<T>(ApiResult.Success, response.Data, response);
