@@ -2,19 +2,31 @@ namespace Domain;
 
 public class Artist
 {
-    public readonly string Id;
-    public IEnumerable<Track> Tracks { get; set; }
-    public readonly string PhotoPath;
+    public readonly string? Id;
+    public readonly string? Name;
+    public readonly List<string>? Genres;
+    public readonly string? ProfileImageURL;
+    public readonly Dictionary<MusicServices, string?> Links = new()
+    {
+        {MusicServices.Spotify, null},
+        {MusicServices.YandexMusic, null}
+    };
 
-    public Artist(string id, string photoPath, IEnumerable<Track> tracks)
+    public Artist(string? id, string? profileImageURL, string? name)
     {
         Id = id;
-        PhotoPath = photoPath;
-        Tracks = tracks;
+        Name = name;
+        ProfileImageURL = profileImageURL;
     }
-
-    public void UpdateTracks(IEnumerable<Track> tracks)
+    
+    public Artist(Infrastructure.API.SpotifyAPI.Models.Artist artist)
     {
-        Tracks = Tracks.Concat(tracks);
+        Id = artist.Id;
+        Name = artist.Name;
+        ProfileImageURL = artist.Images.FirstOrDefault()?.Url;
+        Links[MusicServices.Spotify] = artist.Uri;
+        Genres = artist.Genres;
     }
+    
+    public string ToString() => Name;
 }
