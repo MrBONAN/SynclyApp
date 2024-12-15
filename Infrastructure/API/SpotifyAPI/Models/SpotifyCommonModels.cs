@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Infrastructure.API.SpotifyAPI.Models;
 
@@ -9,7 +10,7 @@ public class ExternalUrls
 
 public class Image
 {
-    [JsonPropertyName("uri")] public string? Url { get; set; }
+    [JsonPropertyName("url")] public string? Url { get; set; }
     [JsonPropertyName("height")] public int Height { get; set; }
     [JsonPropertyName("width")] public int Width { get; set; }
 }
@@ -33,4 +34,17 @@ public class Track
     [JsonPropertyName("name")] public string? Name { get; set; }
     [JsonPropertyName("artists")] public List<Artist>? Artists { get; set; }
     [JsonPropertyName("popularity")] public int? Popularity { get; set; }
+    
+    [JsonIgnore] public List<Image>? Images { get; set; }
+
+    [JsonInclude]
+    [JsonPropertyName("album")]
+    private JsonElement Album 
+    {
+        set
+        {
+            if (value.TryGetProperty("images", out var images))
+                Images = JsonSerializer.Deserialize<List<Image>>(images);
+        }
+    }
 }
