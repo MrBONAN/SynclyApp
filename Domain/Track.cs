@@ -2,15 +2,15 @@ namespace Domain;
 
 public class Track
 {
-    public readonly string Id;
-    public readonly string Name;
-    public readonly IEnumerable<Artist> Artists;
-    public readonly Dictionary<MusicServices, string?> Links = new()
+    public  string Id { get; private set; }
+    public  string Name { get; private set; }
+    public  IEnumerable<Artist> Artists { get; private set; }
+    public  Dictionary<MusicServices, string?> Links  { get; private set; } = new()
     {
         {MusicServices.Spotify, null},
         {MusicServices.YandexMusic, null}
     };
-    public readonly string CoverUrl;
+    public  string CoverUrl { get; private set; }
 
     public Track(string id, string name, List<Artist> artistId, string linkOnPlatform, string coverUrl)
     {
