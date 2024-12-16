@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="App.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30,0"
+            Spacing="25">
+            <Button
+                x:Name="LogInBtn"
+                Text="Войти в Spotify"
+                SemanticProperties.Hint="Log in button"
+                Clicked="Authenticate"
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="SearchBtn"
+                Text="Найти трек"
+                SemanticProperties.Hint="Search track button"
+                Clicked="FindTrack"
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="TopTracksBtn"
+                Text="Получить топ 10 треков пользователя"
+                SemanticProperties.Hint="Get top 10 user tracks"
+                Clicked="GetTopTracks"
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="TopAtristsBtn"
+                Text="Получить топ 10 исполнителей пользователя"
+                SemanticProperties.Hint="Get top 10 user artists"
+                Clicked="GetTopArtists"
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="UserProfileBtn"
+                Text="Получить данные пользователя"
+                SemanticProperties.Hint="Get user profile data"
+                Clicked="GetUserData"
+                HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="CurrentTrackBtn"
+                Text="Получить текущий трек"
+                SemanticProperties.Hint="Get user current track"
+                Clicked="GetCurrentTrack"
+                HorizontalOptions="Fill" />
+
+            <Button
+                x:Name="LogOutBtn"
+                Text="Удалить токен из памяти"
+                SemanticProperties.Hint="Delete user access token"
+                Clicked="LogOut"
+                HorizontalOptions="Fill" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
