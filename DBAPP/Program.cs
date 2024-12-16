@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.SqlClient;
 
 class Program
 {
@@ -8,37 +7,34 @@ class Program
         // Строка подключения к базе данных
         string connectionString = "Server=localhost\\SQLEXPRESS;Database=MusicAppDB;Integrated Security=True;";
 
-        // SQL-запрос для добавления записи в таблицу user_data
-        string insertRecord = @"
-            INSERT INTO user_data (username, email, password) 
-            VALUES (@username, @email, @password);
-        ";
+        // Создаём экземпляр класса UserCreator
+        var userCreator = new UserCreator(connectionString);
 
-        // Добавляем запись
-        try
-        {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand(insertRecord, connection))
-                {
-                    // Добавляем параметры для безопасности
-                    for (var i = 0; i < 100; i++)
-                    {
-                        
-                    }
-                    command.Parameters.AddWithValue("@username", "test_user2");
-                    command.Parameters.AddWithValue("@email", "test2@example.com");
-                    command.Parameters.AddWithValue("@password", "2securepassword123");
+        // Добавляем пользователя с идентификатором изображения
+        userCreator.AddUser(
+            username: "NewUser1",
+            pfpId: "img_123", // Условный ID изображения
+            lastLog: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            location: "SomeLocation",
+            lastTrack: 1,
+            topArtists: "1,2,3,4,5",
+            topTracks: "10,11,12,13,14",
+            recentTracks: "10,11,12,13,14",
+            links: "https://t.me/newuser1",
+            friends: "2,3"
+        );
 
-                    int rowsAffected = command.ExecuteNonQuery();
-                    Console.WriteLine($"Record inserted successfully. Rows affected: {rowsAffected}");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-        }
+        userCreator.AddUser(
+            username: "NewUser2",
+            pfpId: "img_456", // Условный ID другого изображения
+            lastLog: DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+            location: "AnotherLocation",
+            lastTrack: 2,
+            topArtists: "6,7,8,9,10",
+            topTracks: "15,16,17,18,19",
+            recentTracks: "15,16,17,18,19",
+            links: "https://t.me/newuser2",
+            friends: "1,4"
+        );
     }
 }
