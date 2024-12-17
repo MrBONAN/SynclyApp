@@ -11,4 +11,55 @@
       <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="..\Domain\Domain.csproj">
+        <Link>Domain\Domain.csproj</Link>
+      </Content>
+      <Content Include="..\Domain\obj\Domain.csproj.nuget.dgspec.json">
+        <Link>Domain\obj\Domain.csproj.nuget.dgspec.json</Link>
+      </Content>
+      <Content Include="..\Domain\obj\Domain.csproj.nuget.g.props">
+        <Link>Domain\obj\Domain.csproj.nuget.g.props</Link>
+      </Content>
+      <Content Include="..\Domain\obj\Domain.csproj.nuget.g.targets">
+        <Link>Domain\obj\Domain.csproj.nuget.g.targets</Link>
+      </Content>
+      <Content Include="..\Domain\obj\project.assets.json">
+        <Link>Domain\obj\project.assets.json</Link>
+      </Content>
+      <Content Include="..\Domain\obj\project.nuget.cache">
+        <Link>Domain\obj\project.nuget.cache</Link>
+      </Content>
+      <Content Include="..\Domain\obj\project.packagespec.json">
+        <Link>Domain\obj\project.packagespec.json</Link>
+      </Content>
+      <Content Include="..\Domain\obj\rider.project.model.nuget.info">
+        <Link>Domain\obj\rider.project.model.nuget.info</Link>
+      </Content>
+      <Content Include="..\Domain\obj\rider.project.restore.info">
+        <Link>Domain\obj\rider.project.restore.info</Link>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="..\Domain\Artist.cs">
+        <Link>Domain\Artist.cs</Link>
+      </Compile>
+      <Compile Include="..\Domain\Location.cs">
+        <Link>Domain\Location.cs</Link>
+      </Compile>
+      <Compile Include="..\Domain\MusicServices.cs">
+        <Link>Domain\MusicServices.cs</Link>
+      </Compile>
+      <Compile Include="..\Domain\Region.cs">
+        <Link>Domain\Region.cs</Link>
+      </Compile>
+      <Compile Include="..\Domain\Track.cs">
+        <Link>Domain\Track.cs</Link>
+      </Compile>
+      <Compile Include="..\Domain\User.cs">
+        <Link>Domain\User.cs</Link>
+      </Compile>
+    </ItemGroup>
+
 </Project>
