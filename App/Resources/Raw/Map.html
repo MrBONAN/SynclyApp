@@ -19,12 +19,12 @@
             margin: 0;    /* Убирает зазоры между тайлами */
             padding: 0;
         }
-        
+
         #map {
             height: 100vh;
             width: 100%;
         }
-        
+
         /* Стиль для модального окна */
         #userProfileModal {
             position: fixed;
@@ -147,6 +147,7 @@
 <body>
 <div id="map"></div>
 
+
 <!-- Модальное окно с профилем -->
 <div id="modalOverlay"></div>
 <div id="userProfileModal">
@@ -156,7 +157,7 @@
     <!-- Добавьте сюда дополнительные данные о пользователе -->
 </div>
 
-<script>    
+<script>
     const map = L.map('map', {
         center: [56.83793, 60.65957],
         zoom: 13,
@@ -176,9 +177,9 @@
     });
 
     googleSatellite.addTo(map);
-    
+
     const markers = {};
-    
+
     /**
      * Функция для перемещения карты по заданным координатам и уровню зума
      * @param {number} latitude
@@ -239,7 +240,6 @@
      */
     function addCircle(latitude, longitude, radius) {
         removeCircle();
-        
 
         userCircle = L.circle([latitude, longitude], {
             color: 'blue',
@@ -259,30 +259,41 @@
         }
     }
 
+    let port = 6000;
+    function setPort(_port){
+        port = _port;
+        alert('Port set to: ' + port);
+    }
+
     /**
      * Функция открытия профиля на карте
      * @param {string} id
      */
-
-    /**function openUserProfile(id) {
-        if (window.csharpHandler) {
-            window.csharpHandler.invokeAction(id);
-        }
-    }**/
     function openUserProfile(id) {
-        document.getElementById('modalOverlay').style.display = 'block';
-        document.getElementById('userProfileModal').style.display = 'block';
-
-        // Отображаем ID в окне профиля
-        document.getElementById('userId').textContent = id;
+        sendMessageToServer(`[RUN]OpenUserProfile(${id})`);
     }
 
     /**
      * Функция закрытия модального окна профиля
      */
     function closeUserProfile() {
-        document.getElementById('modalOverlay').style.display = 'none';
-        document.getElementById('userProfileModal').style.display = 'none';
+        sendMessageToServer(`[RUN]CloseUserProfile(${id})`);
+    }
+    
+    function sendMessageToServer(message){
+        fetch(`http://localhost:6005/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: message
+        })
+            .then(response => response.text())
+            .then(data => console.log('Получен ответ:', data))
+            .catch(error => {
+                alert(error)
+                process.exit(1);
+            });
     }
 </script>
 </body>

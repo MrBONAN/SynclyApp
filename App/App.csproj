@@ -71,12 +71,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <MauiXaml Update="MapPage.xaml">
-        <SubType>Designer</SubType>
-      </MauiXaml>
-    </ItemGroup>
-
-    <ItemGroup>
       <Folder Include="Resources\Icons\" />
     </ItemGroup>
 

@@ -3,19 +3,22 @@ using Domain;
 using App.Infrastructure;
 using CommunityToolkit.Maui.Core.Views;
 using CommunityToolkit.Maui.Views;
+using Infrastructure;
 using Infrastructure.API.SpotifyAPI;
 using Microsoft.Maui.Controls;
 using ProfileBottomSheet;
 using The49.Maui.BottomSheet;
 namespace App;
 
-public partial class Map : ContentPage, INotifyPropertyChanged
+public partial class Map : ContentPage
 {
     private bool _isCheckingLocation;
     private UserInformation _userInformation;
     private MapLocation _cachedLocation;
     private MapCommands _mapControl;
     private DefaultSettings _defaultSettings;
+    private SimpleServer _localServer;
+    private PortChecker _portChecker;
 
     private CancellationTokenSource _cancelTokenSource;
     private string _topText = "None";
@@ -40,33 +43,27 @@ public partial class Map : ContentPage, INotifyPropertyChanged
         ProfileButton.Clicked += OnProfileButtonClicked;
         SettingsButton.Clicked += OnSettingsButtonClicked;
         ActionButton.Clicked += OnClickedMoveToMyLocation;
-        // GetCurrentLocation().RunSynchronously();
-        // _jsBridge = new JSBridge();
-        // _jsBridge.ProfileClicked += OnProfileButtonClicked;
     }
     
     private async void InitializeFields()
     {
-        _mapControl = new MapCommands(LeafletWebView);
+        _portChecker = new PortChecker();
+        Console.WriteLine($"Using port: {_portChecker.GetFreePort()}");
+        
+        _mapControl = new MapCommands(LeafletWebView, _portChecker);
         _userInformation = new UserInformation();
         _defaultSettings = new DefaultSettings();
+        _localServer = new SimpleServer(_portChecker);
+        _localServer.Start();
+        _localServer.AddHandler("OpenUserProfile", OnProfileButtonClicked);
         _cachedLocation = new MapLocation(_userInformation.GetCurrentLocation);
         var htmlContent = _defaultSettings.GetMapHtml();
         _mapControl.SetMapHtml(htmlContent);
+        _mapControl.SetPort();
     }
 
-    protected async override void OnAppearing()
-    {
-        base.OnAppearing();
-
-        using var stream = await FileSystem.OpenAppPackageFileAsync("Map.html");
-        using var reader = new StreamReader(stream);
-        var htmlContent = reader.ReadToEnd();
-        LeafletWebView.Source = new HtmlWebViewSource
-        {
-            Html = htmlContent
-        };
-    }
+    protected async override void OnAppearing() => base.OnAppearing();
+    
 
     public async Task GetCurrentLocation()
     {
@@ -98,6 +95,7 @@ public partial class Map : ContentPage, INotifyPropertyChanged
             try
             {
                 _isCheckingLocation = true;
+                ShowProfileOnMap(1);
                 _mapControl.MoveMapTo(await _cachedLocation.GetLocationAsync());
                 _mapControl.AddCircle(await _cachedLocation.GetLocationAsync(), 2000);
             }
@@ -147,10 +145,12 @@ public partial class Map : ContentPage, INotifyPropertyChanged
 public class MapCommands
 {
     private readonly WebView _leafletWebView;
+    private readonly PortChecker _portChecker;
 
-    public MapCommands(WebView webView)
+    public MapCommands(WebView webView, PortChecker portChecker)
     {
         _leafletWebView = webView;
+        _portChecker = portChecker;
     }
 
     public void SetMapHtml(string htmlContent)
@@ -172,8 +172,7 @@ public class MapCommands
         var jsCode = $"addCircle({location.Latitude}, {location.Longitude}, {radius});";
         _leafletWebView.Eval(MapService.FormatJsCodeWithInvariantCulture(jsCode));
     }
-
-    //ToDo: Я хз какой путь тут стоит указывать и как оно относится к БД
+    
     public void AddMarkerWithLocalImage(Location location, string imagePath, int id, string onClickFunc)
     {
         string onClickJs = $"function() {{ {onClickFunc}('{id}'); }}";
@@ -188,6 +187,22 @@ public class MapCommands
         _leafletWebView.Eval(jsCode);
     }
 
+    public void OpenUserProfile()
+    {
+        
+    }
+
+    public void CloseUserProfile()
+    {
+        
+    }
+
+    public void SetPort()
+    {
+        var port = _portChecker.GetFreePort();
+        var jsCode = $"setPort({port});";
+        _leafletWebView.Eval(MapService.FormatJsCodeWithInvariantCulture(jsCode));
+    }
 
 }
 
