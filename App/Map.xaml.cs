@@ -37,6 +37,7 @@ public partial class Map : ContentPage
     public Map()
     {
         InitializeComponent();
+        StartServer();
         InitializeFields();
         HandleXamlButtons();
     }
@@ -56,9 +57,7 @@ public partial class Map : ContentPage
         _mapControl = new MapCommands(LeafletWebView);
         _mapControl.SetMapHtml(_defaultSettings.GetMapHtml());
         _cachedLocation = new MapLocation(_userInformation.GetCurrentLocation);
-        StartServer();
         HandleServerMethods();
-        
     }
 
     private void StopServer() => _localServer.Stop();
@@ -68,7 +67,6 @@ public partial class Map : ContentPage
         _portChecker = new PortChecker();
         _localServer = new SimpleServer(_portChecker);
         _localServer.Start();
-        _mapControl.SetPort(_portChecker);
     }
 
     private void HandleServerMethods()
@@ -88,6 +86,7 @@ public partial class Map : ContentPage
                     "openUserProfile");
                 _mapControl.MoveMapTo(await _cachedLocation.GetLocationAsync());
                 _mapControl.AddCircle(await _cachedLocation.GetLocationAsync(), 2000);
+                _mapControl.SetPort(_portChecker);
             }
             catch (Exception ex)
             {
@@ -104,6 +103,11 @@ public partial class Map : ContentPage
         throw new NotImplementedException();
     }
 
+    private async void OnWebViewNavigated(object sender, EventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+
     private async void OnProfileButtonClicked(object sender, EventArgs e)
     {
         var page = new Sheet();
@@ -112,17 +116,12 @@ public partial class Map : ContentPage
 
     private async void OnSettingsButtonClicked(object sender, EventArgs e)
     {
-       OpenUserProfile(-1);
+        OpenUserProfile(-1);
     }
 
     private void OnBottomButtonClicked(object sender, EventArgs e)
     {
         //OnClickedMoveToMyLocation(sender, e);
-    }
-
-    private void OnWebViewNavigated(object? sender, WebNavigatedEventArgs e)
-    {
-        throw new NotImplementedException();
     }
 
     private async void OpenUserProfile(int id)
