@@ -8,6 +8,7 @@ using Infrastructure.API.SpotifyAPI;
 using Microsoft.Maui.Controls;
 using ProfileBottomSheet;
 using The49.Maui.BottomSheet;
+
 namespace App;
 
 public partial class Map : ContentPage
@@ -20,7 +21,6 @@ public partial class Map : ContentPage
     private SimpleServer _localServer;
     private PortChecker _portChecker;
 
-    private CancellationTokenSource _cancelTokenSource;
     private string _topText = "None";
 
     public string TopText
@@ -38,64 +38,54 @@ public partial class Map : ContentPage
     {
         InitializeComponent();
         InitializeFields();
-        
+        HandleXamlButtons();
+    }
+
+    private void HandleXamlButtons()
+    {
         BindingContext = this;
         ProfileButton.Clicked += OnProfileButtonClicked;
         SettingsButton.Clicked += OnSettingsButtonClicked;
         ActionButton.Clicked += OnClickedMoveToMyLocation;
     }
-    
+
     private async void InitializeFields()
     {
-        _portChecker = new PortChecker();
-        Console.WriteLine($"Using port: {_portChecker.GetFreePort()}");
-        
-        _mapControl = new MapCommands(LeafletWebView, _portChecker);
         _userInformation = new UserInformation();
         _defaultSettings = new DefaultSettings();
+        _mapControl = new MapCommands(LeafletWebView);
+        _mapControl.SetMapHtml(_defaultSettings.GetMapHtml());
+        _cachedLocation = new MapLocation(_userInformation.GetCurrentLocation);
+        StartServer();
+        HandleServerMethods();
+        
+    }
+
+    private void StopServer() => _localServer.Stop();
+
+    private void StartServer()
+    {
+        _portChecker = new PortChecker();
         _localServer = new SimpleServer(_portChecker);
         _localServer.Start();
-        _localServer.AddHandler("OpenUserProfile", OnProfileButtonClicked);
-        _cachedLocation = new MapLocation(_userInformation.GetCurrentLocation);
-        var htmlContent = _defaultSettings.GetMapHtml();
-        _mapControl.SetMapHtml(htmlContent);
-        _mapControl.SetPort();
+        _mapControl.SetPort(_portChecker);
+    }
+
+    private void HandleServerMethods()
+    {
+        _localServer.AddHandler("OpenUserProfile", OnServerProfileRequest);
     }
 
     protected async override void OnAppearing() => base.OnAppearing();
-    
 
-    public async Task GetCurrentLocation()
-    {
-        try
-
-        {
-            _isCheckingLocation = true;
-            GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(5));
-            _cancelTokenSource = new CancellationTokenSource();
-            Location location = await Geolocation.Default.GetLocationAsync(request, _cancelTokenSource.Token);
-
-            if (location != null)
-                DisplayAlert("Success",
-                    $"Широта: {location.Latitude}, Долгота: {location.Longitude}, Altitude: {location.Altitude}", "OK");
-        }
-        catch (Exception ex)
-        {
-            DisplayAlert("Warning", "Location could not be retrieved: " + ex.Message, "OK");
-        }
-        finally
-        {
-            _isCheckingLocation = false;
-        }
-    }
-    
     private async void OnClickedMoveToMyLocation(object sender, EventArgs e)
     {
         if (!_isCheckingLocation)
             try
             {
                 _isCheckingLocation = true;
-                ShowProfileOnMap(1);
+                _mapControl.AddMarkerWithLocalImage(await _cachedLocation.GetLocationAsync(), "image.jpg", 1,
+                    "openUserProfile");
                 _mapControl.MoveMapTo(await _cachedLocation.GetLocationAsync());
                 _mapControl.AddCircle(await _cachedLocation.GetLocationAsync(), 2000);
             }
@@ -109,28 +99,22 @@ public partial class Map : ContentPage
             }
     }
 
-    private async void ShowProfileOnMap(int id)
-    {
-        _mapControl.AddMarkerWithLocalImage(await _cachedLocation.GetLocationAsync(), "image.jpg", id, "openUserProfile");
-    }
-    
     private async Task<string> UpdateTopText(string text)
     {
         throw new NotImplementedException();
     }
-    
+
     private async void OnProfileButtonClicked(object sender, EventArgs e)
     {
         var page = new Sheet();
         await page.ShowAsync();
     }
-    
+
     private async void OnSettingsButtonClicked(object sender, EventArgs e)
     {
-        var page = new Settings();
-        await page.ShowAsync();
+       OpenUserProfile(-1);
     }
-    
+
     private void OnBottomButtonClicked(object sender, EventArgs e)
     {
         //OnClickedMoveToMyLocation(sender, e);
@@ -140,105 +124,20 @@ public partial class Map : ContentPage
     {
         throw new NotImplementedException();
     }
-}
 
-public class MapCommands
-{
-    private readonly WebView _leafletWebView;
-    private readonly PortChecker _portChecker;
-
-    public MapCommands(WebView webView, PortChecker portChecker)
+    private async void OpenUserProfile(int id)
     {
-        _leafletWebView = webView;
-        _portChecker = portChecker;
+        var page = new Sheet();
+        await page.ShowAsync();
     }
 
-    public void SetMapHtml(string htmlContent)
+    private async void OnServerProfileRequest(object sender, EventArgs e)
     {
-        _leafletWebView.Source = new HtmlWebViewSource
+        if (e is ProfileEventArgs)
         {
-            Html = htmlContent
-        };
-    }
-
-    public void MoveMapTo(Location location)
-    {
-        var jsCode = $"moveMap({location.Latitude}, {location.Longitude}, {12});";
-        _leafletWebView.Eval(MapService.FormatJsCodeWithInvariantCulture(jsCode));
-    }
-
-    public void AddCircle(Location location, double radius)
-    {
-        var jsCode = $"addCircle({location.Latitude}, {location.Longitude}, {radius});";
-        _leafletWebView.Eval(MapService.FormatJsCodeWithInvariantCulture(jsCode));
-    }
-    
-    public void AddMarkerWithLocalImage(Location location, string imagePath, int id, string onClickFunc)
-    {
-        string onClickJs = $"function() {{ {onClickFunc}('{id}'); }}";
-        var jsCode = $@"
-        addUserMarker(
-            {location.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 
-            {location.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 
-            '{imagePath}', 
-            {id}, 
-            {onClickJs}
-        );";
-        _leafletWebView.Eval(jsCode);
-    }
-
-    public void OpenUserProfile()
-    {
-        
-    }
-
-    public void CloseUserProfile()
-    {
-        
-    }
-
-    public void SetPort()
-    {
-        var port = _portChecker.GetFreePort();
-        var jsCode = $"setPort({port});";
-        _leafletWebView.Eval(MapService.FormatJsCodeWithInvariantCulture(jsCode));
-    }
-
-}
-
-public class UserInformation
-{
-    public async Task<Location> GetCurrentLocation()
-    {
-        //var isGranted = PermissionStatus.Unknown;
-        //while (isGranted != PermissionStatus.Granted)
-        //{
-        //    isGranted = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-        //}
-        var cachedLocation = await Geolocation.Default.GetLastKnownLocationAsync();
-        if (cachedLocation != null)
-            return cachedLocation;
-        
-        var request = new GeolocationRequest(GeolocationAccuracy.High, TimeSpan.FromSeconds(10));
-        var cancelTokenSource = new CancellationTokenSource();
-        var newLocation = await Geolocation.Default.GetLocationAsync(request, cancelTokenSource.Token);
-        if (newLocation == null)
-            throw new Exception("fatal error");
-
-        return newLocation;
-    }
-}
-
-public class DefaultSettings
-{
-    private string _mapSource = "Map.html";
-
-    public string GetMapHtml()
-    {
-        using var stream = FileSystem.OpenAppPackageFileAsync(_mapSource).Result;
-        using var reader = new StreamReader(stream);
-
-        var htmlContent = reader.ReadToEndAsync().Result;
-        return htmlContent;
+            var args = (ProfileEventArgs)e;
+            var id = Convert.ToInt16(args.AdditionalData["id"]);
+            OpenUserProfile(id);
+        }
     }
 }

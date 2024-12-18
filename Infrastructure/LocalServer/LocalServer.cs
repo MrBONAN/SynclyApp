@@ -1,5 +1,6 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.RegularExpressions;
+using Domain;
 
 namespace Infrastructure;
 
@@ -83,7 +84,7 @@ public class SimpleServer
 
         foreach (Match match in matches)
         {
-            string action = match.Groups["action"].Value; 
+            string action = match.Groups["action"].Value;
             string function = match.Groups["function"].Value;
 
             switch (action)
@@ -103,13 +104,32 @@ public class SimpleServer
         if (string.IsNullOrWhiteSpace(function))
             return;
 
-        var match = Regex.Match(function, @"^([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*)\)$");
+        var match = Regex.Match(function, @"^([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)(,\s*{.*})?\)$");
 
         if (match.Success)
         {
-            string functionName = match.Groups[1].Value;
-            var argument = Convert.ToInt16(match.Groups[2].Value);
-            handlers[functionName](argument, EventArgs.Empty);
+            var parsedFunc = ParseFunctionCall(function);
+            var fName = parsedFunc.Item1;
+            var args = parsedFunc.Item2;
+
+            switch (fName)
+            {
+                case "OpenUserProfile":
+                    var eventArg = new ProfileEventArgs(fName, args);
+                    handlers[fName]?.Invoke("SERVER", eventArg);
+                    break;
+            }
         }
+    }
+
+    private static (string, Dictionary<string, object>) ParseFunctionCall(string input)
+    {
+        var match = Regex.Match(input, @"(\w+)\(([^)]+)\)");
+
+        var args = new Dictionary<string, object>();
+        foreach (Match m in Regex.Matches(match.Groups[2].Value, @"(\w+):\s*({?\w+}?)"))
+            args[m.Groups[1].Value] = (object)m.Groups[2].Value;
+
+        return (match.Groups[1].Value, args);
     }
 }
