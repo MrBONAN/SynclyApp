@@ -17,8 +17,7 @@ public class SimpleServer
         handlers = new Dictionary<string, Action<object, EventArgs>>();
         _listener = new HttpListener();
         var port = _portChecker.GetFreePort();
-        _listener.Prefixes.Add($"http://localhost:6005/");
-        Console.WriteLine($"Server started on port: {port}");
+        _listener.Prefixes.Add($"http://localhost:{port}/");
     }
 
     public void AddHandler(string name, Action<object, EventArgs> func) => handlers[name] = func;

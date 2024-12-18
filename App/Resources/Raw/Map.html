@@ -275,7 +275,7 @@
     }
 
     function sendMessageToServer(message) {
-        fetch(`http://localhost:6005/`, {
+        fetch(`http://localhost:${port}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'text/plain'
