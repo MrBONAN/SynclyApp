@@ -1,7 +1,9 @@
 ﻿using App.UserAuthorization.SpotifyAuthorization;
 using System.Diagnostics;
 using System.Net;
+using App.UserAuthorization;
 using App.UserAuthorization.SpotifyAuthorization.Models;
+using App.UserAuthorization.YandexAuthorization;
 using Infrastructure.API.SpotifyAPI;
 using Infrastructure.API;
 using Infrastructure.API.SpotifyAPI.Models;
@@ -15,10 +17,10 @@ public partial class MainPage : ContentPage
         InitializeComponent();
     }
 
-    private async void Authenticate(object sender, EventArgs e)
+    private async void SpotifyAuthenticate(object sender, EventArgs e)
     {
         var logInResult = await SpotifyAuthManager.LogIn();
-        await Application.Current?.MainPage?.DisplayAlert("Результат входа", logInResult.ToString(), "ОК")!;
+        await Application.Current?.MainPage?.DisplayAlert("Результат входа через Spotify", logInResult.ToString(), "ОК")!;
     }
 
     private async void FindTrack(object sender, EventArgs e)
@@ -135,5 +137,25 @@ public partial class MainPage : ContentPage
     private void LogOut(object sender, EventArgs e)
     {
         SpotifyAuthManager.LogOut();
+    }
+
+    private async void YandexAuthenticate(object sender, EventArgs e)
+    {
+        var logInResult = await CreateYandexAuthPage();
+        await Application.Current?.MainPage?.DisplayAlert("Результат входа через яндекс", logInResult.ToString(),
+            "ОК")!;
+        if (logInResult is LogInResult.Success)
+        {
+            var accessToken = (await YandexAccessToken.Get()).Value;
+            await Application.Current.MainPage?.DisplayAlert("Полученный токен: ", accessToken, "ОК")!;
+        }
+    }
+
+    private async Task<LogInResult> CreateYandexAuthPage()
+    {
+        var tokenResultTask = new TaskCompletionSource<LogInResult>();
+        var browserPage = new YandexAuthorizationPage(tokenResultTask);
+        await Navigation.PushModalAsync(browserPage);
+        return await tokenResultTask.Task;
     }
 }

@@ -9,10 +9,10 @@
             Padding="30,0"
             Spacing="25">
             <Button
-                x:Name="LogInBtn"
+                x:Name="LogInSpotifyBtn"
                 Text="Войти в Spotify"
                 SemanticProperties.Hint="Log in button"
-                Clicked="Authenticate"
+                Clicked="SpotifyAuthenticate"
                 HorizontalOptions="Fill" />
 
             <Button
@@ -69,6 +69,13 @@
                 Text="Удалить токен из памяти"
                 SemanticProperties.Hint="Delete user access token"
                 Clicked="LogOut"
+                HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="LogInYandexBtn"
+                Text="Войти в Yandex"
+                SemanticProperties.Hint="Log in button"
+                Clicked="YandexAuthenticate"
                 HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>

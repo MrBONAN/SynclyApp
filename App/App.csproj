@@ -66,4 +66,17 @@
       <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <MauiXaml Update="UserAuthorization\YandexAuthorization\YandexAuthorizationPage.xaml">
+        <SubType>Designer</SubType>
+      </MauiXaml>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="UserAuthorization\YandexAuthorization\YandexAuthorizationPage.xaml.cs">
+        <DependentUpon>YandexAuthorizationPage.xaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
 </Project>
