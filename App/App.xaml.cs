@@ -9,10 +9,10 @@ public partial class App : Application
     {
         InitializeComponent();
         MainPage = new Map();
-        //var token = Task.Run(() => SpotifyAccessToken.Get()).Result;
-        // if (token.Result != AccessTokenResult.Success)
-        //     MainPage = new MainPage(); 
-        // else
-        //     MainPage = new Map();
+        // var token = Task.Run(() => SpotifyAccessToken.Get()).Result;
+        //  if (token.Result != AccessTokenResult.Success)
+        //      MainPage = new MainPage(); 
+        //  else
+        //      MainPage = new Map();
     }
 }

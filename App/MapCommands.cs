@@ -1,4 +1,4 @@
-﻿using App.Infrastructure;
+using App.Infrastructure;
 using Infrastructure;
 
 namespace App;
@@ -49,7 +49,8 @@ public class MapCommands
     public void SetPort(PortChecker portChecker)
     {
         var port = portChecker.GetFreePort();
-        var jsCode = $"setPort({port});";
+        var jsCode = $"setPort({port}); console.log('SetPort called with port:', {port});";
+        System.Diagnostics.Debug.WriteLine($"Calling SetPort with port: {port}");
         _leafletWebView.Eval(MapService.FormatJsCodeWithInvariantCulture(jsCode));
     }
 }

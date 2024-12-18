@@ -11,7 +11,7 @@ public class PortChecker
     {
         if (PORT != -1)
             return PORT;
-        for (var port = 6000; port < 13000; port += 1)
+        for (var port = 6005; port < 13000; port += 1)
             if (IsPortAvailable(port))
             {
                 PORT = port;
