@@ -67,13 +67,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <MauiXaml Update="UserAuthorization\YandexAuthorization\YandexAuthorizationPage.xaml">
+      <MauiXaml Update="YandexAuthorizationPage.xaml">
         <SubType>Designer</SubType>
       </MauiXaml>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="UserAuthorization\YandexAuthorization\YandexAuthorizationPage.xaml.cs">
+      <Compile Update="YandexAuthorizationPage.xaml.cs">
         <DependentUpon>YandexAuthorizationPage.xaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>

@@ -27,7 +27,7 @@ public class YandexAccessToken
     public YandexAccessToken(string url)
     {
         var pattern =
-            @"access_token=(?<accessToken>[\w\d]+)&token_type=(?<tokenType>\w+)&expires_in=(?<expiresIn>\d+)&cid=(?<cid>\d+)";
+            @"https:\/\/music\.yandex\.ru\/#access_token\=(?<accessToken>[\w\d]+)&token_type\=(?<tokenType>\w+)&expires_in\=(?<expiresIn>\d+)&cid\=(?<cid>[\w\d]+)";
         var match = Regex.Match(url, pattern);
 
         if (!match.Success)
