@@ -8,7 +8,9 @@
 
     <ItemGroup>
       <PackageReference Include="dotenv.net" Version="3.2.1" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="FFImageLoading.Maui" Version="1.2.7" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="RestSharp" Version="112.1.0" />
       <PackageReference Include="The49.Maui.BottomSheet" Version="8.0.2" />
     </ItemGroup>
@@ -17,6 +19,7 @@
       <Reference Include="Mono.Android">
         <HintPath>..\..\..\.dotnet\packs\Microsoft.Android.Ref.34\34.0.145\ref\net8.0\Mono.Android.dll</HintPath>
       </Reference>
+      <PackageReference Include="The49.Maui.BottomSheet" Version="8.0.2" />
     </ItemGroup>
 
 </Project>

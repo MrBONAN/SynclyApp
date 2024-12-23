@@ -48,3 +48,9 @@ public class Track
         }
     }
 }
+
+public class TracksAndArtistsList<T>
+{
+    [JsonPropertyName("tracks")] public List<T>? Tracks { get; set; }
+    [JsonPropertyName("artists")] public List<T>? Artists { get; set; }
+}
