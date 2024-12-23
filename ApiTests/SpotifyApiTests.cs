@@ -6,22 +6,22 @@ namespace ApiTests;
 
 public class Tests
 {
-    [Test]
+    [Fact]
     public async Task TestSearch()
     {
         var synclyAccessToken = await SpotifyApi.GetAppAccessToken();
         var response = await SpotifyApi
             .SearchFor()
             .AddAccessToken(synclyAccessToken)
-            .AddQuestion("The maybe man")
+            .AddQuestion("Maybe man")
             .SetType(QuestionType.Track)
             .SetLimit(1)
             .AddFilter(QuestionFilter.Artist, "AJR")
             .SendRequest();
-        Assert.That(response!.Data!.Tracks!.Items![0].Id!, Is.EqualTo("7fhiGdj0nn0ZCmIAocG8G0"));
+        Assert.Equal("7fhiGdj0nn0ZCmIAocG8G0", response!.Data!.Tracks!.Items![0].Id!);
     }
 
-    [Test]
+    [Fact]
     public async Task TestGetUserInfo()
     {
         var synclyAccessToken = await SpotifyApi.GetAppAccessToken();
