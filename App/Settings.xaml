@@ -4,12 +4,12 @@
                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                    xmlns:the49="https://schemas.the49.com/dotnet/2023/maui"
                    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-                   x:Class="App.Settings"
+                   x:Class="App.SettingsBottomSheet"
                    Padding="16, 32"
                    Background="{StaticResource Black}"
                    CornerRadius="20"
                    HasBackdrop="True">
-    
+
     <the49:BottomSheet.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -17,11 +17,84 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </the49:BottomSheet.Resources>
-    
+
     <the49:BottomSheet.Detents>
         <the49:RatioDetent Ratio="0.9" />
         <the49:FullscreenDetent />
     </the49:BottomSheet.Detents>
-    
-    
+
+    <Grid VerticalOptions="Start"
+          HorizontalOptions="FillAndExpand"
+          RowSpacing="35">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Label
+            x:Name="Username"
+            Style="{StaticResource HeaderLabelStyle}"
+            Text="Настройки"
+            HorizontalOptions="CenterAndExpand" />
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <VerticalStackLayout Spacing="10">
+                <ScrollView>
+                    <CollectionView ItemsSource="{Binding SettingsList}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" />
+                        </CollectionView.ItemsLayout>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout Spacing="10" Padding="0, 10">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Grid ColumnSpacing="10">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="50" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="50" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Image HeightRequest="50"
+                                               WidthRequest="50"
+                                               Aspect="Fill"
+                                               Source="{Binding Icon}">
+                                        </Image>
+
+                                        <Label Grid.Column="1" Text="{Binding Name}"
+                                               LineBreakMode="TailTruncation"
+                                               VerticalTextAlignment="Center"
+                                               FontSize="24"
+                                               TextColor="White"
+                                               FontAttributes="Bold" />
+                                    </Grid>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </ScrollView>
+            </VerticalStackLayout>
+        </Grid>
+
+        <Label Grid.Row="2"
+               HorizontalTextAlignment="Center"
+               Style="{StaticResource DescriptionLabelStyle}"
+               Text="{Binding Footer}"/>
+    </Grid>
+
+
 </the49:BottomSheet>

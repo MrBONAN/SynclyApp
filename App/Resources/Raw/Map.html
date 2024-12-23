@@ -64,33 +64,33 @@
         }
 
         .location-pin {
-            display: inline-block;
-            position: relative;
-            top: 50%;
-            left: 50%;
-            transform: translate(0%, -100%); /* Центрирование с якорем внизу */
+            /*display: flex;*/
+            /*position: relative;*/
+            
+            /*left: 0%;*/
+            text-align: center;
+            
+            /*transform: translate(0%, -100%); /** Центрирование с якорем внизу *!*/
         }
 
         .location-pin img {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             position: absolute;
-            bottom: 26px; /* Выравниваем картинку по нижнему краю */
-            left: 2px;
+            transform: translate(-50%, 10%);
             border-radius: 50%;
-            background: #32383e;
             z-index: 10;
         }
 
         .pin {
-            width: 50px;
-            height: 50px;
+            width: 58px;
+            height: 58px;
             border-radius: 50% 50% 50% 0;
-            background: #32383e;
-            position: absolute;
+            background: #222;
             transform: rotate(-45deg);
-            transform-origin: 50% 100%; /* Смещает якорь к нижней центральной точке */
-            margin: -30px 0 0 16px; /* Отрегулируйте для центрирования */
+            
+            /*transform-origin: 50% 100%; /* Смещает якорь к нижней центральной точке */
+            margin: 0px 0px 0px 6px; /* Отрегулируйте для центрирования */
         }
 
         .pin:after {
@@ -127,8 +127,6 @@
             animation: pulsate 2.5s ease-out;
             animation-iteration-count: infinite;
             opacity: 0;
-            background: rgba(94, 190, 255, 0.5);
-            box-shadow: 0 0 1px 2px #2d99d3;
             animation-delay: 1.1s;
         }
 
@@ -203,9 +201,9 @@
 
         const myIcon = L.divIcon({
             className: 'location-pin',
-            html: `<img src="${imageName}"><div class="pin"></div><div class="pulse"></div>`,
-            iconSize: [50, 50],
-            iconAnchor: [25, 50]
+            html: `<img src="${imageName}"><div class="pin"></div>`,
+            iconSize: [70, 70],
+            iconAnchor: [35, 70]
         });
 
         const newMarker = L.marker([latitude, longitude], {icon: myIcon}).addTo(map);

@@ -78,24 +78,24 @@ public partial class Map : ContentPage
 
     private async void OnClickedMoveToMyLocation(object sender, EventArgs e)
     {
-        if (!_isCheckingLocation)
-            try
-            {
-                _isCheckingLocation = true;
-                _mapControl.AddMarkerWithLocalImage(await _cachedLocation.GetLocationAsync(), "image.jpg", 1,
-                    "openUserProfile");
-                _mapControl.MoveMapTo(await _cachedLocation.GetLocationAsync());
-                _mapControl.AddCircle(await _cachedLocation.GetLocationAsync(), 2000);
-                _mapControl.SetPort(_portChecker);
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Error", ex.Message, "OK");
-            }
-            finally
-            {
-                _isCheckingLocation = false;
-            }
+        if (_isCheckingLocation) return;
+        try
+        {
+            _isCheckingLocation = true;
+            _mapControl.MoveMapTo(await _cachedLocation.GetLocationAsync());
+            _mapControl.AddMarkerWithLocalImage(await _cachedLocation.GetLocationAsync(), "image.jpg", 1,
+                "openUserProfile");
+            _mapControl.AddCircle(await _cachedLocation.GetLocationAsync(), 2000);
+            _mapControl.SetPort(_portChecker);
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+        }
+        finally
+        {
+            _isCheckingLocation = false;
+        }
     }
 
     private async Task<string> UpdateTopText(string text)
@@ -111,12 +111,13 @@ public partial class Map : ContentPage
     private async void OnProfileButtonClicked(object sender, EventArgs e)
     {
         var page = new Sheet();
-        await page.ShowAsync();
+        await page.ShowAsync(); 
     }
 
     private async void OnSettingsButtonClicked(object sender, EventArgs e)
     {
-        OpenUserProfile(-1);
+        var page = new SettingsBottomSheet();
+        await page.ShowAsync(); 
     }
 
     private void OnBottomButtonClicked(object sender, EventArgs e)
