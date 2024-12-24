@@ -62,6 +62,6 @@ public class AccessTokenHandler
     private void WriteAccessToken()
     {
         var jsonAccessToken = JsonSerializer.Serialize(accessToken);
-        File.WriteAllBytes(pathAccessToken, Encoding.Default.GetBytes(jsonAccessToken));
+        File.WriteAllText(pathAccessToken, jsonAccessToken);
     }
 }
