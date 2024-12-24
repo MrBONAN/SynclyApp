@@ -111,8 +111,16 @@ public partial class Map : ContentPage
                 new Location(userLocation.Latitude - 0.01, userLocation.Longitude - 0.01),
                 new Location(userLocation.Latitude - 0.017, userLocation.Longitude - 0.002)
             };
+            
+            var avatars = new List<string>
+            {
+                "mot1x.jpg",
+                "lexa.jpg",
+                "image.jpg",
+                "fridmak.jpg"
+            };
             for (var i = 0; i < locations.Count; i++)
-                _mapControl.AddMarkerWithLocalImage(locations[i], "image.jpg", i,
+                _mapControl.AddMarkerWithLocalImage(locations[i], avatars[i], i,
                     "openUserProfile");
             
             _mapControl.AddCircle(await _cachedLocation.GetLocationAsync(), 2000);
@@ -205,7 +213,7 @@ public partial class Map : ContentPage
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     _mapControl.MoveMapTo(userLocation);
-                    _mapControl.AddMarkerWithLocalImage(userLocation, "image.jpg", 0, "openUserProfile");
+                    _mapControl.AddMarkerWithLocalImage(userLocation, "mot1x.jpg", 0, "openUserProfile");
                     _mapControl.SetPort(_portChecker);
                 });
             }

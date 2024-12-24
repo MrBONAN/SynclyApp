@@ -42,6 +42,9 @@
     <ItemGroup>
         <!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4"/>
+        <MauiImage Include="Resources\Raw\fridmak.jpg" />
+        <MauiImage Include="Resources\Raw\lexa.jpg" />
+        <MauiImage Include="Resources\Raw\mot1x.jpg" />
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128"/>
