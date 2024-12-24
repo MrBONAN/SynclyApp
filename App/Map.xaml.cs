@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using Domain;
 using App.Infrastructure;
+using App.UserAuthorization.SpotifyAuthorization.Models;
 using CommunityToolkit.Maui.Core.Views;
 using CommunityToolkit.Maui.Views;
 using Infrastructure;
@@ -21,7 +22,8 @@ public partial class Map : ContentPage
     private SimpleServer _localServer;
     private PortChecker _portChecker;
 
-    private string _topText = "None";
+    private string _topText = "Тишина...";
+    private string _topTextLink;
 
     public string TopText
     {
@@ -34,12 +36,24 @@ public partial class Map : ContentPage
         }
     }
 
+    public string TopTextLink
+    {
+        get => _topTextLink;
+        set
+        {
+            if (_topTextLink == value) return;
+            _topTextLink = value;
+            OnPropertyChanged();
+        }
+    }
+
     public Map()
     {
         InitializeComponent();
         StartServer();
         InitializeFields();
         HandleXamlButtons();
+        this.Loaded += OnPageLoaded;
     }
 
     private void HandleXamlButtons()
@@ -58,6 +72,8 @@ public partial class Map : ContentPage
         _mapControl.SetMapHtml(_defaultSettings.GetMapHtml());
         _cachedLocation = new MapLocation(_userInformation.GetCurrentLocation);
         HandleServerMethods();
+        await UpdateTopText();
+        LeafletWebView.Navigated += OnWebViewNavigated;
     }
 
     private void StopServer() => _localServer.Stop();
@@ -82,9 +98,20 @@ public partial class Map : ContentPage
         try
         {
             _isCheckingLocation = true;
-            _mapControl.MoveMapTo(await _cachedLocation.GetLocationAsync());
-            _mapControl.AddMarkerWithLocalImage(await _cachedLocation.GetLocationAsync(), "image.jpg", 1,
-                "openUserProfile");
+            var userLocation = await _cachedLocation.GetLocationAsync();
+            _mapControl.MoveMapTo(userLocation);
+            
+            var locations = new List<Location>
+            {
+                userLocation,
+                new Location(userLocation.Latitude + 0.015, userLocation.Longitude),
+                new Location(userLocation.Latitude - 0.01, userLocation.Longitude - 0.01),
+                new Location(userLocation.Latitude - 0.017, userLocation.Longitude - 0.002)
+            };
+            for (var i = 0; i < locations.Count; i++)
+                _mapControl.AddMarkerWithLocalImage(locations[i], "image.jpg", i,
+                    "openUserProfile");
+            
             _mapControl.AddCircle(await _cachedLocation.GetLocationAsync(), 2000);
             _mapControl.SetPort(_portChecker);
         }
@@ -98,26 +125,43 @@ public partial class Map : ContentPage
         }
     }
 
-    private async Task<string> UpdateTopText(string text)
+    private async Task UpdateTopText()
     {
-        throw new NotImplementedException();
+        var token = await SpotifyAccessToken.Get();
+        while (token != null)
+        {
+            var currentTrack = await SpotifyApi.GetCurrentTrackAsync(token.Value!);
+            if (currentTrack.Result is ApiResult.Success)
+            {
+                TopText = currentTrack.Data!.Name;
+                TopTextLink = currentTrack.Data!.Uri;
+            }
+
+            await Task.Delay(10000);
+        }
     }
 
     private async void OnWebViewNavigated(object sender, EventArgs e)
     {
-        throw new NotImplementedException();
+        var userLocation = await _cachedLocation.GetLocationAsync();
+        await MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            _mapControl.MoveMapTo(userLocation);
+            _mapControl.AddMarkerWithLocalImage(userLocation, "image.jpg", 0, "openUserProfile");
+            _mapControl.SetPort(_portChecker);
+        });
     }
 
     private async void OnProfileButtonClicked(object sender, EventArgs e)
     {
-        var page = new Sheet();
-        await page.ShowAsync(); 
+        var page = new Sheet(0);
+        await page.ShowAsync();
     }
 
     private async void OnSettingsButtonClicked(object sender, EventArgs e)
     {
         var page = new SettingsBottomSheet();
-        await page.ShowAsync(); 
+        await page.ShowAsync();
     }
 
     private void OnBottomButtonClicked(object sender, EventArgs e)
@@ -127,7 +171,7 @@ public partial class Map : ContentPage
 
     private async void OpenUserProfile(int id)
     {
-        var page = new Sheet();
+        var page = new Sheet(id);
         await page.ShowAsync();
     }
 
@@ -138,6 +182,38 @@ public partial class Map : ContentPage
             var args = (ProfileEventArgs)e;
             var id = Convert.ToInt16(args.AdditionalData["id"]);
             OpenUserProfile(id);
+        }
+    }
+
+    private async void OnTopTextTapped(object? sender, TappedEventArgs e)
+    {
+        if (TopTextLink != null)
+            await Launcher.OpenAsync(TopTextLink);
+    }
+
+    private async void OnPageLoaded(object sender, EventArgs e)
+    {
+        try
+        {
+            await Task.Delay(1000);
+            var userLocation = await _cachedLocation.GetLocationAsync();
+            if (userLocation != null)
+            {
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    _mapControl.MoveMapTo(userLocation);
+                    _mapControl.AddMarkerWithLocalImage(userLocation, "image.jpg", 0, "openUserProfile");
+                    _mapControl.SetPort(_portChecker);
+                });
+            }
+            else
+            {
+                await DisplayAlert("Debug", "Location is null", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error in OnPageLoaded", ex.Message, "OK");
         }
     }
 }

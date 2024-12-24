@@ -17,10 +17,10 @@ namespace ProfileBottomSheet;
 
 public partial class Sheet : BottomSheet
 {
-    public Sheet()
+    public Sheet(int id)
     {
         InitializeComponent();
-        BindingContext = new ProfileBottomSheetViewModel();
+        BindingContext = new ProfileBottomSheetViewModel(id);
         InitializeData();
         
     }
@@ -44,11 +44,12 @@ public partial class Sheet : BottomSheet
     }
 }
 
-public class ProfileBottomSheetViewModel : INotifyPropertyChanged
+public class ProfileBottomSheetViewModel(int id) : INotifyPropertyChanged
 {
     private bool _isLoadingTracks = true;
     private bool _isLoadingArtists = true;
-    
+    public readonly int Id = id;
+
     public bool IsLoadingTracks
     {
         get => _isLoadingTracks;
