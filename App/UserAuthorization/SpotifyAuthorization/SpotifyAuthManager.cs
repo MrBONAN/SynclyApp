@@ -3,33 +3,37 @@ using App.UserAuthorization.SpotifyAuthorization.Models;
 
 namespace App.UserAuthorization.SpotifyAuthorization;
 
-public static class SpotifyAuthManager
+public class SpotifyAuthManager(
+    ISpotifyAccessTokenService accessTokenService,
+    ISpotifyPkceAuthorizationService pkceAuthorizationService)
+    : ISpotifyAuthManager
 {
-    public static async Task<LogInResult> LogIn()
+    public async Task<LogInResult> LogInAsync()
     {
-        var authResponse = await SpotifyPkceAuthorization.AuthorizeWithPkceAsync();
-        if (authResponse.Result is AuthorizationResult.Canceled)
+        var authResponse = await pkceAuthorizationService.AuthorizeWithPkceAsync();
+        if (authResponse.Result == AuthorizationResult.Canceled)
             return LogInResult.AuthorizationCancelation;
-        if (authResponse.Result is AuthorizationResult.Error)
+
+        if (authResponse.Result == AuthorizationResult.Error)
             return LogInResult.AuthorizationError;
-        var accessToken = await SpotifyPkceAuthorization.ExchangeCodeForPkceTokenAsync(authResponse.Code!,
-            authResponse.CodeVerifier!);
-        if (accessToken.Result is PkceAccessTokenResult.ExchangeError)
+
+        var accessToken = await pkceAuthorizationService.ExchangeCodeForPkceTokenAsync(authResponse.Code!, authResponse.CodeVerifier!);
+        if (accessToken.Result == PkceAccessTokenResult.ExchangeError)
             return LogInResult.ExchangeTokenError;
-        await SaveAccessToken(accessToken);
+
+        await SaveAccessTokenAsync(accessToken);
         return LogInResult.Success;
     }
 
-    public static void LogOut()
+    public void LogOut()
     {
         SecureStorage.Default.Remove("spotify_token");
-        SpotifyAccessToken.RemoveToken();
+        accessTokenService.RemoveToken();
     }
-
-    private static async Task SaveAccessToken(PkceAccessToken accessToken)
+    
+    private static async Task SaveAccessTokenAsync(PkceAccessToken accessToken)
     {
         var jsonAccessToken = JsonSerializer.Serialize(accessToken);
         await SecureStorage.Default.SetAsync("spotify_token", jsonAccessToken);
-        await SpotifyAccessToken.Get();
     }
 }

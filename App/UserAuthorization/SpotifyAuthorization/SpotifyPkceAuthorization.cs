@@ -7,14 +7,14 @@ using App.UserAuthorization.SpotifyAuthorization.Models;
 
 namespace App.UserAuthorization.SpotifyAuthorization;
 
-public static class SpotifyPkceAuthorization
+public class SpotifyPkceAuthorizationService : ISpotifyPkceAuthorizationService
 {
     private static readonly string ClientId = SpotifyApi.ClientId;
     private static string RedirectUri = "syncly-auth://callback";
     private static string AuthorizeUrl = "https://accounts.spotify.com/authorize";
     private static string Scope = "user-read-private user-read-email user-top-read user-read-playback-state";
 
-    public static async Task<AuthorizationPkceResponse> AuthorizeWithPkceAsync()
+    public async Task<AuthorizationPkceResponse> AuthorizeWithPkceAsync()
     {
         var codeVerifier = GenerateCodeVerifier();
         var codeChallenge = GenerateCodeChallengeBase64(codeVerifier);
@@ -77,7 +77,7 @@ public static class SpotifyPkceAuthorization
             .Replace('/', '_');
     }
 
-    public static async Task<PkceAccessToken> ExchangeCodeForPkceTokenAsync(string code, string codeVerifier)
+    public async Task<PkceAccessToken> ExchangeCodeForPkceTokenAsync(string code, string codeVerifier)
     {
         var client = new RestClient("https://accounts.spotify.com/api/token");
 
@@ -101,7 +101,7 @@ public static class SpotifyPkceAuthorization
         return new PkceAccessToken() { Result = PkceAccessTokenResult.ExchangeError };
     }
 
-    public static async Task<PkceAccessToken?> RefreshTokenAsync(string refreshToken)
+    public async Task<PkceAccessToken?> RefreshTokenAsync(string refreshToken)
     {
         var client = new RestClient("https://accounts.spotify.com/api/token");
 

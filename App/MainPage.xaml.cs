@@ -10,14 +10,18 @@ namespace App;
 
 public partial class MainPage : ContentPage
 {
-    public MainPage()
+    private readonly ISpotifyAuthManager spotifyAuthManager;
+    private readonly ISpotifyAccessTokenService spotifyAccessToken;
+    public MainPage(ISpotifyAuthManager spotifyAuthManager, ISpotifyAccessTokenService spotifyAccessToken)
     {
+        this.spotifyAuthManager = spotifyAuthManager;
+        this.spotifyAccessToken = spotifyAccessToken;
         InitializeComponent();
     }
 
     private async void Authenticate(object sender, EventArgs e)
     {
-        var logInResult = await SpotifyAuthManager.LogIn();
+        var logInResult = await spotifyAuthManager.LogInAsync();
         await Application.Current?.MainPage?.DisplayAlert("Результат входа", logInResult.ToString(), "ОК")!;
     }
 
@@ -40,7 +44,7 @@ public partial class MainPage : ContentPage
         }
 
         Debug.WriteLine($"Вы ввели: {question}");
-        var token = await SpotifyAccessToken.Get();
+        var token = await spotifyAccessToken.GetAsync();
         if (token.Result is not AccessTokenResult.Success)
         {
             await Application.Current.MainPage?.DisplayAlert("Ошибка при чтении токена",
@@ -72,7 +76,7 @@ public partial class MainPage : ContentPage
 
     private async void GetTopTracks(object sender, EventArgs e)
     {
-        var token = await SpotifyAccessToken.Get();
+        var token = await spotifyAccessToken.GetAsync();
         var topTracks = await SpotifyApi.GetUserTopItemsAsync<Track>(token.Value!);
         if (topTracks.Result is not ApiResult.Success) return;
         await Application.Current.MainPage?.DisplayAlert("Топ треков",
@@ -82,7 +86,7 @@ public partial class MainPage : ContentPage
 
     private async void GetTopArtists(object sender, EventArgs e)
     {
-        var token = await SpotifyAccessToken.Get();
+        var token = await spotifyAccessToken.GetAsync();
         var topArtists = await SpotifyApi.GetUserTopItemsAsync<Artist>(token.Value!);
         if (topArtists.Result is not ApiResult.Success) return;
         await Application.Current.MainPage?.DisplayAlert("Топ артистов",
@@ -92,7 +96,7 @@ public partial class MainPage : ContentPage
 
     private async void GetSeveralTracks(object sender, EventArgs e)
     {
-        var token = await SpotifyAccessToken.Get();
+        var token = await spotifyAccessToken.GetAsync();
         var severalTracks = await SpotifyApi.GetSeveralEntitiesById<Track>(token.Value!,
             new[] { "26wLOs3ZuHJa2Ihhx6QIE6", "5flerg6aEao2VayZezVlgu", "7LHAKF7pBqHch8o6Yo0ad5"});
         if (severalTracks.Result is not ApiResult.Success) return;
@@ -103,7 +107,7 @@ public partial class MainPage : ContentPage
     
     private async void GetSeveralArtists(object sender, EventArgs e)
     {
-        var token = await SpotifyAccessToken.Get();
+        var token = await spotifyAccessToken.GetAsync();
         var severalArtists = await SpotifyApi.GetSeveralEntitiesById<Artist>(token.Value!,
             new[] { "6s22t5Y3prQHyaHWUN1R1C", "6DdeqvIfYu3sH02gdavOu2", "0LcJLqbBmaGUft1e9Mm8HV"});
         if (severalArtists.Result is not ApiResult.Success) return;
@@ -114,7 +118,7 @@ public partial class MainPage : ContentPage
 
     private async void GetUserData(object sender, EventArgs e)
     {
-        var token = await SpotifyAccessToken.Get();
+        var token = await spotifyAccessToken.GetAsync();
         var userProfile = await SpotifyApi.GetUserProfileAsync(token.Value!);
         if (userProfile.Result is not ApiResult.Success) return;
         await Application.Current.MainPage?.DisplayAlert("Данные пользователя",
@@ -124,7 +128,7 @@ public partial class MainPage : ContentPage
 
     private async void GetCurrentTrack(object sender, EventArgs e)
     {
-        var token = await SpotifyAccessToken.Get();
+        var token = await spotifyAccessToken.GetAsync();
         var currentTrack = await SpotifyApi.GetCurrentTrackAsync(token.Value!);
         if (currentTrack.Result is not ApiResult.Success) return;
         await Application.Current.MainPage?.DisplayAlert("Текущий трек",
@@ -134,6 +138,6 @@ public partial class MainPage : ContentPage
 
     private void LogOut(object sender, EventArgs e)
     {
-        SpotifyAuthManager.LogOut();
+        spotifyAuthManager.LogOut();
     }
 }
