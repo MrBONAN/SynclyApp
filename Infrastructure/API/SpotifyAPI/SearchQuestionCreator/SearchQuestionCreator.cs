@@ -56,7 +56,7 @@ public class SearchQuestionCreator : IAddQuestionStage, IAddAccessTokenStage, IA
 
     private RestRequest CreateRequest()
     {
-        var questionFilters = String.Join(" ", QuestionFilters.Select(pair => $"{pair.Key.ToString()}:{pair.Value}"));
+        var questionFilters = String.Join(" ", QuestionFilters.Select(pair => $"{pair.Key.ToString().ToLower()}:{pair.Value}"));
         var request = new RestRequest()
             .AddHeader("Authorization", $"Bearer {AccessToken}")
             .AddQueryParameter("q", Question + " " + questionFilters)
