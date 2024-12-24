@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Domain;
 
@@ -7,10 +7,9 @@ namespace Infrastructure.LocalServer;
 public class ClientDataParser
 {
     private Dictionary<string, Action<object, EventArgs>> handlers;
-    private string ActionParseFormat = @"\[(?<action>.+?)\](?<function>[^|]*)";
-    private string FuncNameParseFormat = @"^([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)(,\s*{.*})?\)$";
-    private string FuncArgsParseFormat = @"^(\w+)\(([^)]*)\)$";
-    private string ArgsParseFormat = @"(\w+):\s*(\{?.+?\}?)";
+    private string ActionParseFormat = @"\[(?<action>.+?)\](?<function>.*)";
+    private string FuncArgsParseFormat = @"^(?<name>\w+)\((?<args>.*)\)$";
+    private string ArgsParseFormat = @"(?<key>\w+)\s*:\s*(?<value>[^:,]+)(?:,|$)";
 
     public ClientDataParser()
     {
@@ -45,7 +44,7 @@ public class ClientDataParser
         if (string.IsNullOrWhiteSpace(function))
             return;
 
-        var match = Regex.Match(function, FuncNameParseFormat);
+        var match = Regex.Match(function, FuncArgsParseFormat);
 
         if (match.Success)
         {
@@ -63,8 +62,11 @@ public class ClientDataParser
                     Debug.WriteLine("Error Parsing Name and Arguments");
                     return;
                 default:
-                    Debug.WriteLine($"Unknown function: {function}");
-                    return;
+                    if (!handlers.Keys.Contains(fName))
+                        return;
+                    var otherEventArgs = new OtherEventArgs(fName, args);
+                    handlers[fName]?.Invoke("SERVER", otherEventArgs);
+                    break;
             }
         }
     }
@@ -76,21 +78,33 @@ public class ClientDataParser
         if (string.IsNullOrWhiteSpace(input))
             return errorParsing;
 
-        var functionMatch = Regex.Match(input, FuncArgsParseFormat);
+        var functionMatch = Regex.Match(input.Trim(), FuncArgsParseFormat);
         if (!functionMatch.Success)
             return errorParsing;
 
-        string functionName = functionMatch.Groups[1].Value;
-        string arguments = functionMatch.Groups[2].Value;
+        string functionName = functionMatch.Groups["name"].Value;
+        string arguments = functionMatch.Groups["args"].Value.Trim();
 
         var args = new Dictionary<string, object>();
         if (!string.IsNullOrWhiteSpace(arguments))
         {
             var argMatches = Regex.Matches(arguments, ArgsParseFormat);
+            if (argMatches.Count == 0)
+                return errorParsing;
+
+            string remainingText = arguments;
             foreach (Match argMatch in argMatches)
             {
-                string argKey = argMatch.Groups[1].Value;
-                string argValue = argMatch.Groups[2].Value;
+                remainingText = remainingText.Replace(argMatch.Value, "").Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(remainingText))
+                return errorParsing;
+
+            foreach (Match argMatch in argMatches)
+            {
+                string argKey = argMatch.Groups["key"].Value;
+                string argValue = argMatch.Groups["value"].Value.Trim();
                 args[argKey] = argValue;
             }
         }

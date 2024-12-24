@@ -11,3 +11,21 @@ public class ProfileEventArgs : EventArgs
         AdditionalData = additionalData;
     }
 }
+
+public class EmptyEventArgs : EventArgs
+{
+    public string Action { get; }
+    public Dictionary<string, object> AdditionalData { get; }
+}
+
+public class OtherEventArgs : EventArgs
+{
+    public string Action { get; }
+    public Dictionary<string, object> AdditionalData { get; }
+
+    public OtherEventArgs(string action = "", Dictionary<string, object> additionalData = null)
+    {
+        Action = action;
+        AdditionalData = additionalData;
+    }
+}
