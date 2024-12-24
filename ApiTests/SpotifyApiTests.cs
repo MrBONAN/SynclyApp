@@ -1,11 +1,14 @@
 using Infrastructure.API;
 using Infrastructure.API.SpotifyAPI;
-using RestSharp;
+using dotenv;
+using dotenv.net;
 
 namespace ApiTests;
 
 public class Tests
 {
+    private readonly AccessTokenHandler accessTokenHandler = new AccessTokenHandler();
+
     [Fact]
     public async Task TestSearch()
     {
@@ -24,10 +27,10 @@ public class Tests
     [Fact]
     public async Task TestGetUserInfo()
     {
-        var synclyAccessToken = await SpotifyApi.GetAppAccessToken();
-        var client = new RestClient("https://api.spotify.com/v1/me");
-        var request = new RestRequest()
-            .AddHeader("Authorization", $"Bearer {synclyAccessToken!.TokenValue!}");
-        var response = await client.ExecutePostAsync(request);
+        var userAccessToken = accessTokenHandler.GetAccessToken();
+        var userProfile = await SpotifyApi.GetUserProfileAsync(userAccessToken);
+        if (userProfile.Result is not ApiResult.Success)
+            Assert.Fail("Error receiving user data");
+        Assert.Equal("MrB0NAN", userProfile.Data!.DisplayName);
     }
 }
