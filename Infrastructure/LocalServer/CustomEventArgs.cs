@@ -8,6 +8,6 @@ public class ProfileEventArgs : EventArgs
     public ProfileEventArgs(string action = "", Dictionary<string, object> additionalData = null)
     {
         Action = action;
-        AdditionalData = additionalData ?? new Dictionary<string, object>();
+        AdditionalData = additionalData;
     }
 }
