@@ -18,9 +18,13 @@ public class SimpleServer
         _listener = new HttpListener();
         var port = _portChecker.GetFreePort();
         _listener.Prefixes.Add($"http://localhost:{port}/");
+        _clientDataParser = new ClientDataParser();
     }
 
-    public void AddHandler(string name, Action<object, EventArgs> func) => _clientDataParser.AddHandler(name, func);
+    public void AddHandler(string name, Action<object, EventArgs> func)
+    {
+        _clientDataParser.AddHandler(name, func);
+    }
 
     public void Start()
     {
