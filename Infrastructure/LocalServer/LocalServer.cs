@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.RegularExpressions;
 using Domain;
+using Infrastructure.LocalServer;
 
 namespace Infrastructure;
 
@@ -9,18 +10,21 @@ public class SimpleServer
     private HttpListener _listener;
     private bool _isRunning;
     private PortChecker _portChecker;
-    private Dictionary<string, Action<object, EventArgs>> handlers;
+    private ClientDataParser _clientDataParser;
 
     public SimpleServer(PortChecker portChecker)
     {
         _portChecker = portChecker;
-        handlers = new Dictionary<string, Action<object, EventArgs>>();
         _listener = new HttpListener();
         var port = _portChecker.GetFreePort();
         _listener.Prefixes.Add($"http://localhost:{port}/");
+        _clientDataParser = new ClientDataParser();
     }
 
-    public void AddHandler(string name, Action<object, EventArgs> func) => handlers[name] = func;
+    public void AddHandler(string name, Action<object, EventArgs> func)
+    {
+        _clientDataParser.AddHandler(name, func);
+    }
 
     public void Start()
     {
@@ -50,24 +54,15 @@ public class SimpleServer
         }
     }
 
-    private async void ProcessRequest(HttpListenerContext context)
+    private void ConfigureCORS(HttpListenerContext context)
     {
         context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
         context.Response.Headers.Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+    }
 
-        if (context.Request.HttpMethod == "OPTIONS")
-        {
-            context.Response.StatusCode = 200;
-            context.Response.Close();
-            return;
-        }
 
-        if (context.Request.HttpMethod == "POST")
-        {
-            using var reader = new StreamReader(context.Request.InputStream, context.Request.ContentEncoding);
-            handle_data(await reader.ReadToEndAsync());
-        }
-
+    private async void HandleClientResponse(HttpListenerContext context)
+    {
         var response = context.Response;
         string responseString = "<html><body>Message received</body></html>";
         byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
@@ -77,58 +72,24 @@ public class SimpleServer
         response.Close();
     }
 
-    private void handle_data(string data)
+    private async void ProcessRequest(HttpListenerContext context)
     {
-        var matches = Regex.Matches(data, @"\[(?<action>.+?)\](?<function>[^|]*)");
+        ConfigureCORS(context);
 
-        foreach (Match match in matches)
+        switch (context.Request.HttpMethod)
         {
-            string action = match.Groups["action"].Value;
-            string function = match.Groups["function"].Value;
-
-            switch (action)
+            case "OPTIONS":
+                context.Response.StatusCode = 200;
+                context.Response.Close();
+                return;
+            case "POST":
             {
-                case "RUN":
-                    handle_RUN(function);
-                    break;
-                default:
-                    Console.WriteLine($"Unknown action: {action}");
-                    break;
+                using var reader = new StreamReader(context.Request.InputStream, context.Request.ContentEncoding);
+                _clientDataParser.HandleClientData(await reader.ReadToEndAsync());
+                break;
             }
         }
-    }
 
-    private void handle_RUN(string function)
-    {
-        if (string.IsNullOrWhiteSpace(function))
-            return;
-
-        var match = Regex.Match(function, @"^([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)(,\s*{.*})?\)$");
-
-        if (match.Success)
-        {
-            var parsedFunc = ParseFunctionCall(function);
-            var fName = parsedFunc.Item1;
-            var args = parsedFunc.Item2;
-
-            switch (fName)
-            {
-                case "OpenUserProfile":
-                    var eventArg = new ProfileEventArgs(fName, args);
-                    handlers[fName]?.Invoke("SERVER", eventArg);
-                    break;
-            }
-        }
-    }
-
-    private static (string, Dictionary<string, object>) ParseFunctionCall(string input)
-    {
-        var match = Regex.Match(input, @"(\w+)\(([^)]+)\)");
-
-        var args = new Dictionary<string, object>();
-        foreach (Match m in Regex.Matches(match.Groups[2].Value, @"(\w+):\s*({?\w+}?)"))
-            args[m.Groups[1].Value] = (object)m.Groups[2].Value;
-
-        return (match.Groups[1].Value, args);
+        HandleClientResponse(context);
     }
 }
