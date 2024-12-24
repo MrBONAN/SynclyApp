@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui;
+using App.UserAuthorization.SpotifyAuthorization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using The49.Maui.BottomSheet;
@@ -35,7 +36,15 @@ public static class MauiProgram
                 }
 #endif
             });
-
+        
+        // Регистрация страниц
+        builder.Services.AddTransient<MainPage>();
+        
+        // Регистрация интерфейсов для работы со Spotify
+        builder.Services.AddSingleton<ISpotifyAccessTokenService, SpotifyAccessTokenService>();
+        builder.Services.AddSingleton<ISpotifyAuthManager, SpotifyAuthManager>();
+        builder.Services.AddSingleton<ISpotifyPkceAuthorizationService, SpotifyPkceAuthorizationService>();
+        
 #if DEBUG
         builder.Logging.AddDebug();
 #endif

@@ -18,7 +18,7 @@ public static partial class SpotifyApi
         return new SpotifyApiResult<T>(ApiResult.Error, null, response);
     }
 
-    public static async Task<SpotifyApiResult<List<T>, TracksAndArtistsList<T>>?> GetSeveralEntitiesById<T>(
+    public static async Task<SpotifyApiResult<List<T>, TracksAndArtistsList<T>>> GetSeveralEntitiesById<T>(
         string accessToken,
         IEnumerable<string> ids) where T : class
     {

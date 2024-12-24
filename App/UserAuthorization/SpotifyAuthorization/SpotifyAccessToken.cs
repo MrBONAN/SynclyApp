@@ -1,54 +1,53 @@
 using System.Diagnostics;
 using System.Text.Json;
+using App.UserAuthorization.SpotifyAuthorization.Models;
 
-namespace App.UserAuthorization.SpotifyAuthorization.Models;
+namespace App.UserAuthorization.SpotifyAuthorization;
 
-public static class SpotifyAccessToken
+public class SpotifyAccessTokenService(ISpotifyPkceAuthorizationService pkceAuthorizationService)
+    : ISpotifyAccessTokenService
 {
-    private static PkceAccessToken? PkceAccessToken { get; set; }
+    private PkceAccessToken? pkceAccessToken;
 
-    public static async Task<AccessToken> Get()
+    public async Task<AccessToken> GetAsync()
     {
-        if (PkceAccessToken is null)
+        if (pkceAccessToken == null)
         {
-            var (pkceAccessToken, readingResult) = await ReadAccessToken();
-            if (readingResult is not AccessTokenResult.Success)
+            var (pkceAccessToken, readingResult) = await ReadAccessTokenAsync();
+            if (readingResult != AccessTokenResult.Success)
                 return new AccessToken(null, readingResult);
-            PkceAccessToken = pkceAccessToken!;
+
+            this.pkceAccessToken = pkceAccessToken;
         }
 
-        if (PkceAccessToken.IsExpired())
+        if (pkceAccessToken.IsExpired())
         {
-            var pkceAccessToken = await SpotifyPkceAuthorization.RefreshTokenAsync(PkceAccessToken.RefreshToken!);
-            if (pkceAccessToken!.Result is PkceAccessTokenResult.RefreshError)
+            var pkceAccessToken = await pkceAuthorizationService.RefreshTokenAsync(this.pkceAccessToken.RefreshToken!);
+            if (pkceAccessToken?.Result == PkceAccessTokenResult.RefreshError)
                 return new AccessToken(null, AccessTokenResult.RefreshError);
-            PkceAccessToken = pkceAccessToken;
-            await SaveAccessToken(PkceAccessToken);
+
+            this.pkceAccessToken = pkceAccessToken;
+            await SaveAccessTokenAsync(this.pkceAccessToken);
         }
 
-        if (PkceAccessToken.Result is not PkceAccessTokenResult.Success)
-        {
-            Debug.WriteLine("Произошла ошибка в логике получения токина доступа");
-            return new AccessToken(null, AccessTokenResult.Error);
-        }
-
-        return new AccessToken(PkceAccessToken.AccessToken, AccessTokenResult.Success);
+        return new AccessToken(pkceAccessToken.AccessToken, AccessTokenResult.Success);
     }
 
-    public static void RemoveToken() => PkceAccessToken = null;
+    public void RemoveToken() => pkceAccessToken = null;
 
-    private static async Task<(PkceAccessToken?, AccessTokenResult)> ReadAccessToken()
+    private static async Task<(PkceAccessToken?, AccessTokenResult)> ReadAccessTokenAsync()
     {
         var json = await SecureStorage.Default.GetAsync("spotify_token");
         if (string.IsNullOrWhiteSpace(json))
             return (null, AccessTokenResult.DataNotFoundError);
+
         var pkceAccessToken = JsonSerializer.Deserialize<PkceAccessToken>(json);
-        if (pkceAccessToken is null)
-            return (null, AccessTokenResult.DeserializeError);
-        return (pkceAccessToken, AccessTokenResult.Success);
+        return pkceAccessToken != null 
+            ? (pkceAccessToken, AccessTokenResult.Success) 
+            : (null, AccessTokenResult.DeserializeError);
     }
 
-    private static async Task SaveAccessToken(PkceAccessToken accessToken)
+    private static async Task SaveAccessTokenAsync(PkceAccessToken accessToken)
     {
         var jsonAccessToken = JsonSerializer.Serialize(accessToken);
         await SecureStorage.Default.SetAsync("spotify_token", jsonAccessToken);
