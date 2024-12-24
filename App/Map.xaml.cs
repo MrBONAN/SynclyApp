@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using Domain;
 using App.Infrastructure;
+using App.UserAuthorization.SpotifyAuthorization;
 using App.UserAuthorization.SpotifyAuthorization.Models;
 using CommunityToolkit.Maui.Core.Views;
 using CommunityToolkit.Maui.Views;
@@ -22,6 +23,7 @@ public partial class Map : ContentPage
     private SimpleServer _localServer;
     private PortChecker _portChecker;
 
+    private readonly ISpotifyAccessTokenService spotifyAccessToken;
     private string _topText = "Тишина...";
     private string _topTextLink;
 
@@ -47,8 +49,9 @@ public partial class Map : ContentPage
         }
     }
 
-    public Map()
+    public Map(ISpotifyAccessTokenService spotifyAccessToken)
     {
+        this.spotifyAccessToken = spotifyAccessToken;
         InitializeComponent();
         StartServer();
         InitializeFields();
@@ -127,7 +130,7 @@ public partial class Map : ContentPage
 
     private async Task UpdateTopText()
     {
-        var token = await SpotifyAccessToken.Get();
+        var token = await spotifyAccessToken.GetAsync();
         while (token != null)
         {
             var currentTrack = await SpotifyApi.GetCurrentTrackAsync(token.Value!);
@@ -154,7 +157,7 @@ public partial class Map : ContentPage
 
     private async void OnProfileButtonClicked(object sender, EventArgs e)
     {
-        var page = new Sheet(0);
+        var page = new Sheet(spotifyAccessToken, 0);
         await page.ShowAsync();
     }
 
@@ -171,7 +174,7 @@ public partial class Map : ContentPage
 
     private async void OpenUserProfile(int id)
     {
-        var page = new Sheet(id);
+        var page = new Sheet(spotifyAccessToken, id);
         await page.ShowAsync();
     }
 

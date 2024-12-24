@@ -17,12 +17,11 @@ namespace ProfileBottomSheet;
 
 public partial class Sheet : BottomSheet
 {
-    public Sheet(int id)
+    public Sheet(ISpotifyAccessTokenService spotifyAccessToken, int id)
     {
         InitializeComponent();
-        BindingContext = new ProfileBottomSheetViewModel(id);
+        BindingContext = new ProfileBottomSheetViewModel(spotifyAccessToken, id);
         InitializeData();
-        
     }
 
     private async void InitializeData()
@@ -40,15 +39,19 @@ public partial class Sheet : BottomSheet
     private async void OnGridTapped(object sender, TappedEventArgs e)
     {
         if (e.Parameter is string url)
-                await Launcher.Default.OpenAsync(url);
+            await Launcher.Default.OpenAsync(url);
     }
 }
 
-public class ProfileBottomSheetViewModel(int id) : INotifyPropertyChanged
+public class ProfileBottomSheetViewModel(
+    ISpotifyAccessTokenService spotifyAccessToken,
+    int id) : INotifyPropertyChanged
 {
     private bool _isLoadingTracks = true;
     private bool _isLoadingArtists = true;
     public readonly int Id = id;
+    private readonly ISpotifyAccessTokenService spotifyAccessToken = spotifyAccessToken;
+    
 
     public bool IsLoadingTracks
     {
@@ -60,7 +63,7 @@ public class ProfileBottomSheetViewModel(int id) : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-    
+
     public bool IsLoadingArtists
     {
         get => _isLoadingArtists;
@@ -71,7 +74,7 @@ public class ProfileBottomSheetViewModel(int id) : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-    
+
     public ObservableCollection<Domain.Track> Tracks { get; set; } = new();
     public ObservableCollection<Domain.Artist> Artists { get; set; } = new();
 
@@ -81,7 +84,7 @@ public class ProfileBottomSheetViewModel(int id) : INotifyPropertyChanged
         var loadArtists = GetTopArtists();
 
         await Task.WhenAll(loadTracks, loadArtists);
-        
+
         Tracks = await loadTracks;
         Artists = await loadArtists;
 
@@ -94,9 +97,9 @@ public class ProfileBottomSheetViewModel(int id) : INotifyPropertyChanged
 
     private async Task<ObservableCollection<Domain.Artist>> GetTopArtists()
     {
-        var token = await SpotifyAccessToken.Get();
+        var token = await spotifyAccessToken.GetAsync();
         var top = await SpotifyApi.GetUserTopItemsAsync<Artist>(token.Value!);
-    
+
         if (top?.Result is not ApiResult.Success || top.Data == null)
             return new ObservableCollection<Domain.Artist>();
 
@@ -108,9 +111,9 @@ public class ProfileBottomSheetViewModel(int id) : INotifyPropertyChanged
 
     private async Task<ObservableCollection<Domain.Track>> GetTopTracks()
     {
-        var token = await SpotifyAccessToken.Get();
+        var token = await spotifyAccessToken.GetAsync();
         var top = await SpotifyApi.GetUserTopItemsAsync<Track>(token.Value!);
-    
+
         if (top?.Result is not ApiResult.Success || top.Data == null)
             return new ObservableCollection<Domain.Track>();
 

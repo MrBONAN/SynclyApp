@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using App.UserAuthorization.SpotifyAuthorization;
 using The49.Maui.BottomSheet;
 
 namespace App;
@@ -44,7 +45,6 @@ public class SettingsViewModel : INotifyPropertyChanged
     {
         SettingsList =
         [
-            new Setting("Мой профиль", "profile_icon.png", new ProfileBottomSheet.Sheet(0)),
             new Setting("Подключения", "connections_icon.png", new ConnectionsBottomSheet.Sheet()),
             new Setting("Приватность", "privacy_icon.png", new ConnectionsBottomSheet.Sheet()),
             new Setting("Вид карты", "appearance_icon.png", new ConnectionsBottomSheet.Sheet()),

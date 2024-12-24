@@ -24,7 +24,7 @@ public partial class MainPage : ContentPage
         var logInResult = await spotifyAuthManager.LogInAsync();
         if (logInResult == LogInResult.Success)
         {
-            Application.Current.MainPage = new Map();
+            Application.Current.MainPage = new Map(spotifyAccessToken);
         }
         await Application.Current?.MainPage?.DisplayAlert("Результат входа", logInResult.ToString(), "ОК")!;
     }

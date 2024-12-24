@@ -1,5 +1,6 @@
 using App.Infrastructure;
 using Infrastructure;
+using Microsoft.Maui.Controls;
 
 namespace App;
 
@@ -12,12 +13,21 @@ public class MapCommands
         _leafletWebView = webView;
     }
 
+    public async Task MoveToMyLocation(ILocationService locationService)
+    {
+        var location = await locationService.GetLocationAsync();
+        MoveMapTo(location);
+    }
+
     public void SetMapHtml(string htmlContent)
     {
-        _leafletWebView.Source = new HtmlWebViewSource
+        if (_leafletWebView is WebView webView)
         {
-            Html = htmlContent
-        };
+            webView.Source = new HtmlWebViewSource
+            {
+                Html = htmlContent
+            };
+        }
     }
 
     public void MoveMapTo(Location location)

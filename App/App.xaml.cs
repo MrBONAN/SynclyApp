@@ -1,18 +1,18 @@
-﻿using App.UserAuthorization.SpotifyAuthorization.Models;
+﻿using App.UserAuthorization.SpotifyAuthorization;
+using App.UserAuthorization.SpotifyAuthorization.Models;
 using Infrastructure.API.SpotifyAPI;
 
 namespace App;
 
 public partial class App : Application
 {
-    public App()
+    public App(ISpotifyAccessTokenService spotifyAccessToken)
     {
         InitializeComponent();
-        //MainPage = new Map();
-        var token = Task.Run(() => SpotifyAccessToken.Get()).Result;
+        var token = Task.Run(() => spotifyAccessToken.GetAsync()).Result;
         if (token.Result != AccessTokenResult.Success)
-            MainPage = new MainPage();
+            MainPage = new Map(spotifyAccessToken);
         else
-            MainPage = new Map();
+            MainPage = new Map(spotifyAccessToken);
     }
 }
