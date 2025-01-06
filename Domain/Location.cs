@@ -31,11 +31,6 @@ public class MapLocation : ILocationService
         _timeWhenUpdated = DateTimeOffset.Now;
     }
 
-    public Task<Location> GetLocationAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<IEnumerable<Location>> GetAllLocationsAsync()
     {
         throw new NotImplementedException();

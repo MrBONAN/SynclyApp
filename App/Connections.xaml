@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<bottomSheet:BottomSheet xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:bottomSheet="https://schemas.the49.com/dotnet/2023/maui"
-             x:Class="ConnectionsBottomSheet.Sheet">
-    
-</bottomSheet:BottomSheet>
+<the49:BottomSheet xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                   xmlns:the49="https://schemas.the49.com/dotnet/2023/maui"
+                   xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+                   x:Class="ConnectionsBottomSheet.Sheet"
+                   Padding="16, 32"
+                   Background="{StaticResource Black}"
+                   CornerRadius="20"
+                   HasBackdrop="True">
+    <Button BackgroundColor="#1ED760"
+            Text="">
+    </Button>
+</the49:BottomSheet>

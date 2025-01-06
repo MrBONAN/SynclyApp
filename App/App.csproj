@@ -22,10 +22,10 @@
         <UseHotReload>true</UseHotReload>
 
         <!-- Display name -->
-        <ApplicationTitle>App</ApplicationTitle>
+        <ApplicationTitle>Syncly</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.app</ApplicationId>
+        <ApplicationId>com.team1x.syncly</ApplicationId>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -41,7 +41,7 @@
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4"/>
+        <MauiIcon Include="Resources\AppIcon\appicon.svg"/>
         <MauiImage Include="Resources\Raw\fridmak.jpg" />
         <MauiImage Include="Resources\Raw\lexa.jpg" />
         <MauiImage Include="Resources\Raw\mot1x.jpg" />

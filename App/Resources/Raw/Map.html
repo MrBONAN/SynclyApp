@@ -66,10 +66,10 @@
         .location-pin {
             /*display: flex;*/
             /*position: relative;*/
-            
+
             /*left: 0%;*/
             text-align: center;
-            
+
             /*transform: translate(0%, -100%); /** Центрирование с якорем внизу *!*/
         }
 
@@ -88,7 +88,7 @@
             border-radius: 50% 50% 50% 0;
             background: #222;
             transform: rotate(-45deg);
-            
+
             /*transform-origin: 50% 100%; /* Смещает якорь к нижней центральной точке */
             margin: 0px 0px 0px 6px; /* Отрегулируйте для центрирования */
         }
@@ -170,11 +170,27 @@
         maxBoundsViscosity: 2.0
     });
 
-    const googleSatellite = L.tileLayer('https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-    });
+    let activeLayer = null;
 
-    googleSatellite.addTo(map);
+    function showMap(style) {
+        let layerUrl = null;
+        if (style === "default") {
+            layerUrl = 'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
+        } else if (style === "satellite") {
+            layerUrl = 'https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
+        } else {
+            console.error("Unknown map style:", style);
+            return;
+        }
+
+        if (activeLayer) {
+            activeLayer.setUrl(layerUrl);
+        } else {
+            activeLayer = L.tileLayer(layerUrl, {
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+            }).addTo(map);
+        }
+    }
 
     const markers = {};
 
@@ -262,6 +278,10 @@
     function setPort(_port) {
         port = _port;
     }
+
+    //function showMap(){
+    //    sendMessageToServer(`[RUN]ShowMap()`);
+    //}
 
     /**
      * Функция открытия профиля на карте

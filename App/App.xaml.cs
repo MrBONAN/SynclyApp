@@ -6,13 +6,15 @@ namespace App;
 
 public partial class App : Application
 {
-    public App(ISpotifyAccessTokenService spotifyAccessToken)
+    public static IServiceProvider Services { get; private set; }
+    public App(ISpotifyAuthManager spotifyAuthManager, ISpotifyAccessTokenService spotifyAccessToken, IServiceProvider serviceProvider)
     {
         InitializeComponent();
+        Services = serviceProvider;
         var token = Task.Run(() => spotifyAccessToken.GetAsync()).Result;
         if (token.Result != AccessTokenResult.Success)
-            MainPage = new Map(spotifyAccessToken);
+            MainPage = Services.GetRequiredService<MainPage>();
         else
-            MainPage = new Map(spotifyAccessToken);
+            MainPage = Services.GetRequiredService<Map>();
     }
 }

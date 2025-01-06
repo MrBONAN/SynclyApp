@@ -4,14 +4,14 @@ using Microsoft.Maui.Controls;
 
 namespace App;
 
-public class MapCommands
+public interface IMapCommands
 {
-    private readonly WebView _leafletWebView;
+    void Initialize(WebView leafletWebView);
+}
 
-    public MapCommands(WebView webView)
-    {
-        _leafletWebView = webView;
-    }
+public class MapCommands : IMapCommands
+{
+    private WebView _leafletWebView;
 
     public async Task MoveToMyLocation(ILocationService locationService)
     {
@@ -55,6 +55,12 @@ public class MapCommands
         );";
         _leafletWebView.Eval(jsCode);
     }
+    
+    public void LoadMap()
+    {
+        var jsCode = $"showMap(\"{Preferences.Get("MapStyle", "default")}\");";
+        _leafletWebView.Eval(jsCode);
+    }
 
     public void SetPort(PortChecker portChecker)
     {
@@ -62,5 +68,10 @@ public class MapCommands
         var jsCode = $"setPort({port}); console.log('SetPort called with port:', {port});";
         System.Diagnostics.Debug.WriteLine($"Calling SetPort with port: {port}");
         _leafletWebView.Eval(MapService.FormatJsCodeWithInvariantCulture(jsCode));
+    }
+
+    public void Initialize(WebView webView)
+    {
+        _leafletWebView = webView;
     }
 }

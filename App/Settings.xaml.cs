@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using App.UserAuthorization.SpotifyAuthorization;
 using The49.Maui.BottomSheet;
 
 namespace App;
@@ -33,8 +32,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public ObservableCollection<Setting> SettingsList { get; set; }
-    public string Footer { get; private set; } = $"С <3 от Лалки\nВерсия приложения: v{AppInfo.BuildString}";
-    public ICommand SettingTappedCommand { get; set; }
+    public string Footer => $"С <3 от Лалки\nВерсия приложения: v{AppInfo.BuildString}";
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
@@ -45,34 +43,33 @@ public class SettingsViewModel : INotifyPropertyChanged
     {
         SettingsList =
         [
-            new Setting("Подключения", "connections_icon.png", new ConnectionsBottomSheet.Sheet()),
+            //new Setting("Подключения", "connections_icon.png", new ConnectionsBottomSheet.Sheet()),
             new Setting("Приватность", "privacy_icon.png", new ConnectionsBottomSheet.Sheet()),
-            new Setting("Вид карты", "appearance_icon.png", new ConnectionsBottomSheet.Sheet()),
-            new Setting("Приватность", "privacy_icon.png", new ConnectionsBottomSheet.Sheet())
+            new Setting("Вид карты", "appearance_icon.png", new AppearanceBottomSheet.Sheet()),
+            new Setting("Выход из аккаунта", "exit_icon.png", new ExitBottomSheet.Sheet())
         ];
         OnPropertyChanged(nameof(SettingsList));
-        //SettingTappedCommand = new Command<ContentView>(async (item) => await OnSettingTapped(item));
-    }
-
-    private async void OnTapped(object sender, TappedEventArgs e)
-    {
-        var parameter = e.Parameter; // Здесь находится переданный аргумент
-        if (parameter is not BottomSheet sheet)
-            return;
-        await sheet.ShowAsync();
     }
 }
 
 public class Setting
 {
-    public Setting(string name, string icon, ContentView contentView)
+    public Setting(string name, string icon, BottomSheet contentView)
     {
         Icon = icon;
         Name = name;
         Page = contentView;
+        OpenPageCommand = new Command(OpenPage);
     }
+
+    private async void OpenPage()
+    {
+        await Page.ShowAsync();
+    }
+
+    public ICommand OpenPageCommand { get; set; }
 
     public string Icon { get; set; }
     public string Name { get; set; }
-    public ContentView Page { get; set; }
+    public BottomSheet Page { get; set; }
 }

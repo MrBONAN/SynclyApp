@@ -31,8 +31,6 @@ public partial class Sheet : BottomSheet
         {
             viewModel.LoadDataAsync()
         };
-
-        // Пока данные загружаются, показываем индикатор загрузки.
         await Task.WhenAny(loadingTasks);
     }
 

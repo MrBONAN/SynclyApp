@@ -37,16 +37,15 @@ public static class MauiProgram
 #endif
             });
         
-        // Регистрация страниц
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<ProfileBottomSheet.Sheet>();
         builder.Services.AddTransient<SettingsBottomSheet>();
         builder.Services.AddTransient<ConnectionsBottomSheet.Sheet>();
         builder.Services.AddTransient<SignIn>();
+        builder.Services.AddTransient<AppearanceBottomSheet.Sheet>();
         builder.Services.AddTransient<Map>();
         
-        
-        // Регистрация интерфейсов для работы со Spotify
+        builder.Services.AddSingleton<MapCommands>();
         builder.Services.AddSingleton<ISpotifyAccessTokenService, SpotifyAccessTokenService>();
         builder.Services.AddSingleton<ISpotifyAuthManager, SpotifyAuthManager>();
         builder.Services.AddSingleton<ISpotifyPkceAuthorizationService, SpotifyPkceAuthorizationService>();

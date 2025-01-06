@@ -46,28 +46,25 @@ public class ClientDataParser
 
         var match = Regex.Match(function, FuncArgsParseFormat);
 
-        if (match.Success)
-        {
-            var parsedFunc = ParseFunctionCall(function);
-            var fName = parsedFunc.Item1;
-            var args = parsedFunc.Item2;
+        if (!match.Success) return;
+        var (fName, args) = ParseFunctionCall(function);
 
-            switch (fName)
-            {
-                case "OpenUserProfile":
-                    var eventArg = new ProfileEventArgs(fName, args);
-                    handlers[fName]?.Invoke("SERVER", eventArg);
-                    break;
-                case "NULL":
-                    Debug.WriteLine("Error Parsing Name and Arguments");
+        switch (fName)
+        {
+            case "OpenUserProfile":
+            case "ShowMap":
+                var eventArg = new ProfileEventArgs(fName, args);
+                handlers[fName]?.Invoke("SERVER", eventArg);
+                break;
+            case "NULL":
+                Debug.WriteLine("Error Parsing Name and Arguments");
+                return;
+            default:
+                if (!handlers.Keys.Contains(fName))
                     return;
-                default:
-                    if (!handlers.Keys.Contains(fName))
-                        return;
-                    var otherEventArgs = new OtherEventArgs(fName, args);
-                    handlers[fName]?.Invoke("SERVER", otherEventArgs);
-                    break;
-            }
+                var otherEventArgs = new OtherEventArgs(fName, args);
+                handlers[fName]?.Invoke("SERVER", otherEventArgs);
+                break;
         }
     }
 

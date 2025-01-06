@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<the49:BottomSheet xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                   xmlns:the49="https://schemas.the49.com/dotnet/2023/maui"
+                   xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+                   x:Class="AppearanceBottomSheet.Sheet"
+                   Padding="16, 32"
+                   Background="{StaticResource Black}"
+                   CornerRadius="20"
+                   HasBackdrop="True">
+
+    <the49:BottomSheet.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/BottomSheetStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </the49:BottomSheet.Resources>
+
+    <Grid VerticalOptions="Start"
+          HorizontalOptions="FillAndExpand"
+          RowSpacing="35">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Label
+            x:Name="PageName"
+            Style="{StaticResource HeaderLabelStyle}"
+            Text="Вид карты"
+            HorizontalOptions="CenterAndExpand" />
+
+        <Grid Grid.Row="1">
+            <VerticalStackLayout Spacing="10"
+                                 HorizontalOptions="CenterAndExpand">
+                <ScrollView>
+                    <CollectionView ItemsSource="{Binding AppearanceList}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" />
+                        </CollectionView.ItemsLayout>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout Spacing="0" Padding="10">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ChangeMapCommand}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    
+                                    <Frame BorderColor="{Binding BackgroundColor}"
+                                           CornerRadius="10"
+                                           Padding="10"
+                                           InputTransparent="True">
+                                        <Grid RowSpacing="10">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="100" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+
+                                            <Frame Grid.Row="0"
+                                                   WidthRequest="100"
+                                                   HeightRequest="100"
+                                                   CornerRadius="10"
+                                                   IsClippedToBounds="True"
+                                                   InputTransparent="True">
+                                                <Frame.Bounds>
+
+                                                </Frame.Bounds>
+
+                                                <Image HeightRequest="100"
+                                                       WidthRequest="100"
+                                                       Aspect="Fill"
+                                                       Source="{Binding PreviewPath}" />
+                                            </Frame>
+
+                                            <StackLayout Grid.Row="1"
+                                                         Spacing="5"
+                                                         VerticalOptions="Center">
+                                                <Label Text="{Binding Title}"
+                                                       HorizontalTextAlignment="Center"
+                                                       LineBreakMode="TailTruncation"
+                                                       FontSize="16"
+                                                       TextColor="White"
+                                                       FontAttributes="Bold"
+                                                       WidthRequest="100" />
+                                            </StackLayout>
+                                        </Grid>
+                                    </Frame>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </ScrollView>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</the49:BottomSheet>

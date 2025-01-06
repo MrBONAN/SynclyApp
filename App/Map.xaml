@@ -33,7 +33,7 @@
             <!-- Заголовок -->
             <Label x:Name="CurrentTrack"
                    Text="{Binding TopText}"
-                   WidthRequest="400"
+                   WidthRequest="350"
                    LineBreakMode="TailTruncation"
                    FontSize="30"
                    FontFamily="Roboto"

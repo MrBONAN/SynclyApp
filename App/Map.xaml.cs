@@ -22,6 +22,7 @@ public partial class Map : ContentPage
     private DefaultSettings _defaultSettings;
     private SimpleServer _localServer;
     private PortChecker _portChecker;
+    private string MapStyle => Preferences.Get("MapStyle", "default");
 
     private readonly ISpotifyAccessTokenService spotifyAccessToken;
     private string _topText = "Тишина...";
@@ -56,7 +57,35 @@ public partial class Map : ContentPage
         StartServer();
         InitializeFields();
         HandleXamlButtons();
-        this.Loaded += OnPageLoaded;
+        Loaded += OnPageLoaded;
+    }
+
+    private async Task UpdateLocation()
+    {
+        while (true)
+        {
+            try
+            {
+                var location = await _cachedLocation.GetLocationAsync();
+                if (location != null)
+                {
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        _mapControl.AddMarkerWithLocalImage(location, "mot1x.jpg", 0, "openUserProfile");
+                        _mapControl.SetPort(_portChecker);
+                    });
+                }
+                else
+                {
+                    Console.WriteLine("UpdateLocation: Location is null");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"UpdateLocation error: {ex.Message}");
+            }
+            await Task.Delay(15000);
+        }
     }
 
     private void HandleXamlButtons()
@@ -71,12 +100,14 @@ public partial class Map : ContentPage
     {
         _userInformation = new UserInformation();
         _defaultSettings = new DefaultSettings();
-        _mapControl = new MapCommands(LeafletWebView);
+
+        _mapControl = App.Services.GetRequiredService<MapCommands>();
+        _mapControl.Initialize(LeafletWebView);
         _mapControl.SetMapHtml(_defaultSettings.GetMapHtml());
+
         _cachedLocation = new MapLocation(_userInformation.GetCurrentLocation);
         HandleServerMethods();
         await UpdateTopText();
-        LeafletWebView.Navigated += OnWebViewNavigated;
     }
 
     private void StopServer() => _localServer.Stop();
@@ -103,15 +134,15 @@ public partial class Map : ContentPage
             _isCheckingLocation = true;
             var userLocation = await _cachedLocation.GetLocationAsync();
             _mapControl.MoveMapTo(userLocation);
-            
+
             var locations = new List<Location>
             {
                 userLocation,
-                new Location(userLocation.Latitude + 0.015, userLocation.Longitude),
-                new Location(userLocation.Latitude - 0.01, userLocation.Longitude - 0.01),
-                new Location(userLocation.Latitude - 0.017, userLocation.Longitude - 0.002)
+                //new Location(userLocation.Latitude + 0.015, userLocation.Longitude),
+                //new Location(userLocation.Latitude - 0.01, userLocation.Longitude - 0.01),
+                //new Location(userLocation.Latitude - 0.017, userLocation.Longitude - 0.002)
             };
-            
+
             var avatars = new List<string>
             {
                 "mot1x.jpg",
@@ -122,7 +153,7 @@ public partial class Map : ContentPage
             for (var i = 0; i < locations.Count; i++)
                 _mapControl.AddMarkerWithLocalImage(locations[i], avatars[i], i,
                     "openUserProfile");
-            
+
             _mapControl.AddCircle(await _cachedLocation.GetLocationAsync(), 2000);
             _mapControl.SetPort(_portChecker);
         }
@@ -147,6 +178,11 @@ public partial class Map : ContentPage
                 TopText = currentTrack.Data!.Name;
                 TopTextLink = currentTrack.Data!.Uri;
             }
+            else
+            {
+                TopText = "Тишина...";
+                TopTextLink = null;
+            }
 
             await Task.Delay(10000);
         }
@@ -157,6 +193,7 @@ public partial class Map : ContentPage
         var userLocation = await _cachedLocation.GetLocationAsync();
         await MainThread.InvokeOnMainThreadAsync(() =>
         {
+            _mapControl.LoadMap();
             _mapControl.MoveMapTo(userLocation);
             _mapControl.AddMarkerWithLocalImage(userLocation, "image.jpg", 0, "openUserProfile");
             _mapControl.SetPort(_portChecker);
@@ -173,11 +210,6 @@ public partial class Map : ContentPage
     {
         var page = new SettingsBottomSheet();
         await page.ShowAsync();
-    }
-
-    private void OnBottomButtonClicked(object sender, EventArgs e)
-    {
-        //OnClickedMoveToMyLocation(sender, e);
     }
 
     private async void OpenUserProfile(int id)
@@ -212,15 +244,14 @@ public partial class Map : ContentPage
             {
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
+                    _mapControl.LoadMap();
                     _mapControl.MoveMapTo(userLocation);
                     _mapControl.AddMarkerWithLocalImage(userLocation, "mot1x.jpg", 0, "openUserProfile");
                     _mapControl.SetPort(_portChecker);
                 });
             }
-            else
-            {
-                await DisplayAlert("Debug", "Location is null", "OK");
-            }
+
+            _ = UpdateLocation();
         }
         catch (Exception ex)
         {
