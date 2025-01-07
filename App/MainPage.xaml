@@ -15,12 +15,12 @@
                 Clicked="Authenticate"
                 HorizontalOptions="Fill" />
 
-            <Button
-                x:Name="SearchBtn"
-                Text="Найти трек"
-                SemanticProperties.Hint="Search track button"
-                Clicked="FindTrack"
-                HorizontalOptions="Fill" />
+            <!-- <Button -->
+            <!--     x:Name="SearchBtn" -->
+            <!--     Text="Найти трек" -->
+            <!--     SemanticProperties.Hint="Search track button" -->
+            <!--     Clicked="FindTrack" -->
+            <!--     HorizontalOptions="Fill" /> -->
 
             <Button
                 x:Name="TopTracksBtn"
@@ -36,19 +36,19 @@
                 Clicked="GetTopArtists"
                 HorizontalOptions="Fill" />
             
-            <Button
-                x:Name="SeveralTracksBtn"
-                Text="Получить несколько треков по Id"
-                SemanticProperties.Hint="Get several tracks by id"
-                Clicked="GetSeveralTracks"
-                HorizontalOptions="Fill" />
+            <!-- <Button -->
+            <!--     x:Name="SeveralTracksBtn" -->
+            <!--     Text="Получить несколько треков по Id" -->
+            <!--     SemanticProperties.Hint="Get several tracks by id" -->
+            <!--     Clicked="GetSeveralTracks" -->
+            <!--     HorizontalOptions="Fill" /> -->
             
-            <Button
-                x:Name="SeveralArtistsBtn"
-                Text="Получить несколько артистов по Id"
-                SemanticProperties.Hint="Get several artists by id"
-                Clicked="GetSeveralArtists"
-                HorizontalOptions="Fill" />
+            <!-- <Button -->
+            <!--     x:Name="SeveralArtistsBtn" -->
+            <!--     Text="Получить несколько артистов по Id" -->
+            <!--     SemanticProperties.Hint="Get several artists by id" -->
+            <!--     Clicked="GetSeveralArtists" -->
+            <!--     HorizontalOptions="Fill" /> -->
 
             <Button
                 x:Name="UserProfileBtn"
@@ -57,12 +57,12 @@
                 Clicked="GetUserData"
                 HorizontalOptions="Fill" />
             
-            <Button
-                x:Name="CurrentTrackBtn"
-                Text="Получить текущий трек"
-                SemanticProperties.Hint="Get user current track"
-                Clicked="GetCurrentTrack"
-                HorizontalOptions="Fill" />
+            <!-- <Button -->
+            <!--     x:Name="CurrentTrackBtn" -->
+            <!--     Text="Получить текущий трек" -->
+            <!--     SemanticProperties.Hint="Get user current track" -->
+            <!--     Clicked="GetCurrentTrack" -->
+            <!--     HorizontalOptions="Fill" /> -->
 
             <Button
                 x:Name="LogOutBtn"

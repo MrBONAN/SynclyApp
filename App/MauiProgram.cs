@@ -1,4 +1,5 @@
-﻿using App.UserAuthorization.SpotifyAuthorization;
+﻿using App.UserAuthorization;
+using App.UserAuthorization.SpotifyAuthorization;
 using Microsoft.Extensions.Logging;
 namespace App;
 
@@ -19,7 +20,7 @@ public static class MauiProgram
         builder.Services.AddTransient<MainPage>();
         
         // Регистрация интерфейсов для работы со Spotify
-        builder.Services.AddSingleton<ISpotifyAccessTokenService, SpotifyAccessTokenService>();
+        builder.Services.AddSingleton<IUserDataHandler, UserDataHandler>();
         builder.Services.AddSingleton<ISpotifyAuthManager, SpotifyAuthManager>();
         builder.Services.AddSingleton<ISpotifyPkceAuthorizationService, SpotifyPkceAuthorizationService>();
         
