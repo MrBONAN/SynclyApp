@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Leaflet Map with Geolocation</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -19,7 +19,7 @@
             margin: 0; /* Убирает зазоры между тайлами */
             padding: 0;
         }
-
+        
         #map {
             height: 100vh;
             width: 100%;
@@ -161,13 +161,18 @@
         zoom: 13,
         zoomControl: false,
         attributionControl: false,
-        tileSize: 1024,
+        tileSize: 512,
         detectRetina: true,
+        zoomOffset: -1,
         maxBounds: [
             [-90, -180],
             [90, 180]],
         minZoom: 2,
         maxBoundsViscosity: 2.0
+    });
+
+    window.addEventListener('resize', function () {
+        map.invalidateSize();
     });
 
     let activeLayer = null;

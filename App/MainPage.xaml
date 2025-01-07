@@ -14,40 +14,6 @@
                 Clicked="Authenticate"
                 HorizontalOptions="Fill" />
             
-            <!-- <Button
-                x:Name="SearchBtn"
-                Text="Найти трек" 
-                SemanticProperties.Hint="Search track button"
-                Clicked="FindTrack"
-                HorizontalOptions="Fill" />
-            
-            <Button
-                x:Name="TopTracksBtn"
-                Text="Получить топ 10 треков пользователя" 
-                SemanticProperties.Hint="Get top 10 user tracks"
-                Clicked="GetTopTracks"
-                HorizontalOptions="Fill" />
-            
-            <Button
-                x:Name="TopAtristsBtn"
-                Text="Получить топ 10 исполнителей пользователя" 
-                SemanticProperties.Hint="Get top 10 user artists"
-                Clicked="GetTopArtists"
-                HorizontalOptions="Fill" />
-            
-            <Button
-                x:Name="UserProfileBtn"
-                Text="Получить данные пользователя" 
-                SemanticProperties.Hint="Get user profile data"
-                Clicked="GetUserData"
-                HorizontalOptions="Fill" />
-            
-            <Button
-                x:Name="LogOutBtn"
-                Text="Удалить токен из памяти" 
-                SemanticProperties.Hint="Delete user access token"
-                Clicked="LogOut"
-                HorizontalOptions="Fill" /> -->
         </VerticalStackLayout>
     </ScrollView>
 

@@ -13,7 +13,7 @@ public partial class App : Application
         Services = serviceProvider;
         var token = Task.Run(() => spotifyAccessToken.GetAsync()).Result;
         if (token.Result != AccessTokenResult.Success)
-            MainPage = Services.GetRequiredService<MainPage>();
+            MainPage = Services.GetRequiredService<SignIn>();
         else
             MainPage = Services.GetRequiredService<Map>();
     }

@@ -1,7 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="App.SignIn">
-    
-</ContentView>
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="App.SignIn"
+             Background="{StaticResource Black}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/BottomSheetStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <Grid x:Name="Grid">
+
+            <toolkit:MediaElement
+                Source="embed://Resources/Videos/background.mp4"
+                ShouldAutoPlay="True"
+                ShouldLoopPlayback="True"
+                ShouldShowPlaybackControls="False"
+                ShouldMute="True"
+                VerticalOptions="End"
+                TranslationY="30"
+                Aspect="AspectFit"
+                HeightRequest="{Binding Width, Source={x:Reference Grid}}"
+                WidthRequest="{Binding Width, Source={x:Reference Grid}}" />
+
+            <StackLayout VerticalOptions="CenterAndExpand" Padding="20">
+                <Label Text="Привет, это Syncly!"
+                       FontSize="32"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center"
+                       Style="{StaticResource HeaderLabelStyle}"
+                       Margin="0,0,0,10" />
+                
+                <Label Text="Выберите сервис для авторизации"
+                       FontSize="20"
+                       HorizontalTextAlignment="Center"
+                       Style="{StaticResource DescriptionLabelStyle}"
+                       Margin="0,0,0,30" />
+
+                <Button Text="Войти через Spotify"
+                        HeightRequest="50"
+                        ImageSource="spotify_icon.png"
+                        FontSize="18"
+                        BackgroundColor="#1DB954"
+                        TextColor="White"
+                        CornerRadius="10"
+                        ContentLayout="Left, 10"
+                        Clicked="OnSpotifyAuthButtonClicked">
+                </Button>
+            </StackLayout>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

@@ -20,13 +20,13 @@ public partial class Sheet : BottomSheet
     public Sheet(ISpotifyAccessTokenService spotifyAccessToken, int id)
     {
         InitializeComponent();
-        BindingContext = new ProfileBottomSheetViewModel(spotifyAccessToken, id);
+        BindingContext = new ViewModel(spotifyAccessToken, id);
         InitializeData();
     }
 
     private async void InitializeData()
     {
-        if (BindingContext is not ProfileBottomSheetViewModel viewModel) return;
+        if (BindingContext is not ViewModel viewModel) return;
         var loadingTasks = new List<Task>
         {
             viewModel.LoadDataAsync()
@@ -41,7 +41,7 @@ public partial class Sheet : BottomSheet
     }
 }
 
-public class ProfileBottomSheetViewModel(
+public class ViewModel(
     ISpotifyAccessTokenService spotifyAccessToken,
     int id) : INotifyPropertyChanged
 {
