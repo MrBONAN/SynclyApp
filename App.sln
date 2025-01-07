@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastru
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiTests", "ApiTests\ApiTests.csproj", "{DD6F6DC6-19D8-48EA-82AE-FAE3A9479E99}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerApiTests", "ServerApiTests\ServerApiTests.csproj", "{17B3FC75-D2F5-4A2E-9087-14C3A2561C67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{DD6F6DC6-19D8-48EA-82AE-FAE3A9479E99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD6F6DC6-19D8-48EA-82AE-FAE3A9479E99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD6F6DC6-19D8-48EA-82AE-FAE3A9479E99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17B3FC75-D2F5-4A2E-9087-14C3A2561C67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17B3FC75-D2F5-4A2E-9087-14C3A2561C67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17B3FC75-D2F5-4A2E-9087-14C3A2561C67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17B3FC75-D2F5-4A2E-9087-14C3A2561C67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

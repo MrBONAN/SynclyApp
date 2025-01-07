@@ -31,7 +31,6 @@ public static partial class SpotifyApi
         {
             ClientId = "90f13d35881a49c4b1d1f7c4ba4f040c";
         }
-
     }
 
     public static async Task<AccessToken?> GetAppAccessToken()
