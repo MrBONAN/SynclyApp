@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Chats;
+namespace Infrastructure.Chats;
 
 public class Chats : IAsyncDisposable
 {
@@ -6,7 +6,6 @@ public class Chats : IAsyncDisposable
     private bool _isRunning;
     public event EventHandler<List<int>> NewMessagesReceived;
     private readonly List<int> _newMessagesUsers = new();
-
 
     public Chats(int myId, string serverLink = "ws://localhost:8080/ws/")
     {
@@ -19,10 +18,10 @@ public class Chats : IAsyncDisposable
             throw new InvalidOperationException("Служба Chats уже запущена.");
 
         await _chatsHandler.StartSetUp();
-        
         _isRunning = true;
 
-        await Task.Run(async () =>
+        // Запускаем прием сообщений в фоновом режиме
+        _ = Task.Run(async () =>
         {
             try
             {
@@ -69,7 +68,11 @@ public class Chats : IAsyncDisposable
 
     public List<(string, string)> GetMessages(int userId) => _chatsHandler.GetMessages(userId);
     
+    public List<(string, string)> GetNewMessages(int userId) => _chatsHandler.GetNewMessages(userId);
+    
     public Dictionary<int, List<(string message, string time)>> GetAllChats() => _chatsHandler.GetAllChats();
+
+    public async Task RestoreMessage(int userId, string message, string time) => await _chatsHandler.RestoreMessage(userId, message, time);
 
     public async ValueTask DisposeAsync()
     {

@@ -1,130 +1,252 @@
-﻿using System.Net.WebSockets;
+using System.Net.WebSockets;
 using System.Text;
+using System.Threading;
 
 public class ChatConnection : IAsyncDisposable
 {
     private ClientWebSocket _webSocket;
-    private Uri _serverUri;
+    private readonly Uri _serverUri;
     private int _connectionAttempts;
-    private readonly CancellationTokenSource _cancellationTokenSource = new();
+    private readonly CancellationTokenSource _cancellationTokenSource;
     public bool IsOpen { get; private set; }
-    public event Action<string> MessageReceived;
+    public event Action<string>? MessageReceived;
+
+    private readonly int _maxReconnectAttempts = 3;
+    private readonly TimeSpan _reconnectDelay = TimeSpan.FromMilliseconds(500); 
+    private bool _isReconnecting;
+    private bool _isDisposed;
+    private readonly SemaphoreSlim _connectionLock = new SemaphoreSlim(1, 1);
+    private Task? _receiveTask;
 
     public ChatConnection(string serverUri, Action<string> onMessageReceived)
     {
         _serverUri = new Uri(serverUri);
+        MessageReceived = onMessageReceived;
         _webSocket = new ClientWebSocket();
-        MessageReceived += onMessageReceived;
+        _cancellationTokenSource = new CancellationTokenSource();
     }
 
     public async Task OpenConnectionAsync()
     {
-        _connectionAttempts = 0;
-
-        while (_connectionAttempts < 3)
+        while (!_cancellationTokenSource.Token.IsCancellationRequested && !IsOpen)
         {
             try
             {
-                Console.WriteLine(
-                    $"[OpenConnectionAsync]Подключение к серверу: {_serverUri}, попытка {_connectionAttempts + 1}, До подключения");
-                await _webSocket.ConnectAsync(_serverUri, CancellationToken.None);
-                Console.WriteLine("[OpenConnectionAsync]Соединение установлено.");
+                if (_webSocket.State != WebSocketState.None && _webSocket.State != WebSocketState.Closed)
+                    await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing before retry",
+                        CancellationToken.None);
+                
+                _webSocket = new ClientWebSocket();
+                await _webSocket.ConnectAsync(_serverUri, _cancellationTokenSource.Token);
                 IsOpen = true;
-                return;
+                _receiveTask = StartReceivingMessagesAsync(); 
+                break;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[openConnectionAsync]Ошибка при подключении: {ex.Message}, Повтор через 2 сек");
-                await Task.Delay(2000);
+                Console.WriteLine($"Ошибка подключения: {ex.Message}");
+
+                if (_connectionAttempts < 3)
+                    await Task.Delay(500, _cancellationTokenSource.Token); 
+                else
+                {
+                    Console.WriteLine("Не удалось установить соединение после всех попыток");
+                    break;
+                }
                 _connectionAttempts++;
             }
         }
-
-        Console.WriteLine($"Не удалось установить соединение");
     }
 
     public async Task<bool> SendMessageAsync(string message)
     {
-        if (!CheckConnection()) return false;
+        if (_isDisposed || !IsOpen)
+            return false;
+
         try
         {
             var messageBytes = Encoding.UTF8.GetBytes(message);
-            var buffer = new ArraySegment<byte>(messageBytes);
-
-            await _webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
-            Console.WriteLine($"[SendMessageAsync]Сообщение отправлено: {message}");
+            await _webSocket.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true,
+                _cancellationTokenSource.Token);
             return true;
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[SendMessageAsync]Ошибка при отправке сообщения: {ex.Message}");
-            if (_webSocket.State != WebSocketState.Open) IsOpen = false;
+            Console.WriteLine($"Ошибка отправки: {ex.Message}");
+            await HandleDisconnectionAsync();
             return false;
         }
     }
 
     public async Task StartReceivingMessagesAsync()
     {
-        byte[] buffer = new byte[1024];
-        WebSocketReceiveResult result;
-
         try
         {
-            while (_webSocket.State == WebSocketState.Open)
-            {
-                var arraySegment = new ArraySegment<byte>(buffer);
-                result = await _webSocket.ReceiveAsync(arraySegment, _cancellationTokenSource.Token);
+            if (_webSocket.State != WebSocketState.Open)
+                return;
 
-                if (result.MessageType == WebSocketMessageType.Close)
-                {
-                    Console.WriteLine("Сервер закрыл соединение");
-                    await DisposeAsync();
-                    return;
-                }
-
-                var message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                MessageReceived?.Invoke(message);
-            }
+            await ProcessMessagesUntilDisconnectAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            // Нормальное завершение при отмене
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[StartReceivingMessagesAsync]Ошибка при получении сообщения: {ex.Message}");
+            Console.WriteLine($"Ошибка приема сообщений: {ex.Message}");
+            await HandleDisconnectionAsync();
         }
     }
 
-    private bool CheckConnection() => _webSocket != null && _webSocket.State == WebSocketState.Open;
+    private async Task ProcessMessagesUntilDisconnectAsync()
+    {
+        byte[] buffer = new byte[1024 * 4];
 
-    public async Task CloseConnectionAsync(WebSocketCloseStatus closeStatus, string description)
+        while (_webSocket.State == WebSocketState.Open && !_isDisposed && !_cancellationTokenSource.Token.IsCancellationRequested)
+        {
+            var result = await ReceiveMessageAsync(buffer);
+            if (result.IsConnectionClosed)
+                break;
+
+            if (result.Message != null && !string.IsNullOrEmpty(result.Message))
+            {
+                MessageReceived?.Invoke(result.Message);
+            }
+        }
+    }
+
+    private async Task<(bool IsConnectionClosed, string? Message)> ReceiveMessageAsync(byte[] buffer)
     {
         try
         {
-            if (CheckConnection())
+            WebSocketReceiveResult result;
+            var messageBuffer = new List<byte>();
+            
+            do
             {
-                Console.WriteLine($"Закрытие соединения, статус: {_webSocket.State}");
-                await _webSocket.CloseAsync(closeStatus, description, CancellationToken.None);
-                Console.WriteLine("Соединение закрыто.");
+                result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cancellationTokenSource.Token);
+                if (result.MessageType == WebSocketMessageType.Close)
+                    return (true, null);
+
+                messageBuffer.AddRange(new ArraySegment<byte>(buffer, 0, result.Count));
             }
+            while (!result.EndOfMessage);
+
+            var message = Encoding.UTF8.GetString(messageBuffer.ToArray());
+            return (false, message);
+        }
+        catch (OperationCanceledException)
+        {
+            return (true, null);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ошибка при закрытии соединения: {ex.Message}");
+            Console.WriteLine($"Ошибка при получении сообщения: {ex.Message}");
+            return (true, null);
         }
+    }
 
-        IsOpen = false;
+    private async Task HandleDisconnectionAsync()
+    {
+        if (_isDisposed) return;
+        
+        await _connectionLock.WaitAsync(_cancellationTokenSource.Token);
+        try
+        {
+            if (!IsOpen) return; // Already handled
+            
+            IsOpen = false;
+            Console.WriteLine("Соединение потеряно, переподключение...");
+            await ReconnectAsync();
+        }
+        finally
+        {
+            _connectionLock.Release();
+        }
+    }
+
+    private async Task ReconnectAsync()
+    {
+        if (_isReconnecting) return;
+
+        try
+        {
+            _isReconnecting = true;
+            _connectionAttempts = 0;
+
+            for (int attempt = 1; attempt <= _maxReconnectAttempts && !_cancellationTokenSource.Token.IsCancellationRequested; attempt++)
+            {
+                if (await TryReconnectOnceAsync(attempt)) return;
+
+                if (attempt < _maxReconnectAttempts)
+                    await Task.Delay(_reconnectDelay, _cancellationTokenSource.Token);
+            }
+
+            Console.WriteLine("Не удалось переподключиться после всех попыток");
+        }
+        finally
+        {
+            _isReconnecting = false;
+        }
+    }
+
+    private async Task<bool> TryReconnectOnceAsync(int attempt)
+    {
+        try
+        {
+            await CleanupCurrentConnectionAsync();
+            _webSocket = new ClientWebSocket();
+            await _webSocket.ConnectAsync(_serverUri, _cancellationTokenSource.Token);
+            IsOpen = true;
+            _receiveTask = StartReceivingMessagesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Попытка переподключения {attempt} не удалась: {ex.Message}");
+            return false;
+        }
+    }
+
+    private async Task CleanupCurrentConnectionAsync()
+    {
+        if (_webSocket.State == WebSocketState.Open)
+        {
+            try
+            {
+                await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Cleanup", CancellationToken.None);
+            }
+            catch
+            {
+                // Игнорируем ошибки при закрытии
+            }
+        }
     }
 
     public async ValueTask DisposeAsync()
     {
+        if (_isDisposed)
+            return;
+
+        _isDisposed = true;
+        _cancellationTokenSource.Cancel();
+
         try
         {
-            Console.WriteLine($"Закрытие соединения, статус: {_webSocket?.State}");
-            await CloseConnectionAsync(WebSocketCloseStatus.NormalClosure, "Dispose");
-            _webSocket?.Dispose();
-            Console.WriteLine("Ресурсы освобождены.");
+            if (_receiveTask != null)
+                await _receiveTask;
         }
-        catch (Exception ex)
+        catch
         {
-            Console.WriteLine($"Ошибка при закрытии соединения: {ex.Message}");
+            // Игнорируем ошибки при завершении задачи
         }
+
+        await CleanupCurrentConnectionAsync();
+        _cancellationTokenSource.Dispose();
+        _connectionLock.Dispose();
     }
 }

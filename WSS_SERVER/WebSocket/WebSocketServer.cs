@@ -19,9 +19,9 @@ public class Server
     
     public async Task StartAsync()
     {
-        _ = _messageArchive.StartMessageResendTimer();
-        _ = _clientManager.StartConnectionHealthCheck();
-
+        await _messageArchive.StartAsync();
+        await _clientManager.StartAsync();
+        
         var httpListener = new HttpListener();
         httpListener.Prefixes.Add(_url);
         httpListener.Start();
@@ -60,6 +60,11 @@ public class Server
     {
         listenerContext.Response.StatusCode = 400;
         listenerContext.Response.Close();
-        //Console.WriteLine("Некорректный WebSocket-запрос.");
+    }
+
+    public async Task StopAsync()
+    {
+        await _messageArchive.StopAsync();
+        await _clientManager.StopAsync();
     }
 }

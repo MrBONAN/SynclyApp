@@ -10,5 +10,6 @@ public interface IClientManager
     bool HasClient(int clientId);
     Task CleanupClientAsync(int clientId, WebSocket webSocket);
     Task CloseConnectionAsync(WebSocket webSocket);
-    Task StartConnectionHealthCheck();
+    Task StopAsync();
+    Task StartAsync();
 }

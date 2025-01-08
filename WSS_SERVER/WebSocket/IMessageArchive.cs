@@ -6,5 +6,8 @@ public interface IMessageArchive
 {
     Task ArchiveMessage(ChatMessage message);
     Task SendArchivedMessages(int clientId);
-    Task StartMessageResendTimer();
+
+    Task StopAsync();
+
+    Task StartAsync();
 }

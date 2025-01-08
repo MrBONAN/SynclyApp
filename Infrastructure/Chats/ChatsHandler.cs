@@ -1,28 +1,25 @@
-﻿using System.Collections.Concurrent;
-using System.Text.RegularExpressions;
-using Domain;
+using System.Collections.Concurrent;
 
 namespace Infrastructure.Chats;
 
 public class ChatsHandler : IAsyncDisposable
 {
-    private ConcurrentDictionary<(int toClient, int sender), ConcurrentQueue<(string message, string time)>> _chats =
-        new();
+    private readonly ConcurrentDictionary<ChatPair, ConcurrentQueue<(string message, string time)>> _chats = new();
+    private readonly ConcurrentDictionary<(int userId, ChatPair chatPair), int> _readMessageCounts = new();
 
     private string _wssServerLink;
     private ChatConnection _chatConnection;
-    private int _myId;
+    private readonly int _myId;
     public List<int> chatsToUpdate;
-    private Action HandleChatsToUpdate;
+    private readonly Action HandleChatsToUpdate;
 
     public ChatsHandler(int myId, Action handleChatsToUpdate, string serverLink = "ws://localhost:8080/ws/")
     {
-        _chats = new ConcurrentDictionary<(int toClient, int sender), ConcurrentQueue<(string message, string time)>>();
         _myId = myId;
         _wssServerLink = serverLink;
+        HandleChatsToUpdate = handleChatsToUpdate;
         chatsToUpdate = new List<int>();
         _chatConnection = new ChatConnection(_wssServerLink, HandleNewMessage);
-        HandleChatsToUpdate = handleChatsToUpdate;
     }
 
     public async Task StartSetUp()
@@ -34,26 +31,50 @@ public class ChatsHandler : IAsyncDisposable
             Console.WriteLine("Не удалось установить начальное соединение с сервером");
     }
 
-    public void AddChat(int userId) =>
-        _chats.TryAdd((userId, _myId), new ConcurrentQueue<(string message, string time)>());
+    public void AddChat(int userId)
+    {
+        var chatPair = new ChatPair(_myId, userId);
+        _chats.TryAdd(chatPair, new ConcurrentQueue<(string message, string time)>());
+        _readMessageCounts.TryAdd((_myId, chatPair), 0);
+        _readMessageCounts.TryAdd((userId, chatPair), 0);
+    }
 
-    public void DelChat(int userId) => _chats.TryRemove((userId, _myId), out _);
+    public void DelChat(int userId)
+    {
+        var chatPair = new ChatPair(_myId, userId);
+        _chats.TryRemove(chatPair, out _);
+        _readMessageCounts.TryRemove((_myId, chatPair), out _);
+        _readMessageCounts.TryRemove((userId, chatPair), out _);
+    }
 
-    public async Task UpdateAsync() => _ = _chatConnection.StartReceivingMessagesAsync();
+    public async Task UpdateAsync()
+    {
+        await _chatConnection.StartReceivingMessagesAsync();
+    }
 
     private void HandleNewMessage(string message)
     {
-        Console.WriteLine($"Получено сообщение в HandleNewMessage {_myId}: {message} ");
         var chatMessage = ChatMessageFormatter.ParseClientMessage(message);
 
         if (chatMessage is not null)
         {
+            var chatPair = new ChatPair(chatMessage.SenderId, chatMessage.RecieverId);
             var messageInfo = (chatMessage.MessageContext, chatMessage.MessageTime);
-            var userMessages = _chats.GetOrAdd((chatMessage.RecieverId, chatMessage.SenderId),
-                new ConcurrentQueue<(string message, string time)>());
+
+            var userMessages = _chats.GetOrAdd(chatPair, new ConcurrentQueue<(string message, string time)>());
             userMessages.Enqueue(messageInfo);
-            SubscribeNewMessages(chatMessage.SenderId);
+
+            _readMessageCounts.TryAdd((chatMessage.SenderId, chatPair), 0);
+            _readMessageCounts.TryAdd((chatMessage.RecieverId, chatPair), 0);
+
+            // Уведомляем только получателя о новом сообщении
+            if (chatMessage.RecieverId == _myId)
+            {
+                chatsToUpdate.Add(chatMessage.SenderId);
+            }
         }
+        else
+            Console.WriteLine("Ошибка: не удалось разобрать входящее сообщение");
 
         HandleChatsToUpdate();
     }
@@ -64,10 +85,10 @@ public class ChatsHandler : IAsyncDisposable
         AddChat(userId);
         if (await SendMessageToServer(userId, message, currTime))
         {
-            _chats[(userId, _myId)].Enqueue((message, currTime));
+            var chatPair = new ChatPair(_myId, userId);
+            _chats[chatPair].Enqueue((message, currTime));
             return true;
         }
-
         return false;
     }
 
@@ -84,47 +105,67 @@ public class ChatsHandler : IAsyncDisposable
         await _chatConnection.SendMessageAsync(message);
     }
 
-
     private void SubscribeNewMessages(int userId) => chatsToUpdate.Add(userId);
 
     public List<(string, string)> GetMessages(int userId)
     {
+        var chatPair = new ChatPair(_myId, userId);
         var result = new List<(string message, string time)>();
-        if (_chats.TryGetValue((userId, _myId), out var userMessagesFrom) && userMessagesFrom != null)
-            result.AddRange(userMessagesFrom.ToList());
-        if (_chats.TryGetValue((_myId, userId), out var userMessagesTo) && userMessagesTo != null)
-            result.AddRange(userMessagesTo.ToList());
 
-        return result;
+        if (_chats.TryGetValue(chatPair, out var messages) && messages != null)
+        {
+            result.AddRange(messages.ToList());
+            _readMessageCounts[(_myId, chatPair)] = messages.Count;
+        }
+
+        return result.OrderBy(x => DateTimeOffset.Parse(x.time)).ToList();
+    }
+
+    public List<(string, string)> GetNewMessages(int userId)
+    {
+        var chatPair = new ChatPair(_myId, userId);
+        var result = new List<(string message, string time)>();
+
+        if (_chats.TryGetValue(chatPair, out var messages) && messages != null)
+        {
+            var readCount = _readMessageCounts.GetOrAdd((_myId, chatPair), 0);
+            var newMessages = messages.ToList().Skip(readCount);
+            result.AddRange(newMessages);
+            _readMessageCounts[(_myId, chatPair)] = messages.Count;
+        }
+
+        return result.OrderBy(x => DateTimeOffset.Parse(x.time)).ToList();
     }
 
     public Dictionary<int, List<(string message, string time)>> GetAllChats()
     {
-        var allChats = new Dictionary<int, List<(string message, string time)>>();
-
-        foreach (var key in _chats.Keys)
+        var result = new Dictionary<int, List<(string message, string time)>>();
+        foreach (var chatEntry in _chats)
         {
-            if (key.sender == _myId || key.toClient == _myId)
+            var chatPair = chatEntry.Key;
+            if (chatPair.Contains(_myId))
             {
-                int otherClientId = key.sender == _myId ? key.toClient : key.sender;
-
-                if (!allChats.ContainsKey(otherClientId))
-                    allChats[otherClientId] = new List<(string message, string time)>();
-
-                if (_chats.TryGetValue((otherClientId, _myId), out var messagesFromOther) && messagesFromOther != null)
-                    allChats[otherClientId].AddRange(messagesFromOther.ToList());
-
-                if (_chats.TryGetValue((_myId, otherClientId), out var messagesToOther) && messagesToOther != null)
-                    allChats[otherClientId].AddRange(messagesToOther.ToList());
+                var otherUserId = chatPair.Id1 == _myId ? chatPair.Id2 : chatPair.Id1;
+                if (!result.ContainsKey(otherUserId))
+                    result[otherUserId] = new List<(string message, string time)>();
+                result[otherUserId].AddRange(chatEntry.Value);
             }
         }
+        return result;
+    }
 
-        return allChats;
+    public async Task RestoreMessage(int userId, string message, string time)
+    {
+        var chatPair = new ChatPair(_myId, userId);
+        var userMessages = _chats.GetOrAdd(chatPair, new ConcurrentQueue<(string message, string time)>());
+        userMessages.Enqueue((message, time));
     }
 
     public async ValueTask DisposeAsync()
     {
-        _chats.Clear();
-        await _chatConnection.DisposeAsync();
+        if (_chatConnection != null)
+        {
+            await _chatConnection.DisposeAsync();
+        }
     }
 }
