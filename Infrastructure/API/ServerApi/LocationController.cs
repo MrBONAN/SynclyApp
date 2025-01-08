@@ -5,7 +5,7 @@ namespace Infrastructure.API.ServerApi;
 
 public static partial class ServerApi
 {
-    public static async Task<ServerApiResult<LocationDto>> UpdateLocation(int userId, UpdateLocationDto location)
+    public static async Task<ServerApiResult<LocationDto>> UpdateLocationAsync(int userId, UpdateLocationDto location)
     {
         var request = new RestRequest($"api/location/{userId}");
         var response = await ServerClient.ExecutePostAsync<LocationDto>(request);
@@ -14,7 +14,7 @@ public static partial class ServerApi
         return HandleError(response);
     }
     
-    public static async Task<ServerApiResult<LocationDto>> GetLocation(int userId)
+    public static async Task<ServerApiResult<LocationDto>> GetLocationAsync(int userId)
     {
         var request = new RestRequest($"api/location/{userId}");
         var response = await ServerClient.ExecuteGetAsync<LocationDto>(request);
@@ -23,7 +23,7 @@ public static partial class ServerApi
         return HandleError(response);
     }
     
-    public static async Task<ServerApiResult<List<LocationDto>>> GetAllUsersLocation()
+    public static async Task<ServerApiResult<List<LocationDto>>> GetAllLocationsAsync()
     {
         var request = new RestRequest($"api/location");
         var response = await ServerClient.ExecuteGetAsync<List<LocationDto>>(request);

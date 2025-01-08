@@ -8,7 +8,7 @@ public class UserGetTests
     [Test]
     public async Task GetUserProfileTest()
     {
-        var response = await ServerApi.GetUser(1);
+        var response = await ServerApi.GetUserAsync(1);
         Assert.That(response.Result, Is.EqualTo(ApiResult.Ok));
         Assert.NotNull(response.Data);
         var userProfile = response.Data!;
@@ -19,7 +19,7 @@ public class UserGetTests
     [Test]
     public async Task GetAllUsersTest()
     {
-        var response = await ServerApi.GetAllUsers();
+        var response = await ServerApi.GetAllUsersAsync();
         Assert.That(response.Result, Is.EqualTo(ApiResult.Ok));
         Assert.NotNull(response.Data);
         foreach (var userDto in response.Data)
