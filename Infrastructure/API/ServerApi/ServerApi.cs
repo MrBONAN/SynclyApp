@@ -4,6 +4,6 @@ namespace Infrastructure.API.ServerApi;
 
 public static partial class ServerApi
 {
-    private const string ServerAddress = "https://192.168.1.57:7199";
-    private static RestClient ServerClient = new RestClient(ServerAddress);
+    private const string ServerAddress = "https://94.228.164.4:7199";
+    public static RestClient ServerClient = new (ServerAddress);
 }
