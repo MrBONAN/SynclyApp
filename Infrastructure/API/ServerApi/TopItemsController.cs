@@ -6,7 +6,7 @@ namespace Infrastructure.API.ServerApi;
 
 public static partial class ServerApi
 {
-    public static async Task<ServerApiResult<List<TrackDto>>> GetTopTracks(int userId)
+    public static async Task<ServerApiResult<List<TrackDto>>> GetTopTracksAsync(int userId)
     {
         var request = new RestRequest($"/api/top/track/{userId}");
         var response = await ServerClient.ExecuteGetAsync<List<TrackDto>>(request);
@@ -15,7 +15,7 @@ public static partial class ServerApi
         return HandleError(response);
     }
     
-    public static async Task<ServerApiResult<List<ArtistDto>>> GetTopArtists(int userId)
+    public static async Task<ServerApiResult<List<ArtistDto>>> GetTopArtistsAsync(int userId)
     {
         var request = new RestRequest($"/api/top/track/{userId}");
         var response = await ServerClient.ExecuteGetAsync<List<ArtistDto>>(request);

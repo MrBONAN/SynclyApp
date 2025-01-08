@@ -1,6 +1,8 @@
-﻿using App.UserAuthorization.SpotifyAuthorization;
+﻿using System.Net.Http.Json;
+using App.UserAuthorization.SpotifyAuthorization;
 using App.UserAuthorization;
 using Infrastructure.API.ServerApi;
+using Infrastructure.API.ServerApi.Models.Location;
 
 namespace App;
 
@@ -8,6 +10,7 @@ public partial class MainPage : ContentPage
 {
     private readonly ISpotifyAuthManager spotifyAuthManager;
     private readonly IUserDataHandler userDataHandler;
+
     public MainPage(ISpotifyAuthManager spotifyAuthManager, IUserDataHandler userDataHandler)
     {
         this.spotifyAuthManager = spotifyAuthManager;
@@ -74,11 +77,49 @@ public partial class MainPage : ContentPage
     //         "OK")!;
     // }
 
+    private async void GetUserLocation(object sender, EventArgs e)
+    {
+        var userId = await userDataHandler.GetUserIdAsync();
+        if (userId is null) return;
+        var location = await ServerApi.GetLocationAsync(userId.Value);
+        if (location.Result is not ApiResult.Ok) return;
+        await Application.Current!.MainPage?.DisplayAlert($"Локация пользователя {userId.Value}",
+            $"Широта: {location.Data!.Latitude}, Долгота: {location.Data!.Longitude}",
+            "OK")!;
+    }
+    
+    
+    private async void GetAllLocations(object sender, EventArgs e)
+    {
+        var userId = await userDataHandler.GetUserIdAsync();
+        if (userId is null) return;
+        var locations = await ServerApi.GetAllLocationsAsync();
+        if (locations.Result is not ApiResult.Ok) return;
+        await Application.Current!.MainPage?.DisplayAlert("Локации всех пользователей",
+            String.Join('\n', locations.Data.Select(l => $"Пользователь: {l.UserId}, широта: {l.Latitude}, долгота: {l.Longitude}")),
+            "OK")!;
+    }
+
+    private async void UpdateUserLocation(object sender, EventArgs e)
+    {
+        var userId = await userDataHandler.GetUserIdAsync();
+        if (userId is null) return;
+        var rand = new Random();
+        var latitude = (decimal)(rand.NextDouble() - 0.5) * 90;
+        var longitude = (decimal)(rand.NextDouble() - 0.5) * 180;
+        var updateLocationDto = new UpdateLocationDto() { Latitude = latitude, Longitude = longitude };
+        var newLocation = await ServerApi.UpdateLocationAsync(userId.Value, updateLocationDto);
+        if (newLocation.Result is not ApiResult.Ok) return;
+        await Application.Current!.MainPage?.DisplayAlert($"Новая локация пользователя {userId.Value}",
+            $"Широта: {newLocation.Data!.Latitude}, Долгота: {newLocation.Data!.Longitude}",
+            "OK")!;
+    }
+
     private async void GetTopTracks(object sender, EventArgs e)
     {
         var userId = await userDataHandler.GetUserIdAsync();
         if (userId is null) return;
-        var topTracks = await ServerApi.GetTopTracks(userId.Value);
+        var topTracks = await ServerApi.GetTopTracksAsync(userId.Value);
         if (topTracks.Result is not ApiResult.Ok) return;
         await Application.Current!.MainPage?.DisplayAlert("Топ треков",
             String.Join("\n", topTracks.Data!.Select((track, i) => $"{i + 1}: {track.Name}")),
@@ -89,7 +130,7 @@ public partial class MainPage : ContentPage
     {
         var userId = await userDataHandler.GetUserIdAsync();
         if (userId is null) return;
-        var topArtists = await ServerApi.GetTopArtists(userId.Value);
+        var topArtists = await ServerApi.GetTopArtistsAsync(userId.Value);
         if (topArtists.Result is not ApiResult.Ok) return;
         await Application.Current!.MainPage?.DisplayAlert("Топ артистов",
             String.Join("\n", topArtists.Data!.Select((artist, i) => $"{i + 1}: {artist.Name}")),
@@ -107,7 +148,7 @@ public partial class MainPage : ContentPage
     //         String.Join("\n", severalTracks.Data!.Select((track, i) => $"{i + 1}: {track.Name}")),
     //         "OK")!;
     // }
-    
+
     // TODO
     // private async void GetSeveralArtists(object sender, EventArgs e)
     // {
@@ -124,7 +165,7 @@ public partial class MainPage : ContentPage
     {
         var userId = await userDataHandler.GetUserIdAsync();
         if (userId is null) return;
-        var userProfile = await ServerApi.GetUser(userId.Value);
+        var userProfile = await ServerApi.GetUserAsync(userId.Value);
         if (userProfile.Result is not ApiResult.Ok) return;
         await Application.Current.MainPage?.DisplayAlert("Данные пользователя",
             $"Id: {userProfile.Data!.Id}, name: {userProfile.Data.Name}",

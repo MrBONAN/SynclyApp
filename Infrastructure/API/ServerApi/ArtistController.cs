@@ -5,7 +5,7 @@ namespace Infrastructure.API.ServerApi;
 
 public static partial class ServerApi
 {
-    public static async Task<ServerApiResult<ArtistDto>> GetArtist(int artistId)
+    public static async Task<ServerApiResult<ArtistDto>> GetArtistAsync(int artistId)
     {
         var request = new RestRequest($"/api/track/{artistId}");
         var response = await ServerClient.ExecuteGetAsync<ArtistDto>(request);

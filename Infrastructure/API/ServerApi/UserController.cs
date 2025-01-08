@@ -5,7 +5,7 @@ namespace Infrastructure.API.ServerApi;
 
 public static partial class ServerApi
 {
-    public static async Task<ServerApiResult<UserDto>> GetUser(int userId)
+    public static async Task<ServerApiResult<UserDto>> GetUserAsync(int userId)
     {
         var request = new RestRequest($"/api/user/{userId}");
         var response = await ServerClient.ExecuteGetAsync<UserDto>(request);
@@ -14,9 +14,9 @@ public static partial class ServerApi
         return HandleError(response);
     }
     
-    public static async Task<ServerApiResult<List<UserDto>>> GetAllUsers()
+    public static async Task<ServerApiResult<List<UserDto>>> GetAllUsersAsync()
     {
-        var request = new RestRequest($"/api/user/");
+        var request = new RestRequest("/api/user/");
         var response = await ServerClient.ExecuteGetAsync<List<UserDto>>(request);
         if (response is { IsSuccessful: true, Data: not null })
             return new ServerApiResult<List<UserDto>>(ApiResult.Ok, response.Data);
