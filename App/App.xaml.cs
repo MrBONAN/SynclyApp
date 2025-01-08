@@ -11,4 +11,10 @@ public partial class App : Application
 
         MainPage = new AppShell();
     }
+    
+    protected override async void OnStart()
+    {
+        var restClient = await CertificateHandler.CreateCustomHttpClientHandler();
+        ServerApi.ServerClient = restClient;
+    }
 }
