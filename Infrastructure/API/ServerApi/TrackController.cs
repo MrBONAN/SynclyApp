@@ -14,7 +14,7 @@ public static partial class ServerApi
         return HandleError(response);
     }
     
-    public static async Task<ServerApiResult<TrackDto>> GetCurrentAsync(int userId)
+    public static async Task<ServerApiResult<TrackDto>> GetCurrentTrackAsync(int userId)
     {
         var request = new RestRequest($"/api/track/current/{userId}");
         var response = await ServerClient.ExecuteGetAsync<TrackDto>(request);
@@ -25,7 +25,7 @@ public static partial class ServerApi
     
     public static async Task<ServerApiResult<List<TrackDto>>> GetRecentlyTracks(int userId)
     {
-        var request = new RestRequest($"/api/track/recently-played/{userId}");
+        var request = new RestRequest($"/api/recently-played/{userId}");
         var response = await ServerClient.ExecuteGetAsync<List<TrackDto>>(request);
         if (response is { IsSuccessful: true, Data: not null })
             return new ServerApiResult<List<TrackDto>>(ApiResult.Ok, response.Data);

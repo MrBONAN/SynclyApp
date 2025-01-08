@@ -83,8 +83,8 @@ public partial class MainPage : ContentPage
             $"Широта: {location.Data!.Latitude}, Долгота: {location.Data!.Longitude}",
             "OK")!;
     }
-    
-    
+
+
     private async void GetAllLocations(object sender, EventArgs e)
     {
         var userId = await userDataHandler.GetUserIdAsync();
@@ -92,7 +92,18 @@ public partial class MainPage : ContentPage
         var locations = await ServerApi.GetAllLocationsAsync();
         if (locations.Result is not ApiResult.Ok) return;
         await Application.Current!.MainPage?.DisplayAlert("Локации всех пользователей",
-            String.Join('\n', locations.Data.Select(l => $"Пользователь: {l.UserId}, широта: {l.Latitude}, долгота: {l.Longitude}")),
+            String.Join('\n',
+                locations.Data.Select(l => $"Пользователь: {l.UserId}, широта: {l.Latitude}, долгота: {l.Longitude}")),
+            "OK")!;
+    }
+
+    private async void GetAllUsers(object sender, EventArgs e)
+    {
+        var response = await ServerApi.GetAllUsersAsync();
+        if (response.Result is not ApiResult.Ok) return;
+        var users = response.Data!.Take(10);
+        await Application.Current!.MainPage?.DisplayAlert("Информация по первым 10 пользователям",
+            String.Join('\n', users.Select(u => $"Id: {u.Id}, имя: {u.Name}, SpotifyId: {u.Links.ExternalId}")),
             "OK")!;
     }
 
@@ -168,16 +179,27 @@ public partial class MainPage : ContentPage
             "OK")!;
     }
 
-    // TODO
-    // private async void GetCurrentTrack(object sender, EventArgs e)
-    // {
-    //     var token = await spotifyAccessToken.GetAsync();
-    //     var currentTrack = await SpotifyApi.GetCurrentTrackAsync(token.Value!);
-    //     if (currentTrack.Result is not ApiResult.Success) return;
-    //     await Application.Current.MainPage?.DisplayAlert("Текущий трек",
-    //         $"Name: {currentTrack.Data!.Name}",
-    //         "OK")!;
-    // }
+    private async void GetCurrentTrack(object sender, EventArgs e)
+    {
+        var userId = await userDataHandler.GetUserIdAsync();
+        if (userId is null) return;
+        var currentTrack = await ServerApi.GetCurrentTrackAsync(userId.Value);
+        if (currentTrack.Result is not ApiResult.Ok) return;
+        await Application.Current.MainPage?.DisplayAlert("Текущий трек",
+            $"Name: {currentTrack.Data!.Name}",
+            "OK")!;
+    }
+    
+    private async void GetRecentlyTracks(object sender, EventArgs e)
+    {
+        var userId = await userDataHandler.GetUserIdAsync();
+        if (userId is null) return;
+        var recentlyTracks = await ServerApi.GetRecentlyTracks(userId.Value);
+        if (recentlyTracks.Result is not ApiResult.Ok) return;
+        await Application.Current!.MainPage?.DisplayAlert("Недавние треки",
+            String.Join("\n", recentlyTracks.Data!.Select((track, i) => $"{i + 1}: {track.Name}")),
+            "OK")!;
+    }
 
     private void LogOut(object sender, EventArgs e)
     {

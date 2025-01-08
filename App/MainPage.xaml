@@ -21,6 +21,13 @@
             <!--     SemanticProperties.Hint="Search track button" -->
             <!--     Clicked="FindTrack" -->
             <!--     HorizontalOptions="Fill" /> -->
+            
+            <Button
+                x:Name="AllUserLocations"
+                Text="Получить местоположение всех пользователей"
+                SemanticProperties.Hint="Get all users locations"
+                Clicked="GetAllLocations"
+                HorizontalOptions="Fill" />
 
             <Button
                 x:Name="TopTracksBtn"
@@ -57,12 +64,26 @@
                 Clicked="GetUserData"
                 HorizontalOptions="Fill" />
             
-            <!-- <Button -->
-            <!--     x:Name="CurrentTrackBtn" -->
-            <!--     Text="Получить текущий трек" -->
-            <!--     SemanticProperties.Hint="Get user current track" -->
-            <!--     Clicked="GetCurrentTrack" -->
-            <!--     HorizontalOptions="Fill" /> -->
+            <Button
+                x:Name="UserAllProfilesBtn"
+                Text="Получить данные первых 10 пользователей"
+                SemanticProperties.Hint="Get 10 user profiles data"
+                Clicked="GetAllUsers"
+                HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="CurrentTrackBtn"
+                Text="Получить текущий трек"
+                SemanticProperties.Hint="Get user current track"
+                Clicked="GetCurrentTrack"
+                HorizontalOptions="Fill" />
+            
+            <Button
+                x:Name="RecentlyTracks"
+                Text="Получить 10 последних треков"
+                SemanticProperties.Hint="Get last 10 tracks"
+                Clicked="GetRecentlyTracks"
+                HorizontalOptions="Fill" />
 
             <Button
                 x:Name="LogOutBtn"
