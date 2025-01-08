@@ -75,7 +75,7 @@ public partial class MainPage : ContentPage
         var userId = await userDataHandler.GetUserIdAsync();
         if (userId is null) return;
         var topTracks = await ServerApi.GetTopTracks(userId.Value);
-        if (topTracks.Result == ApiResult.Ok) return;
+        if (topTracks.Result is not ApiResult.Ok) return;
         await Application.Current!.MainPage?.DisplayAlert("Топ треков",
             String.Join("\n", topTracks.Data!.Select((track, i) => $"{i + 1}: {track.Name}")),
             "OK")!;

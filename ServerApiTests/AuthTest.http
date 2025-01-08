@@ -1,5 +1,5 @@
 ###
-GET https://94.228.164.4:7199/api/track/current/1
+GET https://a926-2a12-5940-a4e1-00-2.ngrok-free.app/api/user
 Accept: application/json
 
 ###
