@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientTaskParsingTest", "Cl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSS_CLIENT", "WSS_CLIENT\WSS_CLIENT.csproj", "{1A7E82CC-BAAE-4ABA-A2A3-3C32943DC8DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WSS_SERVER", "WSS_SERVER\WSS_SERVER.csproj", "{A754A394-9929-4526-BA29-DD4173C946C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{1A7E82CC-BAAE-4ABA-A2A3-3C32943DC8DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A7E82CC-BAAE-4ABA-A2A3-3C32943DC8DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A7E82CC-BAAE-4ABA-A2A3-3C32943DC8DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A754A394-9929-4526-BA29-DD4173C946C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A754A394-9929-4526-BA29-DD4173C946C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A754A394-9929-4526-BA29-DD4173C946C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A754A394-9929-4526-BA29-DD4173C946C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
