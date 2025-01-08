@@ -94,6 +94,7 @@ public partial class Map : ContentPage
         ProfileButton.Clicked += OnProfileButtonClicked;
         SettingsButton.Clicked += OnSettingsButtonClicked;
         ActionButton.Clicked += OnClickedMoveToMyLocation;
+        ChatButton.Clicked += OnChatButtonClicked;
     }
 
     private async void InitializeFields()
@@ -209,6 +210,12 @@ public partial class Map : ContentPage
     private async void OnSettingsButtonClicked(object sender, EventArgs e)
     {
         var page = new SettingsBottomSheet();
+        await page.ShowAsync();
+    }
+    
+    private async void OnChatButtonClicked(object? sender, EventArgs e)
+    {
+        var page = new Chat.Sheet(0);
         await page.ShowAsync();
     }
 

@@ -1,8 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<bottomSheet:BottomSheet xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:bottomSheet="https://schemas.the49.com/dotnet/2023/maui"
-             x:Class="ExitBottomSheet.Sheet">
-    
-</bottomSheet:BottomSheet>
+<the49:BottomSheet xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                   xmlns:the49="https://schemas.the49.com/dotnet/2023/maui"
+                   xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+                   x:Class="Exit.Sheet"
+                   x:Name="BottomSheet"
+                   Padding="16, 32"
+                   Background="{StaticResource Black}"
+                   CornerRadius="20"
+                   HasBackdrop="True">
+
+    <the49:BottomSheet.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/BottomSheetStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </the49:BottomSheet.Resources>
+
+    <Grid VerticalOptions="Start"
+          HorizontalOptions="FillAndExpand"
+          RowSpacing="35"
+          ColumnSpacing="10">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.ColumnSpan="2"
+               x:Name="PageName"
+               Style="{StaticResource HeaderLabelStyle}"
+               Text="Выйти из аккаунта?"
+               HorizontalOptions="CenterAndExpand" />
+
+        <Button x:Name="StayButton"
+                Style="{StaticResource HeaderLabelStyle}"
+                FontSize="18"
+                Grid.Row="1"
+                Grid.Column="0"
+                CornerRadius="10"
+                Text="Остаться"
+                BackgroundColor="#313131" />
+        <Button x:Name="LeaveButton"
+                Style="{StaticResource HeaderLabelStyle}"
+                FontSize="18"
+                Grid.Row="1"
+                Grid.Column="1"
+                CornerRadius="10"
+                Text="Да"
+                BackgroundColor="#D24F4F" />
+    </Grid>
+</the49:BottomSheet>

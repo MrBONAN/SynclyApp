@@ -118,7 +118,11 @@
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <HorizontalStackLayout Spacing="10" Padding="10">
-                                <Grid RowSpacing="10">
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenTrackOnSpotify}"/>
+                                </HorizontalStackLayout.GestureRecognizers>
+                                <Grid RowSpacing="10"
+                                      InputTransparent="True">
                                     
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="100" />
@@ -130,6 +134,7 @@
                                            HeightRequest="100"
                                            CornerRadius="10"
                                            IsClippedToBounds="True">
+                                        
                                         <Image HeightRequest="100"
                                                WidthRequest="100"
                                                Aspect="Fill">
@@ -183,9 +188,13 @@
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <HorizontalStackLayout Spacing="10" Padding="10">
-                                <Grid RowSpacing="10">
-
-                                    
+                                
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenArtistOnSpotify}"/>
+                                </HorizontalStackLayout.GestureRecognizers>
+                                
+                                <Grid RowSpacing="10"
+                                      InputTransparent="True">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="100" />
                                         <RowDefinition Height="*" />

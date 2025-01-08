@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<the49:BottomSheet xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                   xmlns:the49="https://schemas.the49.com/dotnet/2023/maui"
+                   xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+                   x:Class="Chat.Sheet"
+                   Padding="16, 32"
+                   Background="{StaticResource Black}"
+                   CornerRadius="20"
+                   HasBackdrop="True">
+    
+    <the49:BottomSheet.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/BottomSheetStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </the49:BottomSheet.Resources>
+
+    <the49:BottomSheet.Detents>
+        <the49:RatioDetent Ratio="0.9" />
+        <the49:FullscreenDetent />
+    </the49:BottomSheet.Detents>
+    
+    <Grid VerticalOptions="Start"
+          HorizontalOptions="FillAndExpand"
+          RowSpacing="35">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Button Grid.Column="0"
+                x:Name="ProfileButton"
+                Style="{StaticResource BaseButtonStyle}"
+                ImageSource="profile_icon.png"
+                HorizontalOptions="Start" />
+        
+        <Label Grid.Column="1"
+               x:Name="Username"
+               Style="{StaticResource HeaderLabelStyle}"
+               Text="Собеседник"
+               HorizontalOptions="CenterAndExpand" />
+        
+        <Button Grid.Column="2"
+                x:Name="AddFriendButton"
+                Style="{StaticResource BaseButtonStyle}"
+                ImageSource="add_friend_icon.png"
+                HorizontalOptions="End" />
+
+        <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="3" Spacing="10">
+            
+        </VerticalStackLayout>
+        
+        <Grid Grid.Row="2"
+              Grid.ColumnSpan="3"
+              Padding="10"
+              ColumnSpacing="5"
+              RowSpacing="0"
+              VerticalOptions="End">
+            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Поле ввода -->
+            
+            <Editor 
+                x:Name="MessageEditor" 
+                Placeholder="Введите сообщение..." 
+                Grid.Column="0" 
+                VerticalOptions="Center" 
+                BackgroundColor="White" 
+                TextColor="Black" 
+                Margin="0" 
+                TextChanged="OnEditorTextChanged"
+                HeightRequest="40" />
+
+            <!-- Кнопка отправки -->
+            <ImageButton
+                Grid.Column="1" 
+                Source="chat_icon.png"
+                HeightRequest="50"
+                WidthRequest="50"
+                VerticalOptions="Center" 
+                CornerRadius="5" />
+        </Grid>
+
+    </Grid>
+
+</the49:BottomSheet>

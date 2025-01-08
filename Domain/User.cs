@@ -4,15 +4,15 @@ public class User : IUserService
 {
     public string Name { get; set; }
     public Dictionary<string, string> MusicAppLinks { get; set; }
-    public readonly string Id;
+    public readonly int Id;
     public Location Location { get; set; }
     public IEnumerable<Track> TopTracks { get; set; }
     public IEnumerable<Artist> TopArtists { get; set; }
 
-    public User(string id, string name)
+    public User(int id)
     {
         Id = id;
-        Name = name;
+        Name = $"User {id}";
     }
 
     public void AddApp(string app, string musicAppLink)

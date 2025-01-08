@@ -1,7 +1,10 @@
+using System.Windows.Input;
+
 namespace Domain;
 
 public class Track
 {
+    public ICommand OpenTrackOnSpotify { get; }
     public  string Id { get; private set; }
     public  string Name { get; private set; }
     public  IEnumerable<Artist> Artists { get; private set; }
@@ -20,8 +23,9 @@ public class Track
         Artists = artistId;
         Links[MusicServices.Spotify] = linkOnPlatform;
         CoverUrl = coverUrl;
+        OpenTrackOnSpotify = new Command(Open);
     }
-    
+
     public Track(Infrastructure.API.SpotifyAPI.Models.Track track)
     {
         Id = track.Id!;
@@ -29,5 +33,12 @@ public class Track
         Artists = track.Artists?.Where(x => x != null).Select(artist => new Artist(artist)).ToList();
         Links[MusicServices.Spotify] = track.Uri;
         CoverUrl = track.Images.FirstOrDefault()?.Url;
+        OpenTrackOnSpotify = new Command(Open);
+    }
+    
+    private async void Open(object obj)
+    {
+        if (Links[MusicServices.Spotify] != null)
+            await Launcher.OpenAsync(Links[MusicServices.Spotify]);
     }
 }

@@ -1,7 +1,10 @@
+using System.Windows.Input;
+
 namespace Domain;
 
 public class Artist
 {
+    public ICommand OpenArtistOnSpotify { get; set; }
     public string? Id { get; private set; }
     public string? Name { get; private set; }
     public List<string>? Genres { get; private set; }
@@ -18,6 +21,7 @@ public class Artist
         Id = id;
         Name = name;
         ProfileImageURL = profileImageURL;
+        OpenArtistOnSpotify = new Command(Open);
     }
 
     public Artist(Infrastructure.API.SpotifyAPI.Models.Artist artist)
@@ -27,7 +31,14 @@ public class Artist
         ProfileImageURL = artist.Images != null ? artist.Images.FirstOrDefault()?.Url : null;
         Links[MusicServices.Spotify] = artist.Uri;
         Genres = artist.Genres;
+        OpenArtistOnSpotify = new Command(Open);
     }
 
+    private async void Open(object obj)
+    {
+        if (Links[MusicServices.Spotify] != null)
+            await Launcher.OpenAsync(Links[MusicServices.Spotify]);
+    }
+    
     public string ToString() => Name;
 }
