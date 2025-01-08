@@ -12,7 +12,9 @@ public class SpotifyPkceAuthorizationService : ISpotifyPkceAuthorizationService
     private static readonly string ClientId = SpotifyApi.ClientId;
     private static string RedirectUri = "syncly-auth://callback";
     private static string AuthorizeUrl = "https://accounts.spotify.com/authorize";
-    private static string Scope = "user-read-private user-read-email user-top-read user-read-playback-state";
+
+    private static string Scope =
+        "user-read-private user-read-email user-top-read user-read-playback-state user-read-recently-played";
 
     public async Task<AuthorizationPkceResponse> AuthorizeWithPkceAsync()
     {
@@ -101,25 +103,25 @@ public class SpotifyPkceAuthorizationService : ISpotifyPkceAuthorizationService
         return new PkceAccessToken() { Result = PkceAccessTokenResult.ExchangeError };
     }
 
-    public async Task<PkceAccessToken?> RefreshTokenAsync(string refreshToken)
-    {
-        var client = new RestClient("https://accounts.spotify.com/api/token");
-
-        var request = new RestRequest()
-            .AddHeader("Content-Type", "application/x-www-form-urlencoded")
-            .AddParameter("grant_type", "refresh_token")
-            .AddParameter("refresh_token", refreshToken)
-            .AddParameter("client_id", ClientId);
-
-        var response = await client.ExecutePostAsync<PkceAccessToken>(request);
-
-        if (response.IsSuccessful && response.Data != null)
-        {
-            Console.WriteLine("Токен успешно обновлён");
-            return response.Data;
-        }
-
-        Console.WriteLine($"Ошибка при обновлении токена: {response.ErrorMessage ?? response.Content}");
-        return new PkceAccessToken() { Result = PkceAccessTokenResult.RefreshError };
-    }
+    // public async Task<PkceAccessToken?> RefreshTokenAsync(string refreshToken)
+    // {
+    //     var client = new RestClient("https://accounts.spotify.com/api/token");
+    //
+    //     var request = new RestRequest()
+    //         .AddHeader("Content-Type", "application/x-www-form-urlencoded")
+    //         .AddParameter("grant_type", "refresh_token")
+    //         .AddParameter("refresh_token", refreshToken)
+    //         .AddParameter("client_id", ClientId);
+    //
+    //     var response = await client.ExecutePostAsync<PkceAccessToken>(request);
+    //
+    //     if (response.IsSuccessful && response.Data != null)
+    //     {
+    //         Console.WriteLine("Токен успешно обновлён");
+    //         return response.Data;
+    //     }
+    //
+    //     Console.WriteLine($"Ошибка при обновлении токена: {response.ErrorMessage ?? response.Content}");
+    //     return new PkceAccessToken() { Result = PkceAccessTokenResult.RefreshError };
+    // }
 }

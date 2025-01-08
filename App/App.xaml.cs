@@ -1,4 +1,4 @@
-﻿using App.UserAuthorization.SpotifyAuthorization;
+using App.UserAuthorization.SpotifyAuthorization;
 using App.UserAuthorization.SpotifyAuthorization.Models;
 using Infrastructure.API.SpotifyAPI;
 
@@ -16,5 +16,11 @@ public partial class App : Application
             MainPage = Services.GetRequiredService<SignIn>();
         else
             MainPage = Services.GetRequiredService<Map>();
+    }
+    
+    protected override async void OnStart()
+    {
+        var restClient = await CertificateHandler.CreateCustomHttpClientHandler();
+        ServerApi.ServerClient = restClient;
     }
 }

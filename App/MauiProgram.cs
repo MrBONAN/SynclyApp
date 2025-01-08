@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui;
 using App.UserAuthorization.SpotifyAuthorization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
