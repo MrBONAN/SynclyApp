@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Domain;
 
 namespace Infrastructure.Chats;
 
@@ -21,7 +22,7 @@ public class ChatsHandler : IAsyncDisposable
         chatsToUpdate = new List<int>();
         _chatConnection = new ChatConnection(_wssServerLink, HandleNewMessage);
     }
-    
+
     public bool isOpen() => _chatConnection.IsOpen;
 
     public async Task StartSetUp()
@@ -62,50 +63,24 @@ public class ChatsHandler : IAsyncDisposable
             var chatPair = new ChatPair(_myId, chatMessage.SenderId);
             var userMessages = _chats.GetOrAdd(chatPair, new ConcurrentQueue<(string message, string time)>());
 
-            // Инициализируем счетчики для обоих участников чата
             _readMessageCounts.TryAdd((chatMessage.SenderId, chatPair), 0);
             _readMessageCounts.TryAdd((chatMessage.RecieverId, chatPair), 0);
 
             switch (chatMessage.AdditionalInfo)
             {
                 case "EDIT":
-                    // Находим сообщение для редактирования и обновляем его
-                    var editList = userMessages.ToList();
-                    var editIndex = editList.FindIndex(m => m.time == chatMessage.MessageTime);
-                    if (editIndex != -1)
-                    {
-                        editList[editIndex] = (chatMessage.MessageContext, chatMessage.MessageTime);
-                        // Очищаем и заново заполняем очередь
-                        while (userMessages.TryDequeue(out _)) { }
-                        foreach (var msg in editList)
-                        {
-                            userMessages.Enqueue(msg);
-                        }
-                    }
+                    HandleEditMessage(userMessages, chatMessage);
                     break;
 
                 case "DELETE":
-                    // Находим сообщение для удаления
-                    var deleteList = userMessages.ToList();
-                    var deleteIndex = deleteList.FindIndex(m => m.time == chatMessage.MessageTime);
-                    if (deleteIndex != -1)
-                    {
-                        deleteList.RemoveAt(deleteIndex);
-                        // Очищаем и заново заполняем очередь
-                        while (userMessages.TryDequeue(out _)) { }
-                        foreach (var msg in deleteList)
-                        {
-                            userMessages.Enqueue(msg);
-                        }
-                    }
+                    HandleDeleteMessage(userMessages, chatMessage);
                     break;
 
-                default: // "NONE" - обычное сообщение
+                default:
                     userMessages.Enqueue((chatMessage.MessageContext, chatMessage.MessageTime));
                     break;
             }
 
-            // Уведомляем только получателя о новом сообщении
             if (chatMessage.RecieverId == _myId)
             {
                 chatsToUpdate.Add(chatMessage.SenderId);
@@ -115,6 +90,43 @@ public class ChatsHandler : IAsyncDisposable
             Console.WriteLine("Ошибка: не удалось разобрать входящее сообщение");
 
         HandleChatsToUpdate();
+    }
+
+    private void HandleEditMessage(ConcurrentQueue<(string message, string time)> userMessages, ChatMessage chatMessage)
+    {
+        var editList = userMessages.ToList();
+        var editIndex = editList.FindIndex(m => m.time == chatMessage.MessageTime);
+        if (editIndex != -1)
+        {
+            editList[editIndex] = (chatMessage.MessageContext, chatMessage.MessageTime);
+            while (userMessages.TryDequeue(out _))
+            {
+            }
+
+            foreach (var msg in editList)
+            {
+                userMessages.Enqueue(msg);
+            }
+        }
+    }
+
+    private void HandleDeleteMessage(ConcurrentQueue<(string message, string time)> userMessages,
+        ChatMessage chatMessage)
+    {
+        var deleteList = userMessages.ToList();
+        var deleteIndex = deleteList.FindIndex(m => m.time == chatMessage.MessageTime);
+        if (deleteIndex != -1)
+        {
+            deleteList.RemoveAt(deleteIndex);
+            while (userMessages.TryDequeue(out _))
+            {
+            }
+
+            foreach (var msg in deleteList)
+            {
+                userMessages.Enqueue(msg);
+            }
+        }
     }
 
     public async Task<bool> SendMessage(int userId, string message)
@@ -127,6 +139,7 @@ public class ChatsHandler : IAsyncDisposable
             _chats[chatPair].Enqueue((message, currTime));
             return true;
         }
+
         return false;
     }
 
@@ -152,7 +165,6 @@ public class ChatsHandler : IAsyncDisposable
 
         if (_chats.TryGetValue(chatPair, out var messages) && messages != null)
         {
-            // Берем только обычные сообщения (не EDIT/DELETE) и сортируем их по времени
             result.AddRange(messages.Where(m => !m.time.StartsWith("EDIT") && !m.time.StartsWith("DELETE")).ToList());
             _readMessageCounts[(_myId, chatPair)] = messages.Count;
         }
@@ -190,6 +202,7 @@ public class ChatsHandler : IAsyncDisposable
                 result[otherUserId].AddRange(chatEntry.Value);
             }
         }
+
         return result;
     }
 
@@ -200,7 +213,6 @@ public class ChatsHandler : IAsyncDisposable
         userMessages.Enqueue((message, time));
     }
 
-    // Методы для работы с непрочитанными сообщениями
     public int GetUnreadCount(int userId)
     {
         var chatPair = new ChatPair(_myId, userId);
@@ -209,6 +221,7 @@ public class ChatsHandler : IAsyncDisposable
             var readCount = _readMessageCounts.GetOrAdd((_myId, chatPair), 0);
             return messages.Count - readCount;
         }
+
         return 0;
     }
 
@@ -221,7 +234,6 @@ public class ChatsHandler : IAsyncDisposable
         }
     }
 
-    // Методы редактирования и удаления сообщений
     public async Task<bool> EditMessage(int userId, string messageTime, string newText)
     {
         var chatPair = new ChatPair(_myId, userId);
@@ -234,15 +246,16 @@ public class ChatsHandler : IAsyncDisposable
             return false;
 
         messagesList[messageIndex] = (newText, messageTime);
-        
-        // Очищаем и заново заполняем очередь
-        while (messages.TryDequeue(out _)) { }
+
+        while (messages.TryDequeue(out _))
+        {
+        }
+
         foreach (var msg in messagesList)
         {
             messages.Enqueue(msg);
         }
 
-        // Отправляем уведомление об изменении
         var editMessage = ChatMessageFormatter.CreateMessage(_myId, newText, userId, messageTime, "EDIT");
         return await _chatConnection.SendMessageAsync(editMessage);
     }
@@ -259,20 +272,20 @@ public class ChatsHandler : IAsyncDisposable
             return false;
 
         messagesList.RemoveAt(messageIndex);
-        
-        // Очищаем и заново заполняем очередь
-        while (messages.TryDequeue(out _)) { }
+
+        while (messages.TryDequeue(out _))
+        {
+        }
+
         foreach (var msg in messagesList)
         {
             messages.Enqueue(msg);
         }
 
-        // Отправляем уведомление об удалении
         var deleteMessage = ChatMessageFormatter.CreateMessage(_myId, "", userId, messageTime, "DELETE");
         return await _chatConnection.SendMessageAsync(deleteMessage);
     }
 
-    // Методы управления соединением
     public async Task ReconnectAsync()
     {
         await _chatConnection.DisposeAsync();
@@ -283,8 +296,6 @@ public class ChatsHandler : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         if (_chatConnection != null)
-        {
             await _chatConnection.DisposeAsync();
-        }
     }
 }

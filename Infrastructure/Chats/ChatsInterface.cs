@@ -54,8 +54,9 @@ public class Chats : IAsyncDisposable
         }
     }
 
-    protected virtual void OnNewMessagesReceived(List<int> newMessages) => NewMessagesReceived?.Invoke(this, newMessages);
-    
+    protected virtual void OnNewMessagesReceived(List<int> newMessages) =>
+        NewMessagesReceived?.Invoke(this, newMessages);
+
 
     private async Task StopAsync()
     {
@@ -63,29 +64,33 @@ public class Chats : IAsyncDisposable
         await Task.CompletedTask;
     }
 
-    public async Task<bool> SendMessageAsync(int userId, string message) => await _chatsHandler.SendMessage(userId: userId, message: message);
+    public async Task<bool> SendMessageAsync(int userId, string message) =>
+        await _chatsHandler.SendMessage(userId: userId, message: message);
 
     public List<(string, string)> GetMessages(int userId) => _chatsHandler.GetMessages(userId);
-    
+
     public List<(string, string)> GetNewMessages(int userId) => _chatsHandler.GetNewMessages(userId);
-    
+
     public Dictionary<int, List<(string message, string time)>> GetAllChats() => _chatsHandler.GetAllChats();
 
-    public async Task RestoreMessage(int userId, string message, string time) => await _chatsHandler.RestoreMessage(userId, message, time);
+    public async Task RestoreMessage(int userId, string message, string time) =>
+        await _chatsHandler.RestoreMessage(userId, message, time);
 
     public void AddChat(int userId) => _chatsHandler.AddChat(userId);
     public void RemoveChat(int userId) => _chatsHandler.DelChat(userId);
-    
+
     public bool IsConnected => _chatsHandler.isOpen();
     public bool IsRunning => _isRunning;
-    
+
     public int GetUnreadCount(int userId) => _chatsHandler.GetUnreadCount(userId);
     public void MarkAsRead(int userId) => _chatsHandler.MarkAsRead(userId);
-    public async Task<bool> EditMessage(int userId, string oldMessageTime, string newText) => 
+
+    public async Task<bool> EditMessage(int userId, string oldMessageTime, string newText) =>
         await _chatsHandler.EditMessage(userId, oldMessageTime, newText);
-    public async Task<bool> DeleteMessage(int userId, string messageTime) => 
+
+    public async Task<bool> DeleteMessage(int userId, string messageTime) =>
         await _chatsHandler.DeleteMessage(userId, messageTime);
-    
+
     public async Task ReconnectAsync() => await _chatsHandler.ReconnectAsync();
     public async Task DisconnectAsync() => await StopAsync();
 

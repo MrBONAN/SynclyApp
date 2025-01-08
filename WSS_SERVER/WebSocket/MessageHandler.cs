@@ -25,12 +25,7 @@ public class MessageHandler : IMessageHandler
             {
                 string receivedMessage = await ReceiveMessageAsync(webSocket, buffer);
                 if (receivedMessage is null) 
-                {
-                    Console.WriteLine($"[HandleConnectionAsync] Получено пустое сообщение от клиента {clientId}");
                     break;
-                }
-
-                Console.WriteLine($"Получено сообщение: {receivedMessage}");
 
                 if (receivedMessage.StartsWith("[SRVID]"))
                 {
@@ -72,7 +67,6 @@ public class MessageHandler : IMessageHandler
                     result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                     if (result.MessageType == WebSocketMessageType.Close)
                     {
-                        //Console.WriteLine("[ReceiveMessageAsync]Клиент запросил закрытие соединения.");
                         await _clientManager.CloseConnectionAsync(webSocket);
                         return null;
                     }
@@ -110,11 +104,7 @@ public class MessageHandler : IMessageHandler
         var messageSent = await _clientManager.SendMessageToClientAsync(message.SenderId, responseMessage, message.RecieverId);
         
         if (!messageSent)
-        {
-            Console.WriteLine($"[HandleClientMessageAsync] Получатель {message.RecieverId} не в сети, сохраняем сообщение");
             await _messageArchive.ArchiveMessage(message);
-        }
-        Console.WriteLine("Message was sent");
     }
 
     private async Task CloseConnectionAsync(WebSocket webSocket)

@@ -157,7 +157,7 @@ public class ChatConnection : IAsyncDisposable
         await _connectionLock.WaitAsync(_cancellationTokenSource.Token);
         try
         {
-            if (!IsOpen) return; // Already handled
+            if (!IsOpen) return;
             
             IsOpen = false;
             Console.WriteLine("Соединение потеряно, переподключение...");

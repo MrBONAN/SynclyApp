@@ -23,15 +23,12 @@ public class MessageArchive : IMessageArchive
 
     public async Task ArchiveMessage(ChatMessage message)
     {
-        Console.WriteLine(
-            $"[ArchiveMessage] Архивируем сообщение {message.SenderId} -> {message.RecieverId}: {message.MessageContext}");
         await _semaphore.WaitAsync();
         try
         {
             if (!_messagesToSend.ContainsKey(message.RecieverId))
                 _messagesToSend[message.RecieverId] = new HashSet<(string, DateTime)>();
             _messagesToSend[message.RecieverId].Add((ChatMessageFormatter.CreateMessage(message), DateTime.UtcNow));
-            Console.WriteLine($"[ArchiveMessage] Сообщение заархивировано");
         }
         finally
         {
@@ -46,7 +43,6 @@ public class MessageArchive : IMessageArchive
         {
             if (_messagesToSend.ContainsKey(clientId))
             {
-                Console.WriteLine($"[SendArchivedMessages] Отправляем архивные сообщения клиенту {clientId}");
                 var messages = _messagesToSend[clientId].ToList();
                 var successfullySent = new List<(string, DateTime)>();
 
@@ -54,31 +50,17 @@ public class MessageArchive : IMessageArchive
                 {
                     var messageParsed = ChatMessageFormatter.ParseClientMessage(messageToSend);
                     if (messageParsed != null)
-                    {
-                        Console.WriteLine(
-                            $"[SendArchivedMessages] Отправляем сообщение от {messageParsed.SenderId} к {messageParsed.RecieverId}: {messageParsed.MessageContext}");
-                        var sent = await _clientManager.SendMessageToClientAsync(messageParsed.SenderId, messageToSend,
-                            messageParsed.RecieverId);
-                        if (sent)
-                        {
+                        if (await _clientManager.SendMessageToClientAsync(messageParsed.SenderId, messageToSend,
+                                messageParsed.RecieverId))
                             successfullySent.Add((messageToSend, timestamp));
-                            Console.WriteLine($"[SendArchivedMessages] Сообщение успешно отправлено");
-                        }
-                    }
                 }
 
                 foreach (var sent in successfullySent)
                     _messagesToSend[clientId].Remove(sent);
 
                 if (_messagesToSend[clientId].Count == 0)
-                {
                     _messagesToSend.Remove(clientId);
-                    Console.WriteLine(
-                        $"[SendArchivedMessages] Все сообщения для клиента {clientId} отправлены и удалены из архива");
-                }
             }
-            else
-                Console.WriteLine($"[SendArchivedMessages] Нет архивных сообщений для клиента {clientId}");
         }
         catch (Exception ex)
         {
