@@ -21,7 +21,6 @@ public class ChatTests
         _client3 = new Chats(3, _serverUrl);
         _receivedMessages.Clear();
 
-        // Подписываемся на события новых сообщений
         _client1.NewMessagesReceived += (s, users) => _receivedMessages.Add($"Client1: New messages from {string.Join(",", users)}");
         _client2.NewMessagesReceived += (s, users) => _receivedMessages.Add($"Client2: New messages from {string.Join(",", users)}");
         _client3.NewMessagesReceived += (s, users) => _receivedMessages.Add($"Client3: New messages from {string.Join(",", users)}");
@@ -52,16 +51,13 @@ public class ChatTests
     [Test]
     public async Task BasicMessageDelivery_OnlineUsers_Success()
     {
-        // Arrange
         await _client2.RunAsync();
         await Task.Delay(500);
 
-        // Act
         var messageText = "Test message";
         var sent = await _client1.SendMessageAsync(2, messageText);
         await Task.Delay(500);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(sent, Is.True, "Message should be sent successfully");
@@ -75,16 +71,13 @@ public class ChatTests
     [Test]
     public async Task MessageDelivery_OfflineUser_MessageStoredAndDelivered()
     {
-        // Act
         var messageText = "Offline message";
         var sent = await _client1.SendMessageAsync(2, messageText);
         await Task.Delay(500);
 
-        // Connect client2 and check messages
         await _client2.RunAsync();
         await Task.Delay(500);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(sent, Is.True, "Message should be sent successfully");
@@ -98,13 +91,11 @@ public class ChatTests
     [Test]
     public async Task MessageOrder_MultipleMessages_PreservesOrder()
     {
-        // Arrange
         await _client2.RunAsync();
         await Task.Delay(500);
 
         var messages = new[] { "First", "Second", "Third" };
-        
-        // Act
+    
         foreach (var msg in messages)
         {
             await _client1.SendMessageAsync(2, msg);
@@ -112,7 +103,6 @@ public class ChatTests
         }
         await Task.Delay(500);
 
-        // Assert
         var receivedMessages = _client2.GetMessages(1);
         Assert.Multiple(() =>
         {
@@ -127,17 +117,14 @@ public class ChatTests
     [Test]
     public async Task MessageRouting_MultipleRecipients_CorrectDelivery()
     {
-        // Arrange
         await _client2.RunAsync();
         await _client3.RunAsync();
         await Task.Delay(500);
 
-        // Act
         await _client1.SendMessageAsync(2, "Message for client 2");
         await _client1.SendMessageAsync(3, "Message for client 3");
         await Task.Delay(500);
 
-        // Assert
         Assert.Multiple(() =>
         {
             var messages2 = _client2.GetMessages(1);
@@ -153,18 +140,15 @@ public class ChatTests
     [Test]
     public async Task NewMessageNotification_MultipleMessages_CorrectEventCounts()
     {
-        // Arrange
         await _client2.RunAsync();
         await Task.Delay(500);
         _receivedMessages.Clear();
 
-        // Act
         await _client1.SendMessageAsync(2, "Message 1");
         await Task.Delay(100);
         await _client1.SendMessageAsync(2, "Message 2");
         await Task.Delay(500);
 
-        // Assert
         var notifications = _receivedMessages.Count(m => m.StartsWith("Client2:"));
         Assert.That(notifications, Is.EqualTo(2), "Should receive two notification events");
     }
@@ -172,25 +156,20 @@ public class ChatTests
     [Test]
     public async Task DisconnectReconnect_MessageDelivery_Success()
     {
-        // Arrange
         await _client2.RunAsync();
         await Task.Delay(500);
 
-        // Send message before disconnect
         await _client1.SendMessageAsync(2, "Before disconnect");
         await Task.Delay(500);
 
-        // Disconnect and send message
         await _client2.DisposeAsync();
         await Task.Delay(500);
 
-        // Store messages from old client
         var oldMessages = _client2.GetMessages(1);
 
         await _client1.SendMessageAsync(2, "During disconnect");
         await Task.Delay(500);
 
-        // Reconnect and restore messages
         _client2 = new Chats(2, _serverUrl);
         foreach (var msg in oldMessages)
         {
@@ -199,8 +178,7 @@ public class ChatTests
         _client2.NewMessagesReceived += (s, users) => _receivedMessages.Add($"Client2: New messages from {string.Join(",", users)}");
         await _client2.RunAsync();
         await Task.Delay(500);
-
-        // Assert
+        
         var messages = _client2.GetMessages(1);
         Assert.Multiple(() =>
         {
@@ -213,21 +191,17 @@ public class ChatTests
     [Test]
     public async Task MessageHistory_PersistsAcrossConnections()
     {
-        // Arrange
         await _client2.RunAsync();
         await Task.Delay(500);
 
-        // Send messages and disconnect
         await _client1.SendMessageAsync(2, "History message 1");
         await _client1.SendMessageAsync(2, "History message 2");
         await Task.Delay(500);
 
-        // Store messages before disconnect
         var oldMessages = _client2.GetMessages(1);
         await _client2.DisposeAsync();
         await Task.Delay(500);
 
-        // Reconnect with new instance and restore messages
         _client2 = new Chats(2, _serverUrl);
         foreach (var msg in oldMessages)
         {
@@ -236,7 +210,6 @@ public class ChatTests
         await _client2.RunAsync();
         await Task.Delay(500);
 
-        // Assert
         var messages = _client2.GetMessages(1);
         Assert.Multiple(() =>
         {
@@ -249,7 +222,6 @@ public class ChatTests
     [Test]
     public async Task ConcurrentMessages_MultipleClients_AllDelivered()
     {
-        // Arrange
         await _client2.RunAsync();
         await _client3.RunAsync();
         await Task.Delay(500);
@@ -257,7 +229,6 @@ public class ChatTests
         const int messageCount = 10;
         var tasks = new List<Task>();
 
-        // Act - Send messages concurrently
         for (int i = 0; i < messageCount; i++)
         {
             tasks.Add(_client1.SendMessageAsync(2, $"To2_{i}"));
@@ -266,7 +237,6 @@ public class ChatTests
         await Task.WhenAll(tasks);
         await Task.Delay(1000);
 
-        // Assert
         Assert.Multiple(() =>
         {
             var messages2 = _client2.GetMessages(1);
@@ -286,18 +256,14 @@ public class ChatTests
     [Test]
     public async Task LongMessage_Delivery_Success()
     {
-        // Arrange
         await _client2.RunAsync();
         await Task.Delay(500);
 
-        // Create a long message
         var longMessage = new string('A', 1000) + new string('B', 1000) + new string('C', 1000);
 
-        // Act
         var sent = await _client1.SendMessageAsync(2, longMessage);
         await Task.Delay(500);
 
-        // Assert
         Assert.Multiple(() =>
         {
             Assert.That(sent, Is.True, "Long message should be sent successfully");
@@ -306,5 +272,110 @@ public class ChatTests
             Assert.That(messages[0].Item1, Is.EqualTo(longMessage), "Long message content should match exactly");
             Assert.That(messages[0].Item1.Length, Is.EqualTo(3000), "Message length should be preserved");
         });
+    }
+
+    [Test]
+    public async Task UnreadMessages_CountAndMarkAsRead_Success()
+    {
+        await _client2.RunAsync();
+        await Task.Delay(500);
+
+        await _client1.SendMessageAsync(2, "Message 1");
+        await _client1.SendMessageAsync(2, "Message 2");
+        await _client1.SendMessageAsync(2, "Message 3");
+        await Task.Delay(500);
+
+        Assert.Multiple(() =>
+        {
+            var unreadCount = _client2.GetUnreadCount(1);
+            Assert.That(unreadCount, Is.EqualTo(3), "Should have 3 unread messages");
+
+            _client2.MarkAsRead(1);
+            unreadCount = _client2.GetUnreadCount(1);
+            Assert.That(unreadCount, Is.EqualTo(0), "Should have 0 unread messages after marking as read");
+            
+            var messages = _client2.GetMessages(1);
+            Assert.That(messages, Has.Count.EqualTo(3), "Should still have all messages after marking as read");
+        });
+    }
+
+    [Test]
+    public async Task EditMessage_Success()
+    {
+        await _client2.RunAsync();
+        await Task.Delay(500);
+
+        await _client1.SendMessageAsync(2, "Original message");
+        await Task.Delay(500);
+
+        var messages = _client2.GetMessages(1);
+        var messageTime = messages[0].Item2;
+        
+        var edited = await _client1.EditMessage(2, messageTime, "Edited message");
+        await Task.Delay(500);
+
+        messages = _client2.GetMessages(1);
+        Assert.Multiple(() =>
+        {
+            Assert.That(edited, Is.True, "Edit operation should succeed");
+            Assert.That(messages, Has.Count.EqualTo(1), "Should still have one message");
+            Assert.That(messages[0].Item1, Is.EqualTo("Edited message"), "Message should be updated");
+            Assert.That(messages[0].Item2, Is.EqualTo(messageTime), "Message time should remain unchanged");
+        });
+    }
+
+    [Test]
+    public async Task DeleteMessage_Success()
+    {
+        await _client2.RunAsync();
+        await Task.Delay(500);
+
+        await _client1.SendMessageAsync(2, "Message to delete");
+        await _client1.SendMessageAsync(2, "Message to keep");
+        await Task.Delay(500);
+
+        var messages = _client2.GetMessages(1);
+        var messageToDeleteTime = messages[0].Item2;
+        
+        var deleted = await _client1.DeleteMessage(2, messageToDeleteTime);
+        await Task.Delay(500);
+
+        messages = _client2.GetMessages(1);
+        Assert.Multiple(() =>
+        {
+            Assert.That(deleted, Is.True, "Delete operation should succeed");
+            Assert.That(messages, Has.Count.EqualTo(1), "Should have one message left");
+            Assert.That(messages[0].Item1, Is.EqualTo("Message to keep"), "Correct message should remain");
+        });
+    }
+
+    [Test]
+    public async Task ReconnectAsync_PreservesMessages_Success()
+    {
+        await _client2.RunAsync();
+        await Task.Delay(500);
+
+        await _client1.SendMessageAsync(2, "Message before reconnect");
+        await Task.Delay(500);
+
+        await _client2.ReconnectAsync();
+        await Task.Delay(500);
+
+        await _client1.SendMessageAsync(2, "Message after reconnect");
+        await Task.Delay(500);
+
+        var messages = _client2.GetMessages(1);
+        Assert.Multiple(() =>
+        {
+            Assert.That(_client2.IsConnected, Is.True, "Should be connected after reconnect");
+            Assert.That(messages, Has.Count.EqualTo(2), "Should have messages from before and after reconnect");
+            Assert.That(messages[0].Item1, Is.EqualTo("Message before reconnect"), "First message should be preserved");
+            Assert.That(messages[1].Item1, Is.EqualTo("Message after reconnect"), "Should receive new messages after reconnect");
+        });
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // ... существующий код ... ХУЙНЯ
     }
 }

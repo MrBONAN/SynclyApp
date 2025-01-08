@@ -20,7 +20,6 @@ public class Chats : IAsyncDisposable
         await _chatsHandler.StartSetUp();
         _isRunning = true;
 
-        // Запускаем прием сообщений в фоновом режиме
         _ = Task.Run(async () =>
         {
             try
@@ -73,6 +72,22 @@ public class Chats : IAsyncDisposable
     public Dictionary<int, List<(string message, string time)>> GetAllChats() => _chatsHandler.GetAllChats();
 
     public async Task RestoreMessage(int userId, string message, string time) => await _chatsHandler.RestoreMessage(userId, message, time);
+
+    public void AddChat(int userId) => _chatsHandler.AddChat(userId);
+    public void RemoveChat(int userId) => _chatsHandler.DelChat(userId);
+    
+    public bool IsConnected => _chatsHandler.isOpen();
+    public bool IsRunning => _isRunning;
+    
+    public int GetUnreadCount(int userId) => _chatsHandler.GetUnreadCount(userId);
+    public void MarkAsRead(int userId) => _chatsHandler.MarkAsRead(userId);
+    public async Task<bool> EditMessage(int userId, string oldMessageTime, string newText) => 
+        await _chatsHandler.EditMessage(userId, oldMessageTime, newText);
+    public async Task<bool> DeleteMessage(int userId, string messageTime) => 
+        await _chatsHandler.DeleteMessage(userId, messageTime);
+    
+    public async Task ReconnectAsync() => await _chatsHandler.ReconnectAsync();
+    public async Task DisconnectAsync() => await StopAsync();
 
     public async ValueTask DisposeAsync()
     {
