@@ -1,10 +1,12 @@
 using System.Text.Json;
 using App.UserAuthorization.SpotifyAuthorization.Models;
+using Infrastructure.API.ServerApi;
+using Infrastructure.API.ServerApi.Models.User;
 
 namespace App.UserAuthorization.SpotifyAuthorization;
 
 public class SpotifyAuthManager(
-    ISpotifyAccessTokenService accessTokenService,
+    IUserDataHandler userDataHandler,
     ISpotifyPkceAuthorizationService pkceAuthorizationService)
     : ISpotifyAuthManager
 {
@@ -21,19 +23,14 @@ public class SpotifyAuthManager(
         if (accessToken.Result == PkceAccessTokenResult.ExchangeError)
             return LogInResult.ExchangeTokenError;
 
-        await SaveAccessTokenAsync(accessToken);
-        return LogInResult.Success;
-    }
-
-    public void LogOut()
-    {
-        SecureStorage.Default.Remove("spotify_token");
-        accessTokenService.RemoveToken();
-    }
-    
-    private static async Task SaveAccessTokenAsync(PkceAccessToken accessToken)
-    {
-        var jsonAccessToken = JsonSerializer.Serialize(accessToken);
-        await SecureStorage.Default.SetAsync("spotify_token", jsonAccessToken);
+        var spotifyAccessTokenDto = accessToken.ToSpotifyAccessTokenDto();
+        var response = await ServerApi.AuthorizeSpotifyAsync(spotifyAccessTokenDto);
+        if (response.Result is ApiResult.Ok)
+        {
+            await userDataHandler.SaveUserDataAsync(response.Data!);
+            return LogInResult.Success;
+        }
+        // TODO
+        return LogInResult.AuthorizationError;
     }
 }

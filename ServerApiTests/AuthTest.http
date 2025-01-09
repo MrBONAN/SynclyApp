@@ -1,0 +1,28 @@
+###
+GET https://a926-2a12-5940-a4e1-00-2.ngrok-free.app/api/user
+Accept: application/json
+
+###
+POST https://94.228.164.4:7199/api/location/1
+Content-Type: application/json
+
+{
+  "latitude": 50,
+  "longitude": 56
+}
+
+
+###
+POST https://94.228.164.4:7199/api/authorize/spotify
+accept: */*
+Content-Type: application/json-patch+json
+
+{
+  "accessToken": "BQBk-nyTu4CFiOibVGAOeVnnnGQA_ibzBLXNqfOq9i7QySwlvXKzn_9JST7U_JrKLRBbvfy5M8mXTsVOb1eMyrUpiALuskgwnLqjtckG5VGxDJfRrcaY2An5UoauxA85rbaiAVp2vdY9zv0Vh3970ISLbSVSfiNKEY8arkKe4VykHR72sgp-7qUqcjQjIhtcMSverTadDz_K047aJzWJLxFtVwzwqj92EQeGRPJaClWY1tE",
+  "tokenType": "Bearer",
+  "expiresDate": "2025-01-08T19:40:22.194Z",
+  "refreshToken": "AQCra4qdxMJugJgG_bKbqGrCfZhIz-Ug2K9ymj3j2l68LuBFrLkWQCnB8dwi9r6NiSDOPs7mE6Pd6nt-tX7yrD2Ei2aRO9hniJa_6mZV1StcxRMbf0G4_HXBFdQF1EwUTRk"
+}
+
+
+
