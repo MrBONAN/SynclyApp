@@ -9,8 +9,8 @@ public class Track
     public int Id { get; private set; }
     public  string Name { get; private set; }
     public  IEnumerable<Artist> Artists { get; private set; }
-    public string ArtistsName => "На разработке";
-    //public string ArtistsName => String.Join(", ", Artists.Select(a => a.Name));
+
+    public string ArtistsName => String.Join(", ", Artists.Select(a => a.Name));
     public  Dictionary<MusicServices, string?> Links  { get; private set; } = new()
     {
         {MusicServices.Spotify, null},
@@ -42,8 +42,7 @@ public class Track
     {
         Id = track.Id;
         Name = track.Name;
-        //Artists = track.Artists?.Where(x => x != null).Select(artist => new Artist(artist)).ToList();
-        Artists = null;
+        Artists = track.Artists.Select(x => new Artist(x)).ToList();
         Links[MusicServices.Spotify] = track.Links.ExternalLink;
         CoverUrl = track.Links.ExternalImageLink;
         OpenTrackOnSpotify = new Command(Open);
