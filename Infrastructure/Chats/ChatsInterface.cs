@@ -64,8 +64,10 @@ public class Chats : IAsyncDisposable
         await Task.CompletedTask;
     }
 
-    public async Task<bool> SendMessageAsync(int userId, string message) =>
-        await _chatsHandler.SendMessage(userId: userId, message: message);
+    public async Task<bool> SendMessageAsync(int userId, string message)
+    {
+        return _isRunning && await _chatsHandler.SendMessage(userId: userId, message: message);
+    }
 
     public List<(string, string)> GetMessages(int userId) => _chatsHandler.GetMessages(userId);
 

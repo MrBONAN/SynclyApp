@@ -8,18 +8,19 @@ class Program
 {
     public static async Task Main()
     {
-        try 
+        try
         {
-            await RunBasicMessageTest();
-            await RunReconnectionTest();
-            await RunMultipleMessagesTest();
-            await RunConcurrentMessagesTest();
-            await RunLongMessageTest();
-            await RunMultipleClientsTest();
-            await RunMessageOrderTest();
-            await RunStressTest();
-            await RunDisconnectReconnectTest();
-            await RunChatHistoryTest();
+            await StartTest();
+            // await RunBasicMessageTest();
+            // await RunReconnectionTest();
+            // await RunMultipleMessagesTest();
+            // await RunConcurrentMessagesTest();
+            // await RunLongMessageTest();
+            // await RunMultipleClientsTest();
+            // await RunMessageOrderTest();
+            // await RunStressTest();
+            // await RunDisconnectReconnectTest();
+            // await RunChatHistoryTest();
         }
         catch (Exception ex)
         {
@@ -29,6 +30,40 @@ class Program
         Console.WriteLine("\nЗавершили тестирование чата");
     }
 
+    static async Task StartTest()
+    {
+        var Fridmak = new Chats(22);
+        var Mot1x = new Chats(52);
+        var LexaSleep = new Chats(1488);
+        
+        await Fridmak.RunAsync();
+        await Fridmak.SendMessageAsync(1488, "Where is DB??");
+        
+        await Mot1x.RunAsync();
+        await Mot1x.SendMessageAsync(1488, "Idi nahoi");
+
+        await Fridmak.SendMessageAsync(1488, "DB??? go online");
+        await Fridmak.SendMessageAsync(52, "Oh, hi");
+        
+        await LexaSleep.RunAsync();
+
+        await Mot1x.SendMessageAsync(22, "hello");
+
+        await LexaSleep.SendMessageAsync(22, "BLYAT NET NIHUIA");
+        await LexaSleep.SendMessageAsync(52, "Yes, i love you too!");
+
+        await Task.Delay(400);
+
+        foreach (var (id, messages) in LexaSleep.GetAllChats())
+        {
+            Console.WriteLine($"Chat with {id}:");
+            foreach (var message in messages)
+                Console.WriteLine(message);
+        }
+        
+        
+    }
+    
     static async Task RunBasicMessageTest()
     {
         Console.WriteLine("\n=== Базовый тест отправки сообщений ===\n");

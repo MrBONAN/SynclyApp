@@ -240,21 +240,15 @@ public class ChatsHandler : IAsyncDisposable
         if (!_chats.TryGetValue(chatPair, out var messages) || messages == null)
             return false;
 
-        var messagesList = messages.ToList();
-        var messageIndex = messagesList.FindIndex(m => m.time == messageTime);
+        var messagesArray = messages.ToArray();
+        var messageIndex = Array.FindIndex(messagesArray, m => m.time == messageTime);
         if (messageIndex == -1)
             return false;
 
-        messagesList[messageIndex] = (newText, messageTime);
-
-        while (messages.TryDequeue(out _))
-        {
-        }
-
-        foreach (var msg in messagesList)
-        {
-            messages.Enqueue(msg);
-        }
+        messagesArray[messageIndex] = (newText, messageTime);
+        
+        var updatedMessages = new ConcurrentQueue<(string message, string time)>(messagesArray);
+        _chats[chatPair] = updatedMessages;
 
         var editMessage = ChatMessageFormatter.CreateMessage(_myId, newText, userId, messageTime, "EDIT");
         return await _chatConnection.SendMessageAsync(editMessage);

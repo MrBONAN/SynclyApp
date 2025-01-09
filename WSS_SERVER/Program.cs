@@ -7,10 +7,6 @@ using WebSocketServer;
 
 public class ChatServer
 {
-    private static ConcurrentDictionary<int, WebSocket> _clients = new();
-    private static Dictionary<int, HashSet<string>> _messagesToSend = new();
-    private static readonly SemaphoreSlim _dictSamaphore = new(1, 1);
-
     static async Task Main()
     {
         var url = "http://localhost:8080/";

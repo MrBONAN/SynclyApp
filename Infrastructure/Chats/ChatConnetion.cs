@@ -12,7 +12,7 @@ public class ChatConnection : IAsyncDisposable
     public event Action<string>? MessageReceived;
 
     private readonly int _maxReconnectAttempts = 3;
-    private readonly TimeSpan _reconnectDelay = TimeSpan.FromMilliseconds(500); 
+    private readonly TimeSpan _reconnectDelay = TimeSpan.FromMilliseconds(500);
     private bool _isReconnecting;
     private bool _isDisposed;
     private readonly SemaphoreSlim _connectionLock = new SemaphoreSlim(1, 1);
@@ -35,11 +35,13 @@ public class ChatConnection : IAsyncDisposable
                 if (_webSocket.State != WebSocketState.None && _webSocket.State != WebSocketState.Closed)
                     await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing before retry",
                         CancellationToken.None);
-                
+
                 _webSocket = new ClientWebSocket();
                 await _webSocket.ConnectAsync(_serverUri, _cancellationTokenSource.Token);
                 IsOpen = true;
-                _receiveTask = StartReceivingMessagesAsync(); 
+
+                _receiveTask = StartReceivingMessagesAsync();
+
                 break;
             }
             catch (Exception ex)
@@ -47,12 +49,13 @@ public class ChatConnection : IAsyncDisposable
                 Console.WriteLine($"Ошибка подключения: {ex.Message}");
 
                 if (_connectionAttempts < 3)
-                    await Task.Delay(500, _cancellationTokenSource.Token); 
+                    await Task.Delay(500, _cancellationTokenSource.Token);
                 else
                 {
                     Console.WriteLine("Не удалось установить соединение после всех попыток");
                     break;
                 }
+
                 _connectionAttempts++;
             }
         }
@@ -106,7 +109,8 @@ public class ChatConnection : IAsyncDisposable
     {
         byte[] buffer = new byte[1024 * 4];
 
-        while (_webSocket.State == WebSocketState.Open && !_isDisposed && !_cancellationTokenSource.Token.IsCancellationRequested)
+        while (_webSocket.State == WebSocketState.Open && !_isDisposed &&
+               !_cancellationTokenSource.Token.IsCancellationRequested)
         {
             var result = await ReceiveMessageAsync(buffer);
             if (result.IsConnectionClosed)
@@ -125,7 +129,7 @@ public class ChatConnection : IAsyncDisposable
         {
             WebSocketReceiveResult result;
             var messageBuffer = new List<byte>();
-            
+
             do
             {
                 result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cancellationTokenSource.Token);
@@ -133,8 +137,7 @@ public class ChatConnection : IAsyncDisposable
                     return (true, null);
 
                 messageBuffer.AddRange(new ArraySegment<byte>(buffer, 0, result.Count));
-            }
-            while (!result.EndOfMessage);
+            } while (!result.EndOfMessage);
 
             var message = Encoding.UTF8.GetString(messageBuffer.ToArray());
             return (false, message);
@@ -153,12 +156,12 @@ public class ChatConnection : IAsyncDisposable
     private async Task HandleDisconnectionAsync()
     {
         if (_isDisposed) return;
-        
+
         await _connectionLock.WaitAsync(_cancellationTokenSource.Token);
         try
         {
             if (!IsOpen) return;
-            
+
             IsOpen = false;
             Console.WriteLine("Соединение потеряно, переподключение...");
             await ReconnectAsync();
@@ -178,7 +181,9 @@ public class ChatConnection : IAsyncDisposable
             _isReconnecting = true;
             _connectionAttempts = 0;
 
-            for (int attempt = 1; attempt <= _maxReconnectAttempts && !_cancellationTokenSource.Token.IsCancellationRequested; attempt++)
+            for (int attempt = 1;
+                 attempt <= _maxReconnectAttempts && !_cancellationTokenSource.Token.IsCancellationRequested;
+                 attempt++)
             {
                 if (await TryReconnectOnceAsync(attempt)) return;
 
@@ -202,7 +207,9 @@ public class ChatConnection : IAsyncDisposable
             _webSocket = new ClientWebSocket();
             await _webSocket.ConnectAsync(_serverUri, _cancellationTokenSource.Token);
             IsOpen = true;
+
             _receiveTask = StartReceivingMessagesAsync();
+
             return true;
         }
         catch (Exception ex)

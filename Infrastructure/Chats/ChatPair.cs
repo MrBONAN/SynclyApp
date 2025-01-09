@@ -23,18 +23,18 @@ public readonly struct ChatPair : IEquatable<ChatPair>
 
     public bool Contains(int id) => Id1 == id || Id2 == id;
 
-    public override bool Equals(object obj) => 
+    public override bool Equals(object obj) =>
         obj is ChatPair other && Equals(other);
 
-    public bool Equals(ChatPair other) => 
+    public bool Equals(ChatPair other) =>
         Id1 == other.Id1 && Id2 == other.Id2;
 
-    public override int GetHashCode() => 
+    public override int GetHashCode() =>
         HashCode.Combine(Id1, Id2);
 
-    public static bool operator ==(ChatPair left, ChatPair right) => 
+    public static bool operator ==(ChatPair left, ChatPair right) =>
         left.Equals(right);
 
-    public static bool operator !=(ChatPair left, ChatPair right) => 
+    public static bool operator !=(ChatPair left, ChatPair right) =>
         !(left == right);
 }

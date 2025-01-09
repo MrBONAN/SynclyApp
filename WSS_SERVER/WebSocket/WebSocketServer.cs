@@ -8,20 +8,21 @@ public class Server
     private readonly IClientManager _clientManager;
     private readonly IMessageHandler _messageHandler;
     private readonly IMessageArchive _messageArchive;
-    
-    public Server(string url, IClientManager clientManager, IMessageHandler messageHandler, IMessageArchive messageArchive)
+
+    public Server(string url, IClientManager clientManager, IMessageHandler messageHandler,
+        IMessageArchive messageArchive)
     {
         _url = url;
         _clientManager = clientManager;
         _messageHandler = messageHandler;
         _messageArchive = messageArchive;
     }
-    
+
     public async Task StartAsync()
     {
         await _messageArchive.StartAsync();
         await _clientManager.StartAsync();
-        
+
         var httpListener = new HttpListener();
         httpListener.Prefixes.Add(_url);
         httpListener.Start();
@@ -40,7 +41,7 @@ public class Server
 
     private async Task ProcessWebSocketRequest(HttpListenerContext listenerContext)
     {
-        try 
+        try
         {
             var webSocketContext = await listenerContext.AcceptWebSocketAsync(subProtocol: null);
             Console.WriteLine("Клиент подключен!");

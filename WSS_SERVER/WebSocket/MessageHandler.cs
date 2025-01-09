@@ -8,7 +8,7 @@ public class MessageHandler : IMessageHandler
 {
     private readonly IClientManager _clientManager;
     private readonly IMessageArchive _messageArchive;
-    
+
     public MessageHandler(IClientManager clientManager, IMessageArchive messageArchive)
     {
         _clientManager = clientManager;
@@ -24,7 +24,7 @@ public class MessageHandler : IMessageHandler
             while (webSocket.State == WebSocketState.Open)
             {
                 string receivedMessage = await ReceiveMessageAsync(webSocket, buffer);
-                if (receivedMessage is null) 
+                if (receivedMessage is null)
                     break;
 
                 if (receivedMessage.StartsWith("[SRVID]"))
@@ -100,9 +100,10 @@ public class MessageHandler : IMessageHandler
         if (message is null) return;
 
         var responseMessage = ChatMessageFormatter.CreateMessage(message);
-        
-        var messageSent = await _clientManager.SendMessageToClientAsync(message.SenderId, responseMessage, message.RecieverId);
-        
+
+        var messageSent =
+            await _clientManager.SendMessageToClientAsync(message.SenderId, responseMessage, message.RecieverId);
+
         if (!messageSent)
             await _messageArchive.ArchiveMessage(message);
     }
