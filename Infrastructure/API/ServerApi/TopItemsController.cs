@@ -17,7 +17,7 @@ public static partial class ServerApi
     
     public static async Task<ServerApiResult<List<ArtistDto>>> GetTopArtistsAsync(int userId)
     {
-        var request = new RestRequest($"/api/top/track/{userId}");
+        var request = new RestRequest($"/api/top/artist/{userId}");
         var response = await ServerClient.ExecuteGetAsync<List<ArtistDto>>(request);
         if (response is { IsSuccessful: true, Data: not null })
             return new ServerApiResult<List<ArtistDto>>(ApiResult.Ok, response.Data);
