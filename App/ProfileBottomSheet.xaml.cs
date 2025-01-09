@@ -17,6 +17,7 @@ public partial class Sheet : BottomSheet
         BindingContext = new ViewModel(id);
         var viewModel = BindingContext as ViewModel;
         SpotifyAccountButton.Clicked += viewModel.OpenSpotifyProfile;
+        WriteMessageButton.Clicked += viewModel.OpenChat;
         InitializeData();
     }
 
@@ -37,6 +38,7 @@ public class ViewModel(int id) : INotifyPropertyChanged
     private bool _isLoadingArtists = true;
     private bool _isLoadingRecentlyPlayed = true;
     private User _currentUser;
+    
     public readonly int Id = id;
     
     public User CurrentUser
@@ -52,7 +54,6 @@ public class ViewModel(int id) : INotifyPropertyChanged
 
     public string CurrentUserName { get; set; }
     public string CurrentUserImage { get; set; }
-
 
     public bool IsLoadingTracks
     {
@@ -175,5 +176,12 @@ public class ViewModel(int id) : INotifyPropertyChanged
         var link = CurrentUser.MusicAppLinks[MusicServices.Spotify];
         if (link != null)
             await Launcher.OpenAsync(link);
+    }
+
+    public async void OpenChat(object? sender, EventArgs e)
+    {
+        if (CurrentUser == null) return;
+        var page = new Chat.Sheet(CurrentUser.Id);
+        await page.ShowAsync();
     }
 }

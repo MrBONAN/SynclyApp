@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Domain;
+using Infrastructure.API.ServerApi;
 using The49.Maui.BottomSheet;
 
 namespace Chat;
@@ -23,32 +24,49 @@ public partial class Sheet : BottomSheet
         };
         await Task.WhenAny(loadingTasks);
     }
-
-    private void OnEditorTextChanged(object sender, TextChangedEventArgs e)
-    {
-        var editor = (Editor)sender;
-
-        if (!string.IsNullOrWhiteSpace(editor.Text))
-        {
-            double lineHeight = editor.FontSize * 1.2;
-            double textHeight = lineHeight * Math.Max(editor.Text.Split('\n').Length, 1);
-
-            editor.HeightRequest = Math.Min(textHeight + 10, 200);
-        }
-        else
-        {
-            editor.HeightRequest = 40;
-        }
-    }
 }
 
 public class ViewModel : INotifyPropertyChanged
 {
-    public User СhatPartner { get; set; }
+    private User _chatPartner;
+    private string _partnerProfileImage = "profile_icon.png";
+    private string _partnerUsername = "Загрузка...";
+
+    public User ChatPartner
+    {
+        get => _chatPartner;
+        set
+        {
+            if (_chatPartner == value || value == null) return;
+            _chatPartner = value;
+            OnPropertyChanged();
+        }
+    }
 
     public ViewModel(int id)
     {
-        СhatPartner = new User(id);
+        Id = id;
+    }
+
+    public int Id { get; set; }
+    public string PartnerProfileImage {
+        get => _partnerProfileImage;
+        set
+        {
+            if (_partnerProfileImage == value) return;
+            _partnerProfileImage = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    public string PartnerUsername {
+        get => _partnerUsername;
+        set
+        {
+            if (_partnerUsername == value || value == null) return;
+            _partnerUsername = value;
+            OnPropertyChanged();
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -68,6 +86,23 @@ public class ViewModel : INotifyPropertyChanged
 
     public async Task LoadDataAsync()
     {
-        Console.WriteLine("Loading data");
+        var resultData = (await ServerApi.GetUserAsync(Id)).Data;
+        
+        if (resultData != null)
+        {
+            ChatPartner = new User();
+            await ChatPartner.Initialize(resultData);
+        }
+
+        if (ChatPartner.ProfileImageURL != null)
+            PartnerProfileImage = ChatPartner.ProfileImageURL;
+        
+        if (ChatPartner.Name != null)
+            PartnerUsername = ChatPartner.Name;
+    }
+
+    public async Task LoadMessagesAsync()
+    {
+        
     }
 }

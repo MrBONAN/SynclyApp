@@ -97,7 +97,7 @@ public partial class Map : ContentPage
         ProfileButton.Clicked += OnProfileButtonClicked;
         SettingsButton.Clicked += OnSettingsButtonClicked;
         ActionButton.Clicked += OnClickedMoveToMyLocation;
-        ChatButton.Clicked += OnChatButtonClicked;
+        //ChatButton.Clicked += OnChatButtonClicked;
     }
 
     private async void InitializeFields()

@@ -52,8 +52,8 @@
                     CornerRadius="10"
                     Style="{StaticResource BaseButtonStyle}"
                     Source="{Binding CurrentUserImage}"
-                    WidthRequest="50"
-                    HeightRequest="50"
+                    WidthRequest="70"
+                    HeightRequest="70"
                     HorizontalOptions="Center"
                     Aspect="Center" />
             </Frame>
@@ -84,15 +84,8 @@
                     <Button Grid.Column="0"
                             x:Name="WriteMessageButton"
                             Style="{StaticResource SecondaryButtonStyle}"
-                            ImageSource="add_friend_icon.png"
+                            ImageSource="chat_icon.png"
                             HorizontalOptions="End" />
-
-                    <Button Grid.Column="1"
-                            x:Name="ShowFriendButton"
-                            Style="{StaticResource SecondaryButtonStyle}"
-                            WidthRequest="-1"
-                            HorizontalOptions="End"
-                            Text="n друзей" />
                 </Grid>
 
                 <Grid ColumnSpacing="10"

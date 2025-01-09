@@ -39,27 +39,39 @@
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
-        <Button Grid.Column="0"
-                x:Name="ProfileButton"
+        <Frame Grid.Column="0"
+               x:Name="ProfileButton"
+               CornerRadius="10"
+               WidthRequest="50"
+               HeightRequest="50"
+               HorizontalOptions="Start">
+            <ImageButton
+                CornerRadius="10"
                 Style="{StaticResource BaseButtonStyle}"
-                ImageSource="profile_icon.png"
-                HorizontalOptions="Start" />
+                Source="{Binding PartnerProfileImage}"
+                WidthRequest="70"
+                HeightRequest="70"
+                HorizontalOptions="Center"
+                Aspect="Center" />
+        </Frame>
         
         <Label Grid.Column="1"
                x:Name="Username"
                Style="{StaticResource HeaderLabelStyle}"
-               Text="Собеседник"
+               Text="{Binding PartnerUsername}"
                HorizontalOptions="CenterAndExpand" />
         
         <Button Grid.Column="2"
                 x:Name="AddFriendButton"
                 Style="{StaticResource BaseButtonStyle}"
-                ImageSource="add_friend_icon.png"
                 HorizontalOptions="End" />
-
-        <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="3" Spacing="10">
-            
-        </VerticalStackLayout>
+        <ScrollView Grid.Row="1" Grid.ColumnSpan="3">
+            <VerticalStackLayout
+                x:Name="Messages"
+                Spacing="10">
+            </VerticalStackLayout>
+        </ScrollView>
+        
         
         <Grid Grid.Row="2"
               Grid.ColumnSpan="3"
@@ -77,11 +89,12 @@
                 x:Name="MessageEditor" 
                 Placeholder="Введите сообщение..." 
                 Grid.Column="0" 
-                VerticalOptions="Center" 
-                BackgroundColor="White" 
-                TextColor="Black" 
+                VerticalOptions="Center"
+                
+                BackgroundColor="Black" 
+                TextColor="White" 
+                AutoSize="TextChanges"
                 Margin="0" 
-                TextChanged="OnEditorTextChanged"
                 HeightRequest="40" />
             
             <ImageButton

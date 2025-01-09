@@ -82,17 +82,17 @@
                          Margin="5,5,5,0"
                          Spacing="10">
                 
-                <Button x:Name="ChatButton"
-                        ImageSource="chat_icon.png"
-                        Padding="15"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Center"
-                        WidthRequest="60"
-                        HeightRequest="60"
-                        Margin="0,0,0,0"
-                        BackgroundColor="Black"
-                        TextColor="White"
-                        FontAttributes="Bold"/>
+                <!-- <Button x:Name="ChatButton" -->
+                <!--         ImageSource="chat_icon.png" -->
+                <!--         Padding="15" -->
+                <!--         VerticalOptions="Center" -->
+                <!--         HorizontalOptions="Center" -->
+                <!--         WidthRequest="60" -->
+                <!--         HeightRequest="60" -->
+                <!--         Margin="0,0,0,0" -->
+                <!--         BackgroundColor="Black" -->
+                <!--         TextColor="White" -->
+                <!--         FontAttributes="Bold"/> -->
                 
                 <Button x:Name="ActionButton"
                         ImageSource="soulmates_search_icon.png"
@@ -106,16 +106,16 @@
                         TextColor="White"
                         FontAttributes="Bold"/>
 
-                <Button x:Name="SomeButton"
-                        Padding="15"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Center"
-                        WidthRequest="60"
-                        HeightRequest="60"
-                        Margin="0,0,0,0"
-                        BackgroundColor="Black"
-                        TextColor="White"
-                        FontAttributes="Bold"/>
+                <!-- <Button x:Name="SomeButton" -->
+                <!--         Padding="15" -->
+                <!--         VerticalOptions="Center" -->
+                <!--         HorizontalOptions="Center" -->
+                <!--         WidthRequest="60" -->
+                <!--         HeightRequest="60" -->
+                <!--         Margin="0,0,0,0" -->
+                <!--         BackgroundColor="Black" -->
+                <!--         TextColor="White" -->
+                <!--         FontAttributes="Bold"/> -->
             </StackLayout>
             
         </Grid>
