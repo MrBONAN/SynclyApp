@@ -1,12 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using App;
 using App.UserAuthorization;
-using App.UserAuthorization.SpotifyAuthorization;
-using CommunityToolkit.Maui.Views;
 using The49.Maui.BottomSheet;
 
 namespace Exit;

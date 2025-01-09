@@ -2,7 +2,7 @@ using Microsoft.Maui.Devices.Sensors;
 
 namespace Domain;
 
-public class MapLocation : ILocationService
+public class MapLocation
 {
     private readonly Func<Task<Location>> _locationGetter;
     private Location _location;
@@ -29,25 +29,5 @@ public class MapLocation : ILocationService
     {
         _location = location;
         _timeWhenUpdated = DateTimeOffset.Now;
-    }
-
-    public Task<IEnumerable<Location>> GetAllLocationsAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task AddLocationAsync(Location location)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateLocationAsync(Location location)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteLocationAsync(int id)
-    {
-        throw new NotImplementedException();
     }
 }

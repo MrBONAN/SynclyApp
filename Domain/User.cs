@@ -3,7 +3,7 @@ using Infrastructure.API.ServerApi.Models.User;
 
 namespace Domain;
 
-public class User : IUserService
+public class User
 {
     public string Name { get; set; }
     public Dictionary<MusicServices, string?> MusicAppLinks { get; set; } = new()
@@ -44,60 +44,5 @@ public class User : IUserService
         TopArtists = (await ServerApi.GetTopArtistsAsync(Id)).Data
             .Select(x => new Artist(x));
         ProfileImageURL = user.Links.ExternalImageLink;
-    }
-
-    public void AddApp(string app, string musicAppLink)
-    {
-        //MusicAppLinks[app] = musicAppLink;
-    }
-
-    public Task<User> GetByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<User>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task AddAsync(User user)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateAsync(User user)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<User> GetUserAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<User>> GetAllUsersAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task RegisterUserAsync(User user)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateUserAsync(User user)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteUserAsync(int id)
-    {
-        throw new NotImplementedException();
     }
 }

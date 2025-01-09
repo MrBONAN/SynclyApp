@@ -72,8 +72,6 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-
-            <!-- Поле ввода -->
             
             <Editor 
                 x:Name="MessageEditor" 
@@ -85,8 +83,7 @@
                 Margin="0" 
                 TextChanged="OnEditorTextChanged"
                 HeightRequest="40" />
-
-            <!-- Кнопка отправки -->
+            
             <ImageButton
                 Grid.Column="1" 
                 Source="chat_icon.png"
@@ -95,7 +92,6 @@
                 VerticalOptions="Center" 
                 CornerRadius="5" />
         </Grid>
-
     </Grid>
 
 </the49:BottomSheet>

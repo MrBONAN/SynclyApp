@@ -36,9 +36,9 @@
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" /> <!-- Кнопка слева -->
-            <ColumnDefinition Width="*" />    <!-- Центр для текста -->
-            <ColumnDefinition Width="Auto" /> <!-- Кнопка справа -->
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         
         <Frame Grid.Column="0"
@@ -106,10 +106,6 @@
                         x:Name="SpotifyAccountButton"
                         Style="{StaticResource BaseButtonStyle}"
                         ImageSource="spotify_icon.png" />
-                <!-- <Button Grid.Column="1" -->
-                <!--         x:Name="YandexAccountButton" -->
-                <!--         Style="{StaticResource BaseButtonStyle}" -->
-                <!--         ImageSource="yandex_icon.png" /> -->
             </Grid>
         </Grid>
         <VerticalStackLayout Grid.Row="3" Grid.ColumnSpan="3" Spacing="10">

@@ -5,7 +5,6 @@ using Infrastructure.API.ServerApi;
 using Infrastructure.API.ServerApi.Models.Location;
 using Infrastructure.API.ServerApi.Models.User;
 using ProfileBottomSheet;
-
 using ApiResult = Infrastructure.API.ServerApi.ApiResult;
 
 namespace App;
@@ -21,7 +20,6 @@ public partial class Map : ContentPage
     private PortChecker _portChecker;
     private UserDto userData;
     private string MapStyle => Preferences.Get("MapStyle", "default");
-
     private readonly IUserDataHandler userDataHandler = App.Services.GetRequiredService<IUserDataHandler>();
     private string _topText = "Тишина...";
     private string _topTextLink;

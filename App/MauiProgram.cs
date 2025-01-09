@@ -1,11 +1,9 @@
 using App.UserAuthorization;
 using CommunityToolkit.Maui;
 using App.UserAuthorization.SpotifyAuthorization;
-using App.UserAuthorization.SpotifyAuthorization.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using The49.Maui.BottomSheet;
-using CommunityToolkit.Maui;
 
 namespace App;
 public static class MauiProgram

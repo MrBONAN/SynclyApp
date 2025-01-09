@@ -29,37 +29,29 @@ public partial class Sheet : BottomSheet
         };
         await Task.WhenAny(loadingTasks);
     }
-
-    private async void OnGridTapped(object sender, TappedEventArgs e)
-    {
-        if (e.Parameter is string url)
-            await Launcher.Default.OpenAsync(url);
-    }
-
-    
 }
 
 public class ViewModel(int id) : INotifyPropertyChanged
 {
     private bool _isLoadingTracks = true;
     private bool _isLoadingArtists = true;
-    private User currentUser;
+    private User _currentUser;
     public readonly int Id = id;
 
     public User CurrentUser
     {
-        get => currentUser;
+        get => _currentUser;
         set
         {
-            if (currentUser == value) return;
-            currentUser = value;
+            if (_currentUser == value) return;
+            _currentUser = value;
             OnPropertyChanged();
         }
     }
-    
+
     public string CurrentUserName { get; set; }
     public string CurrentUserImage { get; set; }
-    
+
 
     public bool IsLoadingTracks
     {
@@ -100,13 +92,13 @@ public class ViewModel(int id) : INotifyPropertyChanged
         await Task.WhenAll(loadTracks, loadArtists);
         Tracks = await loadTracks;
         Artists = await loadArtists;
-        
+
         OnPropertyChanged(nameof(Tracks));
         IsLoadingTracks = false;
 
         OnPropertyChanged(nameof(Artists));
         IsLoadingArtists = false;
-        
+
         CurrentUserName = CurrentUser.Name;
         CurrentUserImage = CurrentUser.ProfileImageURL;
         OnPropertyChanged(nameof(CurrentUserName));
@@ -126,7 +118,7 @@ public class ViewModel(int id) : INotifyPropertyChanged
             .ToObservableCollection();
     }
 
-    private async Task<ObservableCollection<Domain.Track>> GetTopTracks()
+    private async Task<ObservableCollection<Track>> GetTopTracks()
     {
         var top = await ServerApi.GetTopTracksAsync(Id);
 

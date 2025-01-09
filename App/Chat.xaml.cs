@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using Domain;
 using The49.Maui.BottomSheet;
 
@@ -18,7 +13,7 @@ public partial class Sheet : BottomSheet
         BindingContext = new ViewModel(id);
         InitializeData();
     }
-    
+
     private async void InitializeData()
     {
         if (BindingContext is not ViewModel viewModel) return;
@@ -33,18 +28,15 @@ public partial class Sheet : BottomSheet
     {
         var editor = (Editor)sender;
 
-        // Пересчитываем высоту на основе текста
         if (!string.IsNullOrWhiteSpace(editor.Text))
         {
-            double lineHeight = editor.FontSize * 1.2; // Примерный расчет высоты строки
+            double lineHeight = editor.FontSize * 1.2;
             double textHeight = lineHeight * Math.Max(editor.Text.Split('\n').Length, 1);
 
-            // Ограничиваем максимальную высоту (например, до 200 пикселей)
             editor.HeightRequest = Math.Min(textHeight + 10, 200);
         }
         else
         {
-            // Сбрасываем на минимальную высоту
             editor.HeightRequest = 40;
         }
     }
@@ -53,7 +45,7 @@ public partial class Sheet : BottomSheet
 public class ViewModel : INotifyPropertyChanged
 {
     public User СhatPartner { get; set; }
-    
+
     public ViewModel(int id)
     {
         СhatPartner = new User(id);

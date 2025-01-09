@@ -15,14 +15,6 @@ public class Artist
         { MusicServices.Spotify, null },
         { MusicServices.YandexMusic, null }
     };
-
-    //public Artist(string? id, string? profileImageURL, string? name)
-    //{
-    //    Id = id;
-    //    Name = name;
-    //    ProfileImageURL = profileImageURL;
-    //    OpenArtistOnSpotify = new Command(Open);
-    //}
     
     public Artist(ArtistDto artist)
     {
@@ -31,17 +23,8 @@ public class Artist
         ProfileImageURL = artist.Links.ExternalImageLink;
         Links[MusicServices.Spotify] = artist.Links.ExternalLink;
         OpenArtistOnSpotify = new Command(Open);
+        Genres = artist.Genres;
     }
-
-    //public Artist(Infrastructure.API.SpotifyAPI.Models.Artist artist)
-    //{
-    //    Id = artist.Id;
-    //    Name = artist.Name;
-    //    ProfileImageURL = artist.Images != null ? artist.Images.FirstOrDefault()?.Url : null;
-    //    Links[MusicServices.Spotify] = artist.Uri;
-    //    Genres = artist.Genres;
-    //    OpenArtistOnSpotify = new Command(Open);
-    //}
 
     private async void Open(object obj)
     {
