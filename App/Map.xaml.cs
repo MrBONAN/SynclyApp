@@ -1,19 +1,11 @@
-using System.ComponentModel;
 using Domain;
-using App.Infrastructure;
 using App.UserAuthorization;
-using App.UserAuthorization.SpotifyAuthorization;
-using App.UserAuthorization.SpotifyAuthorization.Models;
-using CommunityToolkit.Maui.Core.Views;
-using CommunityToolkit.Maui.Views;
 using Infrastructure;
 using Infrastructure.API.ServerApi;
 using Infrastructure.API.ServerApi.Models.Location;
 using Infrastructure.API.ServerApi.Models.User;
-using Infrastructure.API.SpotifyAPI;
-using Microsoft.Maui.Controls;
 using ProfileBottomSheet;
-using The49.Maui.BottomSheet;
+
 using ApiResult = Infrastructure.API.ServerApi.ApiResult;
 
 namespace App;
@@ -150,7 +142,6 @@ public partial class Map : ContentPage
             var userLocation = await _cachedLocation.GetLocationAsync();
             _mapControl.MoveMapTo(userLocation);
             _mapControl.AddCircle(await _cachedLocation.GetLocationAsync(), 2000);
-            _mapControl.SetPort(_portChecker);
             var allLocations = (await ServerApi.GetAllLocationsAsync()).Data;
             foreach (var location in allLocations)
             {
@@ -162,6 +153,7 @@ public partial class Map : ContentPage
                 };
                 _mapControl.AddMarkerWithLocalImage(locationUser, user.Links.ExternalImageLink, location.UserId, "openUserProfile");
             }
+            _mapControl.SetPort(_portChecker);
         }
         catch (Exception ex)
         {
