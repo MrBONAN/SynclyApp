@@ -19,22 +19,6 @@ public class Chats : IAsyncDisposable
 
         await _chatsHandler.StartSetUp();
         _isRunning = true;
-
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                await _chatsHandler.UpdateAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка в процессе обновления чатов: {ex.Message}");
-            }
-            finally
-            {
-                _isRunning = false;
-            }
-        });
     }
 
 
@@ -94,7 +78,6 @@ public class Chats : IAsyncDisposable
         await _chatsHandler.DeleteMessage(userId, messageTime);
 
     public async Task ReconnectAsync() => await _chatsHandler.ReconnectAsync();
-    public async Task DisconnectAsync() => await StopAsync();
 
     public async ValueTask DisposeAsync()
     {
@@ -103,4 +86,6 @@ public class Chats : IAsyncDisposable
     }
 
     public async Task StopChat() => await DisposeAsync();
+
+    public async Task StopASync() => await _chatsHandler.StopAsync();
 }

@@ -39,15 +39,23 @@ class Program
         await Fridmak.RunAsync();
         await Fridmak.SendMessageAsync(1488, "Where is DB??");
         
+        await Task.Delay(200);
+        
         await Mot1x.RunAsync();
         await Mot1x.SendMessageAsync(1488, "Idi nahoi");
+        
+        await Task.Delay(200);
 
         await Fridmak.SendMessageAsync(1488, "DB??? go online");
         await Fridmak.SendMessageAsync(52, "Oh, hi");
         
+        await Task.Delay(200);
+        
         await LexaSleep.RunAsync();
 
         await Mot1x.SendMessageAsync(22, "hello");
+        
+        await Task.Delay(200);
 
         await LexaSleep.SendMessageAsync(22, "BLYAT NET NIHUIA");
         await LexaSleep.SendMessageAsync(52, "Yes, i love you too!");

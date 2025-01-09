@@ -15,7 +15,7 @@ public class ChatConnection : IAsyncDisposable
     private readonly TimeSpan _reconnectDelay = TimeSpan.FromMilliseconds(500);
     private bool _isReconnecting;
     private bool _isDisposed;
-    private readonly SemaphoreSlim _connectionLock = new SemaphoreSlim(1, 1);
+    private readonly SemaphoreSlim _connectionLock = new(1, 1);
     private Task? _receiveTask;
 
     public ChatConnection(string serverUri, Action<string> onMessageReceived)
@@ -59,6 +59,14 @@ public class ChatConnection : IAsyncDisposable
                 _connectionAttempts++;
             }
         }
+    }
+
+    public async Task StopConnectionAsync()
+    {
+        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing before retry",
+            CancellationToken.None);
+        if (_receiveTask != null && _receiveTask.Status.Equals(TaskStatus.Running))
+            await _receiveTask;
     }
 
     public async Task<bool> SendMessageAsync(string message)

@@ -11,7 +11,7 @@ public class ChatsHandler : IAsyncDisposable
     private string _wssServerLink;
     private ChatConnection _chatConnection;
     private readonly int _myId;
-    public List<int> chatsToUpdate;
+    public List<int> chatsToUpdate = new();
     private readonly Action HandleChatsToUpdate;
 
     public ChatsHandler(int myId, Action handleChatsToUpdate, string serverLink = "ws://localhost:8080/ws/")
@@ -19,7 +19,6 @@ public class ChatsHandler : IAsyncDisposable
         _myId = myId;
         _wssServerLink = serverLink;
         HandleChatsToUpdate = handleChatsToUpdate;
-        chatsToUpdate = new List<int>();
         _chatConnection = new ChatConnection(_wssServerLink, HandleNewMessage);
     }
 
@@ -28,7 +27,7 @@ public class ChatsHandler : IAsyncDisposable
     public async Task StartSetUp()
     {
         await _chatConnection.OpenConnectionAsync();
-        if (_chatConnection.IsOpen)
+        if (isOpen())
             await SendIdToServer();
         else
             Console.WriteLine("Не удалось установить начальное соединение с сервером");
@@ -50,11 +49,6 @@ public class ChatsHandler : IAsyncDisposable
         _readMessageCounts.TryRemove((userId, chatPair), out _);
     }
 
-    public async Task UpdateAsync()
-    {
-        await _chatConnection.StartReceivingMessagesAsync();
-    }
-
     private void HandleNewMessage(string message)
     {
         var chatMessage = ChatMessageFormatter.ParseClientMessage(message);
@@ -69,11 +63,11 @@ public class ChatsHandler : IAsyncDisposable
             switch (chatMessage.AdditionalInfo)
             {
                 case "EDIT":
-                    HandleEditMessage(userMessages, chatMessage);
+                    userMessages = HandleEditMessage(userMessages, chatMessage);
                     break;
 
                 case "DELETE":
-                    HandleDeleteMessage(userMessages, chatMessage);
+                    userMessages = HandleDeleteMessage(userMessages, chatMessage);
                     break;
 
                 default:
@@ -81,10 +75,10 @@ public class ChatsHandler : IAsyncDisposable
                     break;
             }
 
+            _chats[chatPair] = userMessages;
+
             if (chatMessage.RecieverId == _myId)
-            {
-                chatsToUpdate.Add(chatMessage.SenderId);
-            }
+                SubscribeNewMessages(chatMessage.SenderId);
         }
         else
             Console.WriteLine("Ошибка: не удалось разобрать входящее сообщение");
@@ -92,41 +86,34 @@ public class ChatsHandler : IAsyncDisposable
         HandleChatsToUpdate();
     }
 
-    private void HandleEditMessage(ConcurrentQueue<(string message, string time)> userMessages, ChatMessage chatMessage)
+    private ConcurrentQueue<(string message, string time)> HandleEditMessage(
+        ConcurrentQueue<(string message, string time)> userMessages, ChatMessage chatMessage)
     {
-        var editList = userMessages.ToList();
-        var editIndex = editList.FindIndex(m => m.time == chatMessage.MessageTime);
+        var editArray = userMessages.ToArray();
+        var editIndex = Array.FindIndex(editArray, message => message.time == chatMessage.MessageTime);
         if (editIndex != -1)
         {
-            editList[editIndex] = (chatMessage.MessageContext, chatMessage.MessageTime);
-            while (userMessages.TryDequeue(out _))
-            {
-            }
-
-            foreach (var msg in editList)
-            {
-                userMessages.Enqueue(msg);
-            }
+            editArray[editIndex] = (chatMessage.MessageContext, chatMessage.MessageTime);
+            return new ConcurrentQueue<(string message, string time)>(editArray);
         }
+
+        return userMessages;
     }
 
-    private void HandleDeleteMessage(ConcurrentQueue<(string message, string time)> userMessages,
+    private ConcurrentQueue<(string message, string time)> HandleDeleteMessage(
+        ConcurrentQueue<(string message, string time)> userMessages,
         ChatMessage chatMessage)
     {
-        var deleteList = userMessages.ToList();
-        var deleteIndex = deleteList.FindIndex(m => m.time == chatMessage.MessageTime);
+        var deleteArray = userMessages.ToArray();
+        var deleteIndex = Array.FindIndex(deleteArray, message => message.time == chatMessage.MessageTime);
+
         if (deleteIndex != -1)
         {
-            deleteList.RemoveAt(deleteIndex);
-            while (userMessages.TryDequeue(out _))
-            {
-            }
-
-            foreach (var msg in deleteList)
-            {
-                userMessages.Enqueue(msg);
-            }
+            var newArray = deleteArray.Where((item, index) => index != deleteIndex).ToArray();
+            return new ConcurrentQueue<(string message, string time)>(newArray);
         }
+
+        return userMessages;
     }
 
     public async Task<bool> SendMessage(int userId, string message)
@@ -229,9 +216,7 @@ public class ChatsHandler : IAsyncDisposable
     {
         var chatPair = new ChatPair(_myId, userId);
         if (_chats.TryGetValue(chatPair, out var messages) && messages != null)
-        {
             _readMessageCounts[(_myId, chatPair)] = messages.Count;
-        }
     }
 
     public async Task<bool> EditMessage(int userId, string messageTime, string newText)
@@ -246,7 +231,7 @@ public class ChatsHandler : IAsyncDisposable
             return false;
 
         messagesArray[messageIndex] = (newText, messageTime);
-        
+
         var updatedMessages = new ConcurrentQueue<(string message, string time)>(messagesArray);
         _chats[chatPair] = updatedMessages;
 
@@ -260,21 +245,17 @@ public class ChatsHandler : IAsyncDisposable
         if (!_chats.TryGetValue(chatPair, out var messages) || messages == null)
             return false;
 
-        var messagesList = messages.ToList();
-        var messageIndex = messagesList.FindIndex(m => m.time == messageTime);
+        var messagesArray = messages.ToArray();
+        var messageIndex = Array.FindIndex(messagesArray, m => m.time == messageTime);
         if (messageIndex == -1)
             return false;
 
-        messagesList.RemoveAt(messageIndex);
+        var newMessages = new ConcurrentQueue<(string message, string time)>();
+        for (int i = 0; i < messagesArray.Length; i++)
+            if (i != messageIndex)
+                newMessages.Enqueue(messagesArray[i]);
 
-        while (messages.TryDequeue(out _))
-        {
-        }
-
-        foreach (var msg in messagesList)
-        {
-            messages.Enqueue(msg);
-        }
+        _chats[chatPair] = newMessages;
 
         var deleteMessage = ChatMessageFormatter.CreateMessage(_myId, "", userId, messageTime, "DELETE");
         return await _chatConnection.SendMessageAsync(deleteMessage);
@@ -291,5 +272,11 @@ public class ChatsHandler : IAsyncDisposable
     {
         if (_chatConnection != null)
             await _chatConnection.DisposeAsync();
+    }
+
+    public async Task StopAsync()
+    {
+        if (_chatConnection != null && isOpen())
+            await _chatConnection.StopConnectionAsync();
     }
 }

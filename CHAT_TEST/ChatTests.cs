@@ -33,13 +33,13 @@ public class ChatTests
     {
         try
         {
-            await Task.Delay(1000);
+            await Task.Delay(400);
             await Task.WhenAll(
                 _client1?.DisposeAsync().AsTask() ?? Task.CompletedTask,
                 _client2?.DisposeAsync().AsTask() ?? Task.CompletedTask,
                 _client3?.DisposeAsync().AsTask() ?? Task.CompletedTask
             );
-            await Task.Delay(1000);
+            await Task.Delay(400);
         }
         catch (Exception ex)
         {
@@ -235,7 +235,7 @@ public class ChatTests
             tasks.Add(_client1.SendMessageAsync(3, $"To3_{i}"));
         }
         await Task.WhenAll(tasks);
-        await Task.Delay(1000);
+        await Task.Delay(400);
 
         Assert.Multiple(() =>
         {
