@@ -1,15 +1,20 @@
 using System.ComponentModel;
 using Domain;
 using App.Infrastructure;
+using App.UserAuthorization;
 using App.UserAuthorization.SpotifyAuthorization;
 using App.UserAuthorization.SpotifyAuthorization.Models;
 using CommunityToolkit.Maui.Core.Views;
 using CommunityToolkit.Maui.Views;
 using Infrastructure;
+using Infrastructure.API.ServerApi;
+using Infrastructure.API.ServerApi.Models.Location;
+using Infrastructure.API.ServerApi.Models.User;
 using Infrastructure.API.SpotifyAPI;
 using Microsoft.Maui.Controls;
 using ProfileBottomSheet;
 using The49.Maui.BottomSheet;
+using ApiResult = Infrastructure.API.ServerApi.ApiResult;
 
 namespace App;
 
@@ -22,9 +27,10 @@ public partial class Map : ContentPage
     private DefaultSettings _defaultSettings;
     private SimpleServer _localServer;
     private PortChecker _portChecker;
+    private UserDto userData;
     private string MapStyle => Preferences.Get("MapStyle", "default");
 
-    private readonly ISpotifyAccessTokenService spotifyAccessToken;
+    private readonly IUserDataHandler userDataHandler = App.Services.GetRequiredService<IUserDataHandler>();
     private string _topText = "Тишина...";
     private string _topTextLink;
 
@@ -50,9 +56,8 @@ public partial class Map : ContentPage
         }
     }
 
-    public Map(ISpotifyAccessTokenService spotifyAccessToken)
+    public Map()
     {
-        this.spotifyAccessToken = spotifyAccessToken;
         InitializeComponent();
         StartServer();
         InitializeFields();
@@ -67,11 +72,18 @@ public partial class Map : ContentPage
             try
             {
                 var location = await _cachedLocation.GetLocationAsync();
+                await ServerApi.UpdateLocationAsync(userData.Id,
+                    new UpdateLocationDto
+                    {
+                        Latitude = (decimal)location.Latitude,
+                        Longitude = (decimal)location.Longitude
+                    });
                 if (location != null)
                 {
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
-                        _mapControl.AddMarkerWithLocalImage(location, "mot1x.jpg", 0, "openUserProfile");
+                        _mapControl.AddMarkerWithLocalImage(location, userData.Links.ExternalImageLink, userData.Id,
+                            "openUserProfile");
                         _mapControl.SetPort(_portChecker);
                     });
                 }
@@ -84,6 +96,7 @@ public partial class Map : ContentPage
             {
                 Console.WriteLine($"UpdateLocation error: {ex.Message}");
             }
+
             await Task.Delay(15000);
         }
     }
@@ -100,6 +113,7 @@ public partial class Map : ContentPage
     private async void InitializeFields()
     {
         _userInformation = new UserInformation();
+        userData = await userDataHandler.GetUserDataAsync();
         _defaultSettings = new DefaultSettings();
 
         _mapControl = App.Services.GetRequiredService<MapCommands>();
@@ -170,14 +184,13 @@ public partial class Map : ContentPage
 
     private async Task UpdateTopText()
     {
-        var token = await spotifyAccessToken.GetAsync();
-        while (token != null)
+        while (true)
         {
-            var currentTrack = await SpotifyApi.GetCurrentTrackAsync(token.Value!);
-            if (currentTrack.Result is ApiResult.Success)
+            var currentTrack = await ServerApi.GetCurrentTrackAsync(userData.Id);
+            if (currentTrack.Result is ApiResult.Ok)
             {
                 TopText = currentTrack.Data!.Name;
-                TopTextLink = currentTrack.Data!.Uri;
+                TopTextLink = currentTrack.Data!.Links.ExternalImageLink;
             }
             else
             {
@@ -196,14 +209,14 @@ public partial class Map : ContentPage
         {
             _mapControl.LoadMap();
             _mapControl.MoveMapTo(userLocation);
-            _mapControl.AddMarkerWithLocalImage(userLocation, "image.jpg", 0, "openUserProfile");
+            _mapControl.AddMarkerWithLocalImage(userLocation, userData.Links.ExternalImageLink, userData.Id, "openUserProfile");
             _mapControl.SetPort(_portChecker);
         });
     }
 
     private async void OnProfileButtonClicked(object sender, EventArgs e)
     {
-        var page = new Sheet(spotifyAccessToken, 0);
+        var page = new Sheet(userData.Id);
         await page.ShowAsync();
     }
 
@@ -212,7 +225,7 @@ public partial class Map : ContentPage
         var page = new SettingsBottomSheet();
         await page.ShowAsync();
     }
-    
+
     private async void OnChatButtonClicked(object? sender, EventArgs e)
     {
         var page = new Chat.Sheet(0);
@@ -221,7 +234,7 @@ public partial class Map : ContentPage
 
     private async void OpenUserProfile(int id)
     {
-        var page = new Sheet(spotifyAccessToken, id);
+        var page = new Sheet(id);
         await page.ShowAsync();
     }
 
@@ -247,13 +260,17 @@ public partial class Map : ContentPage
         {
             await Task.Delay(1000);
             var userLocation = await _cachedLocation.GetLocationAsync();
+
+            var image = userData.Links.ExternalImageLink;
+            var id = userData.Id;
+
             if (userLocation != null)
             {
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     _mapControl.LoadMap();
                     _mapControl.MoveMapTo(userLocation);
-                    _mapControl.AddMarkerWithLocalImage(userLocation, "mot1x.jpg", 0, "openUserProfile");
+                    _mapControl.AddMarkerWithLocalImage(userLocation, image, id, "openUserProfile");
                     _mapControl.SetPort(_portChecker);
                 });
             }

@@ -1,26 +1,22 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using App.UserAuthorization.SpotifyAuthorization;
-using App.UserAuthorization.SpotifyAuthorization.Models;
-using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Core.Extensions;
-using The49.Maui.BottomSheet;
-using CommunityToolkit.Maui.Views;
 using Domain;
-using Infrastructure.API.SpotifyAPI;
-using AccessToken = App.UserAuthorization.SpotifyAuthorization.Models.AccessToken;
-using Artist = Infrastructure.API.SpotifyAPI.Models.Artist;
-using Track = Infrastructure.API.SpotifyAPI.Models.Track;
+using The49.Maui.BottomSheet;
+using Infrastructure.API.ServerApi;
+using ApiResult = Infrastructure.API.ServerApi.ApiResult;
 
 namespace ProfileBottomSheet;
 
 public partial class Sheet : BottomSheet
 {
-    public Sheet(ISpotifyAccessTokenService spotifyAccessToken, int id)
+    public Sheet(int id)
     {
         InitializeComponent();
-        BindingContext = new ViewModel(spotifyAccessToken, id);
+        BindingContext = new ViewModel(id);
+        var viewModel = BindingContext as ViewModel;
+        SpotifyAccountButton.Clicked += viewModel.OpenSpotifyProfile;
         InitializeData();
     }
 
@@ -39,16 +35,30 @@ public partial class Sheet : BottomSheet
         if (e.Parameter is string url)
             await Launcher.Default.OpenAsync(url);
     }
+
+    
 }
 
-public class ViewModel(
-    ISpotifyAccessTokenService spotifyAccessToken,
-    int id) : INotifyPropertyChanged
+public class ViewModel(int id) : INotifyPropertyChanged
 {
     private bool _isLoadingTracks = true;
     private bool _isLoadingArtists = true;
+    private User currentUser;
     public readonly int Id = id;
-    private readonly ISpotifyAccessTokenService spotifyAccessToken = spotifyAccessToken;
+
+    public User CurrentUser
+    {
+        get => currentUser;
+        set
+        {
+            if (currentUser == value) return;
+            currentUser = value;
+            OnPropertyChanged();
+        }
+    }
+    
+    public string CurrentUserName { get; set; }
+    public string CurrentUserImage { get; set; }
     
 
     public bool IsLoadingTracks
@@ -73,46 +83,54 @@ public class ViewModel(
         }
     }
 
-    public ObservableCollection<Domain.Track> Tracks { get; set; } = new();
-    public ObservableCollection<Domain.Artist> Artists { get; set; } = new();
+    public ObservableCollection<Track> Tracks { get; set; } = new();
+    public ObservableCollection<Artist> Artists { get; set; } = new();
 
     public async Task LoadDataAsync()
     {
         var loadTracks = GetTopTracks();
         var loadArtists = GetTopArtists();
+        var resultData = (await ServerApi.GetUserAsync(Id)).Data;
+        if (resultData != null)
+        {
+            CurrentUser = new User();
+            await CurrentUser.Initialize(resultData);
+        }
 
         await Task.WhenAll(loadTracks, loadArtists);
-
         Tracks = await loadTracks;
         Artists = await loadArtists;
-
+        
         OnPropertyChanged(nameof(Tracks));
         IsLoadingTracks = false;
 
         OnPropertyChanged(nameof(Artists));
         IsLoadingArtists = false;
+        
+        CurrentUserName = CurrentUser.Name;
+        CurrentUserImage = CurrentUser.ProfileImageURL;
+        OnPropertyChanged(nameof(CurrentUserName));
+        OnPropertyChanged(nameof(CurrentUserImage));
     }
 
     private async Task<ObservableCollection<Domain.Artist>> GetTopArtists()
     {
-        var token = await spotifyAccessToken.GetAsync();
-        var top = await SpotifyApi.GetUserTopItemsAsync<Artist>(token.Value!);
+        var top = await ServerApi.GetTopArtistsAsync(Id);
 
-        if (top?.Result is not ApiResult.Success || top.Data == null)
-            return new ObservableCollection<Domain.Artist>();
+        if (top.Result is not ApiResult.Ok || top.Data == null)
+            return new ObservableCollection<Artist>();
 
         return top.Data
             .Where(x => x != null)
-            .Select(x => new Domain.Artist(x))
+            .Select(x => new Artist(x))
             .ToObservableCollection();
     }
 
     private async Task<ObservableCollection<Domain.Track>> GetTopTracks()
     {
-        var token = await spotifyAccessToken.GetAsync();
-        var top = await SpotifyApi.GetUserTopItemsAsync<Track>(token.Value!);
+        var top = await ServerApi.GetTopTracksAsync(Id);
 
-        if (top?.Result is not ApiResult.Success || top.Data == null)
+        if (top?.Result is not ApiResult.Ok || top.Data == null)
             return new ObservableCollection<Domain.Track>();
 
         return top.Data
@@ -126,5 +144,12 @@ public class ViewModel(
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public async void OpenSpotifyProfile(object? sender, EventArgs e)
+    {
+        var link = CurrentUser.MusicAppLinks[MusicServices.Spotify];
+        if (link != null)
+            await Launcher.OpenAsync(link);
     }
 }

@@ -40,21 +40,33 @@
             <ColumnDefinition Width="*" />    <!-- Центр для текста -->
             <ColumnDefinition Width="Auto" /> <!-- Кнопка справа -->
         </Grid.ColumnDefinitions>
-
-        <Button Grid.Column="0"
-                x:Name="ProfileButton"
-                Style="{StaticResource BaseButtonStyle}"
-                ImageSource="profile_icon.png"
-                HorizontalOptions="Start" />
+        
+        <Frame Grid.Column="0"
+            x:Name="ProfileButton"
+            CornerRadius="10"
+            WidthRequest="50"
+            HeightRequest="50"
+            HorizontalOptions="Start">
+            <ImageButton
+                         CornerRadius="10"
+                         Style="{StaticResource BaseButtonStyle}"
+                         Source="{Binding CurrentUserImage}"
+                         WidthRequest="50"
+                         HeightRequest="50"
+                         HorizontalOptions="Center"
+                         Aspect="Center"/>
+        </Frame>
+        
+        
         <Label Grid.Column="1"
                x:Name="Username"
                Style="{StaticResource HeaderLabelStyle}"
-               Text="Mot1x"
+               Text="{Binding CurrentUserName}"
                HorizontalOptions="CenterAndExpand" />
+        
         <Button Grid.Column="2"
                 x:Name="AddFriendButton"
                 Style="{StaticResource BaseButtonStyle}"
-                ImageSource="add_friend_icon.png"
                 HorizontalOptions="End" />
         <Label Grid.Row="1" Grid.ColumnSpan="3"
                x:Name="Description"
@@ -94,10 +106,10 @@
                         x:Name="SpotifyAccountButton"
                         Style="{StaticResource BaseButtonStyle}"
                         ImageSource="spotify_icon.png" />
-                <Button Grid.Column="1"
-                        x:Name="YandexAccountButton"
-                        Style="{StaticResource BaseButtonStyle}"
-                        ImageSource="yandex_icon.png" />
+                <!-- <Button Grid.Column="1" -->
+                <!--         x:Name="YandexAccountButton" -->
+                <!--         Style="{StaticResource BaseButtonStyle}" -->
+                <!--         ImageSource="yandex_icon.png" /> -->
             </Grid>
         </Grid>
         <VerticalStackLayout Grid.Row="3" Grid.ColumnSpan="3" Spacing="10">

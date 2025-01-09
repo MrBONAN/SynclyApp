@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using App;
+using App.UserAuthorization;
 using App.UserAuthorization.SpotifyAuthorization;
 using CommunityToolkit.Maui.Views;
 using The49.Maui.BottomSheet;
@@ -12,8 +13,8 @@ namespace Exit;
 
 public partial class Sheet : BottomSheet
 {
-    private readonly ISpotifyAuthManager
-        SpotifyAuthManager = App.App.Services.GetRequiredService<ISpotifyAuthManager>();
+    private readonly IUserDataHandler
+        UserDataHandler = App.App.Services.GetRequiredService<IUserDataHandler>();
 
     public Sheet()
     {
@@ -32,7 +33,7 @@ public partial class Sheet : BottomSheet
 
     private async void LeaveApp(object? sender, EventArgs e)
     {
-        SpotifyAuthManager.LogOut();
+        UserDataHandler.RemoveUserData();
         await BottomSheet.DismissAsync();
         Application.Current.MainPage = App.App.Services.GetRequiredService<SignIn>();
     }

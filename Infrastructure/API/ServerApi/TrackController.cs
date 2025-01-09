@@ -14,7 +14,7 @@ public static partial class ServerApi
         return HandleError(response);
     }
     
-    public static async Task<ServerApiResult<TrackDto>> GetCurrentAsync(int userId)
+    public static async Task<ServerApiResult<TrackDto>> GetCurrentTrackAsync(int userId)
     {
         var request = new RestRequest($"/api/track/current/{userId}");
         var response = await ServerClient.ExecuteGetAsync<TrackDto>(request);

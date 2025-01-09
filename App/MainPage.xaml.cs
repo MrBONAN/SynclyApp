@@ -1,8 +1,6 @@
-﻿using System.Net.Http.Json;
-using App.UserAuthorization.SpotifyAuthorization;
+﻿using App.UserAuthorization.SpotifyAuthorization;
 using App.UserAuthorization;
 using Infrastructure.API.ServerApi;
-using Infrastructure.API.ServerApi.Models.Location;
 
 namespace App;
 
@@ -21,10 +19,6 @@ public partial class MainPage : ContentPage
     private async void Authenticate(object sender, EventArgs e)
     {
         var logInResult = await spotifyAuthManager.LogInAsync();
-        if (logInResult == LogInResult.Success)
-        {
-            Application.Current.MainPage = new Map(spotifyAccessToken);
-        }
         await Application.Current?.MainPage?.DisplayAlert("Результат входа", logInResult.ToString(), "ОК")!;
     }
 
@@ -81,37 +75,10 @@ public partial class MainPage : ContentPage
     {
         var userId = await userDataHandler.GetUserIdAsync();
         if (userId is null) return;
-        var location = await ServerApi.GetLocationAsync(userId.Value);
-        if (location.Result is not ApiResult.Ok) return;
+        var topTracks = await ServerApi.GetLocationAsync(userId.Value);
+        if (topTracks.Result is not ApiResult.Ok) return;
         await Application.Current!.MainPage?.DisplayAlert($"Локация пользователя {userId.Value}",
-            $"Широта: {location.Data!.Latitude}, Долгота: {location.Data!.Longitude}",
-            "OK")!;
-    }
-    
-    
-    private async void GetAllLocations(object sender, EventArgs e)
-    {
-        var userId = await userDataHandler.GetUserIdAsync();
-        if (userId is null) return;
-        var locations = await ServerApi.GetAllLocationsAsync();
-        if (locations.Result is not ApiResult.Ok) return;
-        await Application.Current!.MainPage?.DisplayAlert("Локации всех пользователей",
-            String.Join('\n', locations.Data.Select(l => $"Пользователь: {l.UserId}, широта: {l.Latitude}, долгота: {l.Longitude}")),
-            "OK")!;
-    }
-
-    private async void UpdateUserLocation(object sender, EventArgs e)
-    {
-        var userId = await userDataHandler.GetUserIdAsync();
-        if (userId is null) return;
-        var rand = new Random();
-        var latitude = (decimal)(rand.NextDouble() - 0.5) * 90;
-        var longitude = (decimal)(rand.NextDouble() - 0.5) * 180;
-        var updateLocationDto = new UpdateLocationDto() { Latitude = latitude, Longitude = longitude };
-        var newLocation = await ServerApi.UpdateLocationAsync(userId.Value, updateLocationDto);
-        if (newLocation.Result is not ApiResult.Ok) return;
-        await Application.Current!.MainPage?.DisplayAlert($"Новая локация пользователя {userId.Value}",
-            $"Широта: {newLocation.Data!.Latitude}, Долгота: {newLocation.Data!.Longitude}",
+            $"Широта: ",
             "OK")!;
     }
 
@@ -135,56 +102,5 @@ public partial class MainPage : ContentPage
         await Application.Current!.MainPage?.DisplayAlert("Топ артистов",
             String.Join("\n", topArtists.Data!.Select((artist, i) => $"{i + 1}: {artist.Name}")),
             "OK")!;
-    }
-
-    // TODO
-    // private async void GetSeveralTracks(object sender, EventArgs e)
-    // {
-    //     var token = await spotifyAccessToken.GetAsync();
-    //     var severalTracks = await SpotifyApi.GetSeveralEntitiesById<Track>(token.Value!,
-    //         new[] { "26wLOs3ZuHJa2Ihhx6QIE6", "5flerg6aEao2VayZezVlgu", "7LHAKF7pBqHch8o6Yo0ad5"});
-    //     if (severalTracks.Result is not ApiResult.Success) return;
-    //     await Application.Current.MainPage?.DisplayAlert("Три запрошенных трека",
-    //         String.Join("\n", severalTracks.Data!.Select((track, i) => $"{i + 1}: {track.Name}")),
-    //         "OK")!;
-    // }
-
-    // TODO
-    // private async void GetSeveralArtists(object sender, EventArgs e)
-    // {
-    //     var token = await spotifyAccessToken.GetAsync();
-    //     var severalArtists = await SpotifyApi.GetSeveralEntitiesById<Artist>(token.Value!,
-    //         new[] { "6s22t5Y3prQHyaHWUN1R1C", "6DdeqvIfYu3sH02gdavOu2", "0LcJLqbBmaGUft1e9Mm8HV"});
-    //     if (severalArtists.Result is not ApiResult.Success) return;
-    //     await Application.Current.MainPage?.DisplayAlert("Три запрошенных артиста",
-    //         String.Join("\n", severalArtists.Data!.Select((artist, i) => $"{i + 1}: {artist.Name}")),
-    //         "OK")!;
-    // }
-
-    private async void GetUserData(object sender, EventArgs e)
-    {
-        var userId = await userDataHandler.GetUserIdAsync();
-        if (userId is null) return;
-        var userProfile = await ServerApi.GetUserAsync(userId.Value);
-        if (userProfile.Result is not ApiResult.Ok) return;
-        await Application.Current.MainPage?.DisplayAlert("Данные пользователя",
-            $"Id: {userProfile.Data!.Id}, name: {userProfile.Data.Name}",
-            "OK")!;
-    }
-
-    // TODO
-    // private async void GetCurrentTrack(object sender, EventArgs e)
-    // {
-    //     var token = await spotifyAccessToken.GetAsync();
-    //     var currentTrack = await SpotifyApi.GetCurrentTrackAsync(token.Value!);
-    //     if (currentTrack.Result is not ApiResult.Success) return;
-    //     await Application.Current.MainPage?.DisplayAlert("Текущий трек",
-    //         $"Name: {currentTrack.Data!.Name}",
-    //         "OK")!;
-    // }
-
-    private void LogOut(object sender, EventArgs e)
-    {
-        userDataHandler.RemoveUserData();
     }
 }

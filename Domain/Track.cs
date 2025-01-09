@@ -1,14 +1,16 @@
 using System.Windows.Input;
+using Infrastructure.API.ServerApi.Models.Track;
 
 namespace Domain;
 
 public class Track
 {
     public ICommand OpenTrackOnSpotify { get; }
-    public  string Id { get; private set; }
+    public int Id { get; private set; }
     public  string Name { get; private set; }
     public  IEnumerable<Artist> Artists { get; private set; }
-    public string ArtistsName => String.Join(", ", Artists.Select(a => a.Name));
+    public string ArtistsName => "На разработке";
+    //public string ArtistsName => String.Join(", ", Artists.Select(a => a.Name));
     public  Dictionary<MusicServices, string?> Links  { get; private set; } = new()
     {
         {MusicServices.Spotify, null},
@@ -16,23 +18,34 @@ public class Track
     };
     public  string CoverUrl { get; private set; }
 
-    public Track(string id, string name, List<Artist> artistId, string linkOnPlatform, string coverUrl)
-    {
-        Id = id;
-        Name = name;
-        Artists = artistId;
-        Links[MusicServices.Spotify] = linkOnPlatform;
-        CoverUrl = coverUrl;
-        OpenTrackOnSpotify = new Command(Open);
-    }
+    //public Track(string id, string name, List<Artist> artistId, string linkOnPlatform, string coverUrl)
+    //{
+    //    Id = id;
+    //    Name = name;
+    //    Artists = artistId;
+    //    Links[MusicServices.Spotify] = linkOnPlatform;
+    //    CoverUrl = coverUrl;
+    //    OpenTrackOnSpotify = new Command(Open);
+    //}
 
-    public Track(Infrastructure.API.SpotifyAPI.Models.Track track)
+   // public Track(Infrastructure.API.SpotifyAPI.Models.Track track)
+   // {
+   //     Id = track.Id!;
+   //     Name = track.Name!;
+   //     Artists = track.Artists?.Where(x => x != null).Select(artist => new Artist(artist)).ToList();
+   //     Links[MusicServices.Spotify] = track.Uri;
+   //     CoverUrl = track.Images.FirstOrDefault()?.Url;
+   //     OpenTrackOnSpotify = new Command(Open);
+   // }
+    
+    public Track(TrackDto track)
     {
-        Id = track.Id!;
-        Name = track.Name!;
-        Artists = track.Artists?.Where(x => x != null).Select(artist => new Artist(artist)).ToList();
-        Links[MusicServices.Spotify] = track.Uri;
-        CoverUrl = track.Images.FirstOrDefault()?.Url;
+        Id = track.Id;
+        Name = track.Name;
+        //Artists = track.Artists?.Where(x => x != null).Select(artist => new Artist(artist)).ToList();
+        Artists = null;
+        Links[MusicServices.Spotify] = track.Links.ExternalLink;
+        CoverUrl = track.Links.ExternalImageLink;
         OpenTrackOnSpotify = new Command(Open);
     }
     

@@ -1,5 +1,7 @@
+using App.UserAuthorization;
 using CommunityToolkit.Maui;
 using App.UserAuthorization.SpotifyAuthorization;
+using App.UserAuthorization.SpotifyAuthorization.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using The49.Maui.BottomSheet;
@@ -40,7 +42,7 @@ public static class MauiProgram
         builder.Services.AddTransient<SignIn>();
         builder.Services.AddTransient<Map>();
         builder.Services.AddSingleton<MapCommands>();
-        builder.Services.AddSingleton<ISpotifyAccessTokenService, SpotifyAccessTokenService>();
+        builder.Services.AddSingleton<IUserDataHandler, UserDataHandler>();
         builder.Services.AddSingleton<ISpotifyAuthManager, SpotifyAuthManager>();
         builder.Services.AddSingleton<ISpotifyPkceAuthorizationService, SpotifyPkceAuthorizationService>();
 #if DEBUG
