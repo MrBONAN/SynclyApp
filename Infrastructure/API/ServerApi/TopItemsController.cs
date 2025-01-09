@@ -8,16 +8,18 @@ public static partial class ServerApi
 {
     public static async Task<ServerApiResult<List<TrackDto>>> GetTopTracksAsync(int userId)
     {
-        var request = new RestRequest($"/api/top/track/{userId}");
+        var request = new RestRequest($"/api/top/track/{userId}")
+            .AddHeader("accept", "*/*");
         var response = await ServerClient.ExecuteGetAsync<List<TrackDto>>(request);
         if (response is { IsSuccessful: true, Data: not null })
             return new ServerApiResult<List<TrackDto>>(ApiResult.Ok, response.Data);
         return HandleError(response);
     }
-    
+
     public static async Task<ServerApiResult<List<ArtistDto>>> GetTopArtistsAsync(int userId)
     {
-        var request = new RestRequest($"/api/top/artist/{userId}");
+        var request = new RestRequest($"/api/top/artist/{userId}")
+            .AddHeader("accept", "*/*");
         var response = await ServerClient.ExecuteGetAsync<List<ArtistDto>>(request);
         if (response is { IsSuccessful: true, Data: not null })
             return new ServerApiResult<List<ArtistDto>>(ApiResult.Ok, response.Data);

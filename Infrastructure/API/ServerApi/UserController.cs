@@ -7,7 +7,8 @@ public static partial class ServerApi
 {
     public static async Task<ServerApiResult<UserDto>> GetUserAsync(int userId)
     {
-        var request = new RestRequest($"/api/user/{userId}");
+        var request = new RestRequest($"/api/user/{userId}")
+            .AddHeader("accept", "*/*");
         var response = await ServerClient.ExecuteGetAsync<UserDto>(request);
         if (response is { IsSuccessful: true, Data: not null })
             return new ServerApiResult<UserDto>(ApiResult.Ok, response.Data);
@@ -16,7 +17,8 @@ public static partial class ServerApi
     
     public static async Task<ServerApiResult<List<UserDto>>> GetAllUsersAsync()
     {
-        var request = new RestRequest("/api/user/");
+        var request = new RestRequest("/api/user/")
+            .AddHeader("accept", "*/*");
         var response = await ServerClient.ExecuteGetAsync<List<UserDto>>(request);
         if (response is { IsSuccessful: true, Data: not null })
             return new ServerApiResult<List<UserDto>>(ApiResult.Ok, response.Data);
