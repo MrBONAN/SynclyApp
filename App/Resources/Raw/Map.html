@@ -69,23 +69,20 @@
 
             /*left: 0%;*/
             text-align: center;
-            overflow: hidden;
+            /*overflow: hidden;*/
+            
             /*transform: translate(0%, -100%); /** Центрирование с якорем внизу *!*/
         }
 
         .location-pin img {
-            /*width: 48px; !* Масштабируем ширину до контейнера *!*/
-            /*height: 48px;*/
-            width: 48px;      /* Устанавливаем ширину изображения на 100% */
+            width: 48px;
             height: 48px;
-            object-fit: cover; /* Обрезаем изображение, чтобы оно заполнило квадрат */
+            object-fit: cover;
+            /*clip-path: circle(50%);*/
             /*border-radius: 50%;*/
-            /*object-fit: cover;*/
             object-position: center;
             position: absolute;
             transform: translate(-50%, 10%);
-            /*border-radius: 50%;*/
-             /* Уменьшение/обрезка изображения по ширине */
             z-index: 10;
         }
 
@@ -230,7 +227,7 @@
 
         const myIcon = L.divIcon({
             className: 'location-pin',
-            html: `<img src="${imageName}"><div class="pin"></div>`,
+            html: `<img src="${imageName}" alt="ProfileImage"><div class="pin"></div>`,
             iconSize: [70, 70],
             iconAnchor: [35, 70]
         });
