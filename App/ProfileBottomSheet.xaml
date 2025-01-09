@@ -22,225 +22,295 @@
         <the49:RatioDetent Ratio="0.9" />
         <the49:FullscreenDetent />
     </the49:BottomSheet.Detents>
+    <ScrollView>
+        <Grid VerticalOptions="Start"
+              HorizontalOptions="FillAndExpand"
+              RowSpacing="35">
 
-    <Grid VerticalOptions="Start"
-          HorizontalOptions="FillAndExpand"
-          RowSpacing="35">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
-        
-        <Frame Grid.Column="0"
-            x:Name="ProfileButton"
-            CornerRadius="10"
-            WidthRequest="50"
-            HeightRequest="50"
-            HorizontalOptions="Start">
-            <ImageButton
-                         CornerRadius="10"
-                         Style="{StaticResource BaseButtonStyle}"
-                         Source="{Binding CurrentUserImage}"
-                         WidthRequest="50"
-                         HeightRequest="50"
-                         HorizontalOptions="Center"
-                         Aspect="Center"/>
-        </Frame>
-        
-        
-        <Label Grid.Column="1"
-               x:Name="Username"
-               Style="{StaticResource HeaderLabelStyle}"
-               Text="{Binding CurrentUserName}"
-               HorizontalOptions="CenterAndExpand" />
-        
-        <Button Grid.Column="2"
-                x:Name="AddFriendButton"
-                Style="{StaticResource BaseButtonStyle}"
-                HorizontalOptions="End" />
-        <Label Grid.Row="1" Grid.ColumnSpan="3"
-               x:Name="Description"
-               Style="{StaticResource DescriptionLabelStyle}"
-               Text="Здесь будет описание профиля" />
+            <Frame Grid.Column="0"
+                   x:Name="ProfileButton"
+                   CornerRadius="10"
+                   WidthRequest="50"
+                   HeightRequest="50"
+                   HorizontalOptions="Start">
+                <ImageButton
+                    CornerRadius="10"
+                    Style="{StaticResource BaseButtonStyle}"
+                    Source="{Binding CurrentUserImage}"
+                    WidthRequest="50"
+                    HeightRequest="50"
+                    HorizontalOptions="Center"
+                    Aspect="Center" />
+            </Frame>
 
-        <Grid Grid.Row="2" Grid.ColumnSpan="3">
-            <Grid ColumnSpacing="19"
-                  HorizontalOptions="Start">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <Label Grid.Column="1"
+                   x:Name="Username"
+                   Style="{StaticResource HeaderLabelStyle}"
+                   Text="{Binding CurrentUserName}"
+                   HorizontalOptions="CenterAndExpand" />
 
-                <Button Grid.Column="0"
-                        x:Name="WriteMessageButton"
-                        Style="{StaticResource SecondaryButtonStyle}"
-                        ImageSource="add_friend_icon.png"
-                        HorizontalOptions="End" />
+            <Button Grid.Column="2"
+                    x:Name="AddFriendButton"
+                    Style="{StaticResource BaseButtonStyle}"
+                    HorizontalOptions="End" />
+            <Label Grid.Row="1" Grid.ColumnSpan="3"
+                   x:Name="Description"
+                   Style="{StaticResource DescriptionLabelStyle}"
+                   Text="Здесь будет описание профиля" />
 
-                <Button Grid.Column="1"
-                        x:Name="ShowFriendButton"
-                        Style="{StaticResource SecondaryButtonStyle}"
-                        WidthRequest="-1"
-                        HorizontalOptions="End"
-                        Text="n друзей" />
+            <Grid Grid.Row="2" Grid.ColumnSpan="3">
+                <Grid ColumnSpacing="19"
+                      HorizontalOptions="Start">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0"
+                            x:Name="WriteMessageButton"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            ImageSource="add_friend_icon.png"
+                            HorizontalOptions="End" />
+
+                    <Button Grid.Column="1"
+                            x:Name="ShowFriendButton"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            WidthRequest="-1"
+                            HorizontalOptions="End"
+                            Text="n друзей" />
+                </Grid>
+
+                <Grid ColumnSpacing="10"
+                      HorizontalOptions="End">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0"
+                            x:Name="SpotifyAccountButton"
+                            Style="{StaticResource BaseButtonStyle}"
+                            ImageSource="spotify_icon.png" />
+                </Grid>
             </Grid>
+            <VerticalStackLayout Grid.Row="3" Grid.ColumnSpan="3" Spacing="10">
+                <Label
+                    x:Name="Top10TracksLabel"
+                    Style="{StaticResource HeaderLabelStyle}"
+                    Text="Топ 10 треков"
+                    FontSize="24" />
 
-            <Grid ColumnSpacing="10"
-                  HorizontalOptions="End">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+                <ActivityIndicator IsRunning="{Binding IsLoadingTracks}" IsVisible="{Binding IsLoadingTracks}" />
 
-                <Button Grid.Column="0"
-                        x:Name="SpotifyAccountButton"
-                        Style="{StaticResource BaseButtonStyle}"
-                        ImageSource="spotify_icon.png" />
-            </Grid>
+                <ScrollView>
+                    <CollectionView ItemsSource="{Binding Tracks}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" />
+                        </CollectionView.ItemsLayout>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout Spacing="10" Padding="10">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding OpenTrackOnSpotify}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Grid RowSpacing="10"
+                                          InputTransparent="True">
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="100" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Frame Grid.Row="0"
+                                               WidthRequest="100"
+                                               HeightRequest="100"
+                                               CornerRadius="10"
+                                               IsClippedToBounds="True">
+
+                                            <Image HeightRequest="100"
+                                                   WidthRequest="100"
+                                                   Aspect="Fill">
+                                                <Image.Source>
+                                                    <UriImageSource Uri="{Binding CoverUrl}"
+                                                                    CachingEnabled="true"
+                                                                    CacheValidity="7.00:00:00" />
+                                                </Image.Source>
+                                            </Image>
+                                        </Frame>
+
+                                        <StackLayout Grid.Row="1"
+                                                     Spacing="5"
+                                                     VerticalOptions="Center">
+                                            <Label Text="{Binding Name}"
+                                                   LineBreakMode="TailTruncation"
+                                                   FontSize="16"
+                                                   TextColor="White"
+                                                   FontAttributes="Bold"
+                                                   WidthRequest="100" />
+                                            <Label Text="{Binding ArtistsName}"
+                                                   LineBreakMode="TailTruncation"
+                                                   FontSize="14"
+                                                   TextColor="Gray"
+                                                   WidthRequest="100" />
+                                        </StackLayout>
+                                    </Grid>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </ScrollView>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Row="4" Grid.ColumnSpan="3" Spacing="10">
+                <Label
+                    x:Name="Top10ArtistsLabel"
+                    Style="{StaticResource HeaderLabelStyle}"
+                    Text="Топ 10 артистов"
+                    FontSize="24" />
+
+                <ActivityIndicator IsRunning="{Binding IsLoadingArtists}" IsVisible="{Binding IsLoadingArtists}" />
+
+                <ScrollView>
+                    <CollectionView ItemsSource="{Binding Artists}">
+
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" />
+                        </CollectionView.ItemsLayout>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout Spacing="10" Padding="10">
+
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding OpenArtistOnSpotify}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+
+                                    <Grid RowSpacing="10"
+                                          InputTransparent="True">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="100" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Frame Grid.Row="0"
+                                               WidthRequest="100"
+                                               HeightRequest="100"
+                                               CornerRadius="50"
+                                               IsClippedToBounds="True">
+                                            <Image HeightRequest="100"
+                                                   WidthRequest="100"
+                                                   Aspect="Fill">
+                                                <Image.Source>
+                                                    <UriImageSource Uri="{Binding ProfileImageURL}"
+                                                                    CachingEnabled="true"
+                                                                    CacheValidity="01:00:00" />
+                                                </Image.Source>
+                                            </Image>
+                                        </Frame>
+
+                                        <StackLayout Grid.Row="1"
+                                                     Spacing="5"
+                                                     VerticalOptions="Center">
+                                            <Label Text="{Binding Name}"
+                                                   LineBreakMode="TailTruncation"
+                                                   FontSize="16"
+                                                   TextColor="White"
+                                                   FontAttributes="Bold"
+                                                   WidthRequest="100" />
+                                        </StackLayout>
+                                    </Grid>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </ScrollView>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Grid.Row="5" Grid.ColumnSpan="3" Spacing="10">
+                <Label
+                    x:Name="RecentlyPlayedLabel"
+                    Style="{StaticResource HeaderLabelStyle}"
+                    Text="Недавно прослушанные треки"
+                    FontSize="24" />
+
+                <ActivityIndicator IsRunning="{Binding IsLoadingRecentlyPlayed}"
+                                   IsVisible="{Binding IsLoadingRecentlyPlayed}" />
+
+                <ScrollView>
+                    <CollectionView ItemsSource="{Binding RecentlyPlayed}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" />
+                        </CollectionView.ItemsLayout>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout Spacing="10" Padding="10">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding OpenTrackOnSpotify}" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Grid RowSpacing="10"
+                                          InputTransparent="True">
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="100" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Frame Grid.Row="0"
+                                               WidthRequest="100"
+                                               HeightRequest="100"
+                                               CornerRadius="10"
+                                               IsClippedToBounds="True">
+
+                                            <Image HeightRequest="100"
+                                                   WidthRequest="100"
+                                                   Aspect="Fill">
+                                                <Image.Source>
+                                                    <UriImageSource Uri="{Binding CoverUrl}"
+                                                                    CachingEnabled="true"
+                                                                    CacheValidity="7.00:00:00" />
+                                                </Image.Source>
+                                            </Image>
+                                        </Frame>
+
+                                        <StackLayout Grid.Row="1"
+                                                     Spacing="5"
+                                                     VerticalOptions="Center">
+                                            <Label Text="{Binding Name}"
+                                                   LineBreakMode="TailTruncation"
+                                                   FontSize="16"
+                                                   TextColor="White"
+                                                   FontAttributes="Bold"
+                                                   WidthRequest="100" />
+                                            <Label Text="{Binding ArtistsName}"
+                                                   LineBreakMode="TailTruncation"
+                                                   FontSize="14"
+                                                   TextColor="Gray"
+                                                   WidthRequest="100" />
+                                        </StackLayout>
+                                    </Grid>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </ScrollView>
+            </VerticalStackLayout>
         </Grid>
-        <VerticalStackLayout Grid.Row="3" Grid.ColumnSpan="3" Spacing="10">
-            <Label
-                x:Name="Top10TracksLabel"
-                Style="{StaticResource HeaderLabelStyle}"
-                Text="Топ 10 треков"
-                FontSize="24" />
-            
-            <ActivityIndicator IsRunning="{Binding IsLoadingTracks}" IsVisible="{Binding IsLoadingTracks}" />
-            
-            <ScrollView>
-                <CollectionView ItemsSource="{Binding Tracks}">
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Horizontal" />
-                    </CollectionView.ItemsLayout>
-
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <HorizontalStackLayout Spacing="10" Padding="10">
-                                <HorizontalStackLayout.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding OpenTrackOnSpotify}"/>
-                                </HorizontalStackLayout.GestureRecognizers>
-                                <Grid RowSpacing="10"
-                                      InputTransparent="True">
-                                    
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="100" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-
-                                    <Frame Grid.Row="0"
-                                           WidthRequest="100"
-                                           HeightRequest="100"
-                                           CornerRadius="10"
-                                           IsClippedToBounds="True">
-                                        
-                                        <Image HeightRequest="100"
-                                               WidthRequest="100"
-                                               Aspect="Fill">
-                                            <Image.Source>
-                                                <UriImageSource Uri="{Binding CoverUrl}"
-                                                                CachingEnabled="true"
-                                                                CacheValidity="7.00:00:00"/>
-                                            </Image.Source>
-                                        </Image>
-                                    </Frame>
-
-                                    <StackLayout Grid.Row="1"
-                                                 Spacing="5"
-                                                 VerticalOptions="Center">
-                                        <Label Text="{Binding Name}"
-                                               LineBreakMode="TailTruncation"
-                                               FontSize="16"
-                                               TextColor="White"
-                                               FontAttributes="Bold"
-                                               WidthRequest="100" />
-                                        <Label Text="{Binding ArtistsName}"
-                                               LineBreakMode="TailTruncation"
-                                               FontSize="14"
-                                               TextColor="Gray"
-                                               WidthRequest="100" />
-                                    </StackLayout>
-                                </Grid>
-                            </HorizontalStackLayout>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </ScrollView>
-        </VerticalStackLayout>
-        
-        <VerticalStackLayout Grid.Row="4" Grid.ColumnSpan="3" Spacing="10">
-            <Label
-                x:Name="Top10ArtistsLabel"
-                Style="{StaticResource HeaderLabelStyle}"
-                Text="Топ 10 артистов"
-                FontSize="24" />
-            
-            <ActivityIndicator IsRunning="{Binding IsLoadingArtists}" IsVisible="{Binding IsLoadingArtists}" />
-            
-            <ScrollView>
-                <CollectionView ItemsSource="{Binding Artists}">
-
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Horizontal" />
-                    </CollectionView.ItemsLayout>
-
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
-                            <HorizontalStackLayout Spacing="10" Padding="10">
-                                
-                                <HorizontalStackLayout.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding OpenArtistOnSpotify}"/>
-                                </HorizontalStackLayout.GestureRecognizers>
-                                
-                                <Grid RowSpacing="10"
-                                      InputTransparent="True">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="100" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-
-                                    <Frame Grid.Row="0"
-                                           WidthRequest="100"
-                                           HeightRequest="100"
-                                           CornerRadius="50"
-                                           IsClippedToBounds="True">
-                                        <Image HeightRequest="100"
-                                               WidthRequest="100"
-                                               Aspect="Fill">
-                                            <Image.Source>
-                                                <UriImageSource Uri="{Binding ProfileImageURL}"
-                                                                CachingEnabled="true"
-                                                                CacheValidity="01:00:00"/>
-                                            </Image.Source>
-                                        </Image>
-                                    </Frame>
-
-                                    <StackLayout Grid.Row="1"
-                                                 Spacing="5"
-                                                 VerticalOptions="Center">
-                                        <Label Text="{Binding Name}"
-                                               LineBreakMode="TailTruncation"
-                                               FontSize="16"
-                                               TextColor="White"
-                                               FontAttributes="Bold"
-                                               WidthRequest="100" />
-                                    </StackLayout>
-                                </Grid>
-                            </HorizontalStackLayout>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </ScrollView>
-        </VerticalStackLayout>
-
-    </Grid>
+    </ScrollView>
 </the49:BottomSheet>

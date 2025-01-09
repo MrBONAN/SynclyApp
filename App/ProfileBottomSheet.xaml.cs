@@ -35,9 +35,10 @@ public class ViewModel(int id) : INotifyPropertyChanged
 {
     private bool _isLoadingTracks = true;
     private bool _isLoadingArtists = true;
+    private bool _isLoadingRecentlyPlayed = true;
     private User _currentUser;
     public readonly int Id = id;
-
+    
     public User CurrentUser
     {
         get => _currentUser;
@@ -74,15 +75,29 @@ public class ViewModel(int id) : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
+    
+    public bool IsLoadingRecentlyPlayed
+    {
+        get => _isLoadingRecentlyPlayed;
+        set
+        {
+            if (_isLoadingRecentlyPlayed == value) return;
+            _isLoadingRecentlyPlayed = value;
+            OnPropertyChanged();
+        }
+    }
 
     public ObservableCollection<Track> Tracks { get; set; } = new();
     public ObservableCollection<Artist> Artists { get; set; } = new();
+    public ObservableCollection<Track> RecentlyPlayed { get; set; } = new();
 
     public async Task LoadDataAsync()
     {
         var loadTracks = GetTopTracks();
         var loadArtists = GetTopArtists();
+        var loadRecentlyPlayed = GetTopRecentlyTracks();
         var resultData = (await ServerApi.GetUserAsync(Id)).Data;
+        
         if (resultData != null)
         {
             CurrentUser = new User();
@@ -92,12 +107,16 @@ public class ViewModel(int id) : INotifyPropertyChanged
         await Task.WhenAll(loadTracks, loadArtists);
         Tracks = await loadTracks;
         Artists = await loadArtists;
+        RecentlyPlayed = await loadRecentlyPlayed;
 
         OnPropertyChanged(nameof(Tracks));
         IsLoadingTracks = false;
 
         OnPropertyChanged(nameof(Artists));
         IsLoadingArtists = false;
+        
+        OnPropertyChanged(nameof(RecentlyPlayed));
+        IsLoadingRecentlyPlayed = false;
 
         CurrentUserName = CurrentUser.Name;
         CurrentUserImage = CurrentUser.ProfileImageURL;
@@ -105,7 +124,7 @@ public class ViewModel(int id) : INotifyPropertyChanged
         OnPropertyChanged(nameof(CurrentUserImage));
     }
 
-    private async Task<ObservableCollection<Domain.Artist>> GetTopArtists()
+    private async Task<ObservableCollection<Artist>> GetTopArtists()
     {
         var top = await ServerApi.GetTopArtistsAsync(Id);
 
@@ -127,7 +146,20 @@ public class ViewModel(int id) : INotifyPropertyChanged
 
         return top.Data
             .Where(x => x != null)
-            .Select(x => new Domain.Track(x))
+            .Select(x => new Track(x))
+            .ToObservableCollection();
+    }
+    
+    private async Task<ObservableCollection<Track>> GetTopRecentlyTracks()
+    {
+        var recentlyTracks = await ServerApi.GetRecentlyTracks(Id);
+
+        if (recentlyTracks?.Result is not ApiResult.Ok || recentlyTracks.Data == null)
+            return new ObservableCollection<Track>();
+
+        return recentlyTracks.Data
+            .Where(x => x != null)
+            .Select(x => new Track(x))
             .ToObservableCollection();
     }
 
