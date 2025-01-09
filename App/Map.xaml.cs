@@ -149,28 +149,19 @@ public partial class Map : ContentPage
             _isCheckingLocation = true;
             var userLocation = await _cachedLocation.GetLocationAsync();
             _mapControl.MoveMapTo(userLocation);
-
-            var locations = new List<Location>
-            {
-                userLocation,
-                //new Location(userLocation.Latitude + 0.015, userLocation.Longitude),
-                //new Location(userLocation.Latitude - 0.01, userLocation.Longitude - 0.01),
-                //new Location(userLocation.Latitude - 0.017, userLocation.Longitude - 0.002)
-            };
-
-            var avatars = new List<string>
-            {
-                "mot1x.jpg",
-                "lexa.jpg",
-                "image.jpg",
-                "fridmak.jpg"
-            };
-            for (var i = 0; i < locations.Count; i++)
-                _mapControl.AddMarkerWithLocalImage(locations[i], avatars[i], i,
-                    "openUserProfile");
-
             _mapControl.AddCircle(await _cachedLocation.GetLocationAsync(), 2000);
             _mapControl.SetPort(_portChecker);
+            var allLocations = (await ServerApi.GetAllLocationsAsync()).Data;
+            foreach (var location in allLocations)
+            {
+                var user = (await ServerApi.GetUserAsync(location.UserId)).Data;
+                var locationUser = new Location()
+                {
+                    Latitude = (double)location.Latitude,
+                    Longitude= (double)location.Longitude
+                };
+                _mapControl.AddMarkerWithLocalImage(locationUser, user.Links.ExternalImageLink, location.UserId, "openUserProfile");
+            }
         }
         catch (Exception ex)
         {

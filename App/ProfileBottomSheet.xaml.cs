@@ -131,7 +131,7 @@ public class ViewModel(int id) : INotifyPropertyChanged
         var top = await ServerApi.GetTopTracksAsync(Id);
 
         if (top?.Result is not ApiResult.Ok || top.Data == null)
-            return new ObservableCollection<Domain.Track>();
+            return new ObservableCollection<Track>();
 
         return top.Data
             .Where(x => x != null)
