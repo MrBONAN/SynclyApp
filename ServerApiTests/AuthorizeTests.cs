@@ -12,7 +12,7 @@ public class AuthorizeTests
         {
             AccessToken = "",
             TokenType = "",
-            ExpiresDate = DateTime.Now,
+            ExpiresDate = DateTime.UtcNow,
             RefreshToken = ""
         };
         var response = await ServerApi.AuthorizeSpotifyAsync(badUserAccessToken);

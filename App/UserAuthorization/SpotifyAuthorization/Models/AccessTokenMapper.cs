@@ -6,7 +6,7 @@ public static class AccessTokenMapper
 {
     public static SpotifyAccessTokenDto ToSpotifyAccessTokenDto(this PkceAccessToken pkceAccessToken)
     {
-        var expiresDate = DateTime.Now.AddSeconds(pkceAccessToken.ExpiresIn!.Value);
+        var expiresDate = DateTime.UtcNow.AddSeconds(pkceAccessToken.ExpiresIn!.Value);
         return new SpotifyAccessTokenDto()
         {
             AccessToken = pkceAccessToken.AccessToken!,
