@@ -141,6 +141,11 @@ public partial class Map : ContentPage
             _mapControl.MoveMapTo(userLocation);
             _mapControl.AddCircle(await _cachedLocation.GetLocationAsync(), 2000);
             var allLocations = (await ServerApi.GetAllLocationsAsync()).Data;
+            allLocations = allLocations?
+                .Where(x => x.Haversine(userLocation.Latitude, userLocation.Longitude) <= 2.0)
+                .ToList();
+            if (allLocations == null) return;
+            
             foreach (var location in allLocations)
             {
                 var user = (await ServerApi.GetUserAsync(location.UserId)).Data;
@@ -171,7 +176,7 @@ public partial class Map : ContentPage
             if (currentTrack.Result is ApiResult.Ok)
             {
                 TopText = currentTrack.Data!.Name;
-                TopTextLink = currentTrack.Data!.Links.ExternalImageLink;
+                TopTextLink = currentTrack.Data!.Links.ExternalLink;
             }
             else
             {

@@ -43,14 +43,12 @@
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg"/>
-        <MauiImage Include="Resources\Raw\fridmak.jpg" />
-        <MauiImage Include="Resources\Raw\lexa.jpg" />
-        <MauiImage Include="Resources\Raw\mot1x.jpg" />
+        <MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#000000"/>
         <MauiImage Include="Resources\Raw\placeholder_image.png" />
 
         <!-- Splash Screen -->
-        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128"/>
+        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#000000" BaseSize="192,192"/>
+        
         <MauiAsset Include="Resources\Videos\background.mp4" />
         <!-- Images -->
         <MauiImage Include="Resources\Images\*"/>
@@ -85,6 +83,12 @@
       <Reference Include="FFImageLoading.Maui">
         <HintPath>..\..\..\.nuget\packages\ffimageloading.maui\1.2.7\lib\net8.0-windows10.0.19041\FFImageLoading.Maui.dll</HintPath>
       </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <MauiXaml Update="Resources\Styles\YourMessageStyle.xaml">
+        <SubType>Designer</SubType>
+      </MauiXaml>
     </ItemGroup>
 
 </Project>

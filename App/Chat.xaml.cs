@@ -1,7 +1,10 @@
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using App.UserAuthorization;
 using Domain;
 using Infrastructure.API.ServerApi;
+using Infrastructure.API.ServerApi.Models.User;
 using The49.Maui.BottomSheet;
 
 namespace Chat;
@@ -17,12 +20,21 @@ public partial class Sheet : BottomSheet
 
     private async void InitializeData()
     {
+        SendMessageButton.Clicked += SendMessage;
         if (BindingContext is not ViewModel viewModel) return;
         var loadingTasks = new List<Task>
         {
-            viewModel.LoadDataAsync()
+            viewModel.LoadDataAsync(),
+            viewModel.LoadMessagesAsync()
         };
         await Task.WhenAny(loadingTasks);
+    }
+
+    private void SendMessage(object? sender, EventArgs e)
+    {
+        if (BindingContext is not ViewModel viewModel) return;
+        viewModel.SendMessage(MessageEditor.Text, DateTime.UtcNow);
+        MessageEditor.Text = string.Empty;
     }
 }
 
@@ -31,7 +43,7 @@ public class ViewModel : INotifyPropertyChanged
     private User _chatPartner;
     private string _partnerProfileImage = "profile_icon.png";
     private string _partnerUsername = "Загрузка...";
-
+    public ObservableCollection<Message> Messages { get; set; } = new ();
     public User ChatPartner
     {
         get => _chatPartner;
@@ -49,6 +61,7 @@ public class ViewModel : INotifyPropertyChanged
     }
 
     public int Id { get; set; }
+    
     public string PartnerProfileImage {
         get => _partnerProfileImage;
         set
@@ -86,8 +99,8 @@ public class ViewModel : INotifyPropertyChanged
 
     public async Task LoadDataAsync()
     {
+        CurrentUser = await App.App.Services.GetRequiredService<IUserDataHandler>().GetUserDataAsync();
         var resultData = (await ServerApi.GetUserAsync(Id)).Data;
-        
         if (resultData != null)
         {
             ChatPartner = new User();
@@ -101,8 +114,19 @@ public class ViewModel : INotifyPropertyChanged
             PartnerUsername = ChatPartner.Name;
     }
 
+    public UserDto? CurrentUser { get; set; }
+
     public async Task LoadMessagesAsync()
     {
-        
+        await Task.Delay(10000);
+        Messages.Add(new Message(ChatPartner.Id, CurrentUser.Id, "Привет", DateTime.UtcNow, LayoutOptions.Start));
+        await Task.Delay(10000);
+        Messages.Add(new Message(ChatPartner.Id, CurrentUser.Id, "Спасибо :)", DateTime.UtcNow, LayoutOptions.Start));
+    }
+
+    public void SendMessage(string messageText, DateTime date)
+    {
+        if (CurrentUser != null)
+            Messages.Add(new Message(CurrentUser.Id, ChatPartner.Id, messageText, date, LayoutOptions.End));
     }
 }

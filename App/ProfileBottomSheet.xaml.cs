@@ -135,9 +135,9 @@ public class ViewModel(int id) : INotifyPropertyChanged
         CurrentUserName = CurrentUser.Name;
         CurrentUserImage = CurrentUser.ProfileImageURL;
         
-        var currentTrack = (await ServerApi.GetCurrentTrackAsync(Id)).Data.Name;
-        CurrentPlayingTrack = currentTrack != ""
-            ? $"Сейчас слушает: {currentTrack}"
+        var currentTrack = (await ServerApi.GetCurrentTrackAsync(Id)).Data;
+        CurrentPlayingTrack = currentTrack != null
+            ? $"Сейчас слушает: {currentTrack.Name}"
             : "Ничего не слушает";
         
         OnPropertyChanged(nameof(CurrentUserName));

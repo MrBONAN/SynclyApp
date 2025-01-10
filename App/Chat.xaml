@@ -5,24 +5,24 @@
                    xmlns:the49="https://schemas.the49.com/dotnet/2023/maui"
                    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                    x:Class="Chat.Sheet"
-                   Padding="16, 32"
+                   Padding="16, 32, 16, 72"
                    Background="{StaticResource Black}"
                    CornerRadius="20"
                    HasBackdrop="True">
-    
+
     <the49:BottomSheet.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/BottomSheetStyle.xaml" />
+                <ResourceDictionary Source="Resources/Styles/YourMessageStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </the49:BottomSheet.Resources>
 
     <the49:BottomSheet.Detents>
-        <the49:RatioDetent Ratio="0.9" />
         <the49:FullscreenDetent />
     </the49:BottomSheet.Detents>
-    
+
     <Grid VerticalOptions="Start"
           HorizontalOptions="FillAndExpand"
           RowSpacing="35">
@@ -54,55 +54,67 @@
                 HorizontalOptions="Center"
                 Aspect="Center" />
         </Frame>
-        
+
         <Label Grid.Column="1"
                x:Name="Username"
                Style="{StaticResource HeaderLabelStyle}"
                Text="{Binding PartnerUsername}"
                HorizontalOptions="CenterAndExpand" />
-        
+
         <Button Grid.Column="2"
                 x:Name="AddFriendButton"
                 Style="{StaticResource BaseButtonStyle}"
                 HorizontalOptions="End" />
+
         <ScrollView Grid.Row="1" Grid.ColumnSpan="3">
-            <VerticalStackLayout
-                x:Name="Messages"
-                Spacing="10">
-            </VerticalStackLayout>
+            <CollectionView ItemsSource="{Binding Messages}">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" />
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame HorizontalOptions="{Binding Position}"
+                               Style="{StaticResource FrameMessageStyle}">
+                            <Label Text="{Binding MessageText}"
+                                   Style="{StaticResource MessageTextStyle}" />
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </ScrollView>
-        
-        
+
+
         <Grid Grid.Row="2"
               Grid.ColumnSpan="3"
-              Padding="10"
               ColumnSpacing="5"
-              RowSpacing="0"
-              VerticalOptions="End">
-            
+              VerticalOptions="FillAndExpand"
+              RowSpacing="0">
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            
-            <Editor 
-                x:Name="MessageEditor" 
-                Placeholder="Введите сообщение..." 
-                Grid.Column="0" 
+
+            <Editor
+                x:Name="MessageEditor"
+                Placeholder="Введите сообщение..."
+                Grid.Column="0"
                 VerticalOptions="Center"
-                
-                BackgroundColor="Black" 
-                TextColor="White" 
+
+                BackgroundColor="Black"
+                TextColor="White"
                 AutoSize="TextChanges"
-                Margin="0" 
-                HeightRequest="40" />
-            
+                Margin="0"
+                HeightRequest="50" />
+
             <ImageButton
-                Grid.Column="1" 
+                x:Name="SendMessageButton"
+                Grid.Column="1"
                 Source="chat_icon.png"
                 HeightRequest="50"
                 WidthRequest="50"
-                VerticalOptions="Center" 
+                VerticalOptions="Center"
                 CornerRadius="5" />
         </Grid>
     </Grid>
