@@ -15,12 +15,12 @@
                 Clicked="Authenticate"
                 HorizontalOptions="Fill" />
 
-            <!-- <Button -->
-            <!--     x:Name="SearchBtn" -->
-            <!--     Text="Найти трек" -->
-            <!--     SemanticProperties.Hint="Search track button" -->
-            <!--     Clicked="FindTrack" -->
-            <!--     HorizontalOptions="Fill" /> -->
+            <Button
+                x:Name="ChangeServerBtn"
+                Text="Сменить сервер"
+                SemanticProperties.Hint="Change server url"
+                Clicked="ChangeServer"
+                HorizontalOptions="Fill" />
             
             <Button
                 x:Name="AllUserLocations"

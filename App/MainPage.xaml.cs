@@ -3,6 +3,7 @@ using App.UserAuthorization.SpotifyAuthorization;
 using App.UserAuthorization;
 using Infrastructure.API.ServerApi;
 using Infrastructure.API.ServerApi.Models.Location;
+using RestSharp;
 
 namespace App;
 
@@ -22,6 +23,24 @@ public partial class MainPage : ContentPage
     {
         var logInResult = await spotifyAuthManager.LogInAsync();
         await Application.Current?.MainPage?.DisplayAlert("Результат входа", logInResult.ToString(), "ОК")!;
+    }
+    
+    private async void ChangeServer(object sender, EventArgs e)
+    {
+        var serverUrl = "https://94.228.164.4:7199";
+        var question = await Application.Current.MainPage.DisplayPromptAsync(
+            "Смена сервера",
+            "Новый адрес сервера",
+            "OK",
+            "Отмена",
+            serverUrl,
+            50,
+            Keyboard.Text,
+            null);
+        if (string.IsNullOrEmpty(question))
+            ServerApi.ServerClient = await CertificateHandler.CreateCustomHttpClientHandler();
+        else
+            ServerApi.ServerClient = new RestClient(question);
     }
 
     // private async void FindTrack(object sender, EventArgs e)
