@@ -47,6 +47,7 @@
         <MauiImage Include="Resources\Raw\fridmak.jpg" />
         <MauiImage Include="Resources\Raw\lexa.jpg" />
         <MauiImage Include="Resources\Raw\mot1x.jpg" />
+        <MauiImage Include="Resources\Raw\placeholder_image.png" />
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128"/>

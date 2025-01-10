@@ -15,8 +15,8 @@
         }
 
         .leaflet-tile {
-            border: none; /* Убирает возможные границы */
-            margin: 0; /* Убирает зазоры между тайлами */
+            border: none;
+            margin: 0;
             padding: 0;
         }
         
@@ -24,8 +24,7 @@
             height: 100vh;
             width: 100%;
         }
-
-        /* Стиль для модального окна */
+        
         #userProfileModal {
             position: fixed;
             top: 50%;
@@ -39,8 +38,7 @@
             display: none;
             z-index: 1000;
         }
-
-        /* Полупрозрачный фон для модального окна */
+        
         #modalOverlay {
             position: fixed;
             top: 0;
@@ -52,24 +50,14 @@
             z-index: 999;
         }
 
-        /* Кнопка закрытия окна */
-        .close-btn {
-            cursor: pointer;
-            color: red;
-            font-size: 20px;
-            font-weight: bold;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-
         .location-pin {
             /*display: flex;*/
             /*position: relative;*/
-
+            width: 48px;
+            height: 48px;
             /*left: 0%;*/
             text-align: center;
-            /*overflow: hidden;*/
+            overflow: hidden;
             
             /*transform: translate(0%, -100%); /** Центрирование с якорем внизу *!*/
         }
@@ -77,8 +65,8 @@
         .location-pin img {
             width: 48px;
             height: 48px;
-            object-fit: cover;
-            /*clip-path: circle(50%);*/
+            object-fit: initial;
+            clip-path: circle(50%);
             /*border-radius: 50%;*/
             object-position: center;
             position: absolute;
@@ -93,19 +81,18 @@
             background: #222;
             transform: rotate(-45deg);
 
-            /*transform-origin: 50% 100%; /* Смещает якорь к нижней центральной точке */
-            margin: 0px 0px 0px 6px; /* Отрегулируйте для центрирования */
+            /*transform-origin: 50% 100%;*/
+            margin: 0px 0px 0px 6px;
         }
 
         .pin:after {
-            content: '';
-            width: 26px;
-            height: 26px;
-            background: white; /* Добавьте, если нужно */
-            position: absolute;
-            border-radius: 50%;
-            left: 12px; /* Центрирует внутри метки */
-            top: 12px;
+            /*content: '';*/
+            /*width: 26px;*/
+            /*height: 26px;*/
+            /*position: absolute;*/
+            /*border-radius: 50%;*/
+            /*left: 12px;*/
+            /*top: 12px;*/
         }
 
         .pulse {
@@ -148,16 +135,6 @@
 </head>
 <body>
 <div id="map"></div>
-
-
-<!-- Модальное окно с профилем -->
-<div id="modalOverlay"></div>
-<div id="userProfileModal">
-    <span class="close-btn" onclick="closeUserProfile()">×</span>
-    <h3>Профиль пользователя</h3>
-    <p>Здесь будет информация о пользователе с ID: <span id="userId"></span></p>
-    <!-- Добавьте сюда дополнительные данные о пользователе -->
-</div>
 
 <script>
     const map = L.map('map', {
@@ -220,13 +197,15 @@
      * @param {string} id
      * @param {function} onClicked
      */
-    
+   
     function addUserMarker(latitude, longitude, imageName, id, onClicked) {
         removeMarker(id);
-
+        if (imageName === ""){
+            imageName = "placeholder_image.png"
+        }
         const myIcon = L.divIcon({
             className: 'location-pin',
-            html: `<img src="${imageName}" alt="ProfileImage"><div class="pin"></div>`,
+            html: `<img src="${imageName}"><div class="pin"></div>`,
             iconSize: [70, 70],
             iconAnchor: [35, 70]
         });

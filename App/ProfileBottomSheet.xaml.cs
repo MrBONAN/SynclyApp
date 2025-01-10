@@ -38,9 +38,11 @@ public class ViewModel(int id) : INotifyPropertyChanged
     private bool _isLoadingArtists = true;
     private bool _isLoadingRecentlyPlayed = true;
     private User _currentUser;
-    
+
+
     public readonly int Id = id;
-    
+    private string _currentPlayingTrack;
+
     public User CurrentUser
     {
         get => _currentUser;
@@ -76,7 +78,7 @@ public class ViewModel(int id) : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-    
+
     public bool IsLoadingRecentlyPlayed
     {
         get => _isLoadingRecentlyPlayed;
@@ -84,6 +86,17 @@ public class ViewModel(int id) : INotifyPropertyChanged
         {
             if (_isLoadingRecentlyPlayed == value) return;
             _isLoadingRecentlyPlayed = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string CurrentPlayingTrack
+    {
+        get => _currentPlayingTrack;
+        set
+        {
+            if (_currentPlayingTrack == value) return;
+            _currentPlayingTrack = value;
             OnPropertyChanged();
         }
     }
@@ -98,7 +111,7 @@ public class ViewModel(int id) : INotifyPropertyChanged
         var loadArtists = GetTopArtists();
         var loadRecentlyPlayed = GetTopRecentlyTracks();
         var resultData = (await ServerApi.GetUserAsync(Id)).Data;
-        
+
         if (resultData != null)
         {
             CurrentUser = new User();
@@ -115,12 +128,18 @@ public class ViewModel(int id) : INotifyPropertyChanged
 
         OnPropertyChanged(nameof(Artists));
         IsLoadingArtists = false;
-        
+
         OnPropertyChanged(nameof(RecentlyPlayed));
         IsLoadingRecentlyPlayed = false;
 
         CurrentUserName = CurrentUser.Name;
         CurrentUserImage = CurrentUser.ProfileImageURL;
+        
+        var currentTrack = (await ServerApi.GetCurrentTrackAsync(Id)).Data.Name;
+        CurrentPlayingTrack = currentTrack != ""
+            ? $"Сейчас слушает: {currentTrack}"
+            : "Ничего не слушает";
+        
         OnPropertyChanged(nameof(CurrentUserName));
         OnPropertyChanged(nameof(CurrentUserImage));
     }
@@ -150,7 +169,7 @@ public class ViewModel(int id) : INotifyPropertyChanged
             .Select(x => new Track(x))
             .ToObservableCollection();
     }
-    
+
     private async Task<ObservableCollection<Track>> GetTopRecentlyTracks()
     {
         var recentlyTracks = await ServerApi.GetRecentlyTracks(Id);
