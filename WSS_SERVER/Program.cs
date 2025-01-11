@@ -9,7 +9,7 @@ public class ChatServer
 {
     static async Task Main()
     {
-        var url = "http://localhost:8080/";
+        var url = "http://localhost:8081/";
         var clientManager = new ClientManager();
         var messageArchive = new MessageArchive(clientManager);
         var messageHandler = new MessageHandler(clientManager, messageArchive);

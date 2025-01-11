@@ -10,7 +10,7 @@ public class ChatTests
     private Chats _client1;
     private Chats _client2;
     private Chats _client3;
-    private readonly string _serverUrl = "ws://localhost:8080/ws/";
+    private readonly string _serverUrl = "ws://localhost:8081/ws/";
     private readonly ConcurrentBag<string> _receivedMessages = new();
 
     [SetUp]
@@ -224,7 +224,7 @@ public class ChatTests
     {
         await _client2.RunAsync();
         await _client3.RunAsync();
-        await Task.Delay(500);
+        await Task.Delay(50);
 
         const int messageCount = 10;
         var tasks = new List<Task>();
@@ -235,7 +235,7 @@ public class ChatTests
             tasks.Add(_client1.SendMessageAsync(3, $"To3_{i}"));
         }
         await Task.WhenAll(tasks);
-        await Task.Delay(400);
+        await Task.Delay(50);
 
         Assert.Multiple(() =>
         {

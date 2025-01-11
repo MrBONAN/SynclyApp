@@ -7,7 +7,7 @@ public class ChatConnection : IAsyncDisposable
     private ClientWebSocket _webSocket;
     private readonly Uri _serverUri;
     private int _connectionAttempts;
-    private readonly CancellationTokenSource _cancellationTokenSource;
+    private CancellationTokenSource _cancellationTokenSource;
     public bool IsOpen { get; private set; }
     public event Action<string>? MessageReceived;
 
@@ -25,9 +25,13 @@ public class ChatConnection : IAsyncDisposable
         _webSocket = new ClientWebSocket();
         _cancellationTokenSource = new CancellationTokenSource();
     }
+    
 
     public async Task OpenConnectionAsync()
     {
+        _webSocket = new ClientWebSocket();
+        _cancellationTokenSource = new CancellationTokenSource();
+
         while (!_cancellationTokenSource.Token.IsCancellationRequested && !IsOpen)
         {
             try
@@ -61,12 +65,33 @@ public class ChatConnection : IAsyncDisposable
         }
     }
 
+    private async Task StopReceivingMessagesAsync()
+    {
+        if (_receiveTask != null)
+        {
+            try
+            {
+                await _receiveTask;
+            }
+            catch (OperationCanceledException)
+            {
+                // Нормальное завершение
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при ожидании завершения задачи приема сообщений: {ex.Message}");
+            }
+        }
+    }
+
     public async Task StopConnectionAsync()
     {
-        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing before retry",
-            CancellationToken.None);
-        if (_receiveTask != null && _receiveTask.Status.Equals(TaskStatus.Running))
-            await _receiveTask;
+        _cancellationTokenSource.Cancel();
+
+        await CleanupCurrentConnectionAsync();
+        await StopReceivingMessagesAsync();
+
+        IsOpen = false;
     }
 
     public async Task<bool> SendMessageAsync(string message)
@@ -126,7 +151,8 @@ public class ChatConnection : IAsyncDisposable
 
             if (result.Message != null && !string.IsNullOrEmpty(result.Message))
             {
-                MessageReceived?.Invoke(result.Message);
+                var messageReceivedHandler = MessageReceived;
+                messageReceivedHandler?.Invoke(result.Message);
             }
         }
     }

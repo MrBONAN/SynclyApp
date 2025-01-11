@@ -11,50 +11,52 @@ class Program
         try
         {
             await StartTest();
-            // await RunBasicMessageTest();
-            // await RunReconnectionTest();
-            // await RunMultipleMessagesTest();
-            // await RunConcurrentMessagesTest();
-            // await RunLongMessageTest();
-            // await RunMultipleClientsTest();
-            // await RunMessageOrderTest();
-            // await RunStressTest();
-            // await RunDisconnectReconnectTest();
-            // await RunChatHistoryTest();
+            //await TestMessageEditing();
+            //await TestMessageDeleting();
+            //await TestMarkAsRead();
+            //await TestChatReconnection();
+            //await TestRestoringMessages();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Ошибка при тестировании: {ex}");
         }
-        
+
         Console.WriteLine("\nЗавершили тестирование чата");
     }
 
     static async Task StartTest()
     {
-        var Fridmak = new Chats(22);
-        var Mot1x = new Chats(52);
-        var LexaSleep = new Chats(1488);
-        
+        var url = "ws://localhost:8081/ws/";
+        var Fridmak = new Chats(22, url);
+        var Mot1x = new Chats(52, url);
+        var LexaSleep = new Chats(1488, url);
+
         await Fridmak.RunAsync();
         await Fridmak.SendMessageAsync(1488, "Where is DB??");
-        
-        await Task.Delay(200);
-        
-        await Mot1x.RunAsync();
-        await Mot1x.SendMessageAsync(1488, "Idi nahoi");
-        
+
+        await Fridmak.StopAsync();
+
         await Task.Delay(200);
 
-        await Fridmak.SendMessageAsync(1488, "DB??? go online");
-        await Fridmak.SendMessageAsync(52, "Oh, hi");
+        await Mot1x.RunAsync();
+        await Mot1x.SendMessageAsync(1488, "Idi nahoi");
+
+        await Task.Delay(200);
+        
+        await Fridmak.RunAsync();
         
         await Task.Delay(200);
         
+        await Fridmak.SendMessageAsync(1488, "DB??? go online");
+        await Fridmak.SendMessageAsync(52, "Oh, hi");
+
+        await Task.Delay(200);
+
         await LexaSleep.RunAsync();
 
         await Mot1x.SendMessageAsync(22, "hello");
-        
+
         await Task.Delay(200);
 
         await LexaSleep.SendMessageAsync(22, "BLYAT NET NIHUIA");
@@ -68,494 +70,134 @@ class Program
             foreach (var message in messages)
                 Console.WriteLine(message);
         }
-        
-        
-    }
-    
-    static async Task RunBasicMessageTest()
-    {
-        Console.WriteLine("\n=== Базовый тест отправки сообщений ===\n");
-        
-        var client1 = new ChatsHandler(1, () => { }, "ws://localhost:8080/ws/");
-        await client1.StartSetUp();
-        Console.WriteLine("Клиент 1 подключен");
-
-        await client1.SendMessage(2, "Привет клиенту 2 (оффлайн)");
-        Console.WriteLine("Клиент 1 отправил сообщение клиенту 2 (оффлайн)");
-
-        var client2 = new ChatsHandler(2, () => { }, "ws://localhost:8080/ws/");
-        await client2.StartSetUp();
-        Console.WriteLine("Клиент 2 подключен");
-
-        Console.WriteLine("\nСообщения клиента 2:");
-        foreach (var (message, time) in client2.GetMessages(1))
-        {
-            Console.WriteLine($"[{time}] {message}");
-        }
-
-        Console.WriteLine("\nКлиент 2 отправил ответ");
-        await client2.SendMessage(1, "Привет клиенту 1 (онлайн)");
-
-        await Task.Delay(1000); // Даем время на получение сообщения
-
-        Console.WriteLine("\nСообщения клиента 1:");
-        foreach (var (message, time) in client1.GetMessages(2))
-        {
-            Console.WriteLine($"[{time}] {message}");
-        }
-
-        Console.WriteLine("\nТест завершен");
-        await client1.DisposeAsync();
-        await client2.DisposeAsync();
     }
 
-    static async Task RunReconnectionTest()
+    static async Task TestMessageEditing()
     {
-        Console.WriteLine("\n=== Тест переподключения ===\n");
+        Console.WriteLine("\n--- Тест редактирования сообщений ---");
+        var url = "ws://localhost:8081/ws/";
+        var Fridmak = new Chats(22, url);
+        var Mot1x = new Chats(52, url);
 
-        var client1 = new ChatsHandler(3, () => { }, "ws://localhost:8080/ws/");
-        await client1.StartSetUp();
-        Console.WriteLine("Клиент 3 подключен");
+        await Fridmak.RunAsync();
+        await Mot1x.RunAsync();
 
-        await client1.SendMessage(4, "Сообщение до отключения");
-        Console.WriteLine("Клиент 3 отправил сообщение");
+        // Fridmak отправляет сообщение Mot1x
+        await Fridmak.SendMessageAsync(52, "Initial Message");
+        await Task.Delay(200);
 
-        // Имитируем разрыв соединения путем создания нового экземпляра
-        client1 = new ChatsHandler(3, () => { }, "ws://localhost:8080/ws/");
-        await client1.StartSetUp();
-        Console.WriteLine("Клиент 3 переподключен");
-
-        await client1.SendMessage(4, "Сообщение после переподключения");
-        Console.WriteLine("Клиент 3 отправил сообщение после переподключения");
-
-        var client2 = new ChatsHandler(4, () => { }, "ws://localhost:8080/ws/");
-        await client2.StartSetUp();
-        Console.WriteLine("Клиент 4 подключен");
-
-        Console.WriteLine("\nСообщения клиента 4:");
-        foreach (var (message, time) in client2.GetMessages(3))
+        var messages = Mot1x.GetMessages(22);
+        var messageToEdit = messages.FirstOrDefault();
+        if (messageToEdit != default)
         {
-            Console.WriteLine($"[{time}] {message}");
+            // Fridmak редактирует сообщение
+            await Fridmak.EditMessage(52, messageToEdit.Item2, "Edited Message");
         }
 
-        Console.WriteLine("\nТест завершен");
-        await client1.DisposeAsync();
-        await client2.DisposeAsync();
-    }
-
-    static async Task RunMultipleMessagesTest()
-    {
-        Console.WriteLine("\n=== Тест множественных сообщений ===\n");
-
-        var client1 = new ChatsHandler(5, () => { }, "ws://localhost:8080/ws/");
-        var client2 = new ChatsHandler(6, () => { }, "ws://localhost:8080/ws/");
-
-        await client1.StartSetUp();
-        await client2.StartSetUp();
-        Console.WriteLine("Оба клиента подключены");
-
-        // Отправляем несколько сообщений
-        for (int i = 1; i <= 5; i++)
+        await Task.Delay(200);
+        Console.WriteLine("Сообщения у Mot1x:");
+        foreach (var msg in Mot1x.GetMessages(22))
         {
-            await client1.SendMessage(6, $"Сообщение {i} от клиента 5");
-            await Task.Delay(100);
-        }
-
-        await Task.Delay(1000); // Даем время на получение всех сообщений
-
-        Console.WriteLine("\nСообщения клиента 6:");
-        foreach (var (message, time) in client2.GetMessages(5))
-        {
-            Console.WriteLine($"[{time}] {message}");
-        }
-
-        Console.WriteLine("\nТест завершен");
-        await client1.DisposeAsync();
-        await client2.DisposeAsync();
-    }
-
-    static async Task RunConcurrentMessagesTest()
-    {
-        Console.WriteLine("\n=== Тест одновременной отправки сообщений ===\n");
-
-        var client1 = new ChatsHandler(7, () => { }, "ws://localhost:8080/ws/");
-        var client2 = new ChatsHandler(8, () => { }, "ws://localhost:8080/ws/");
-
-        await client1.StartSetUp();
-        await client2.StartSetUp();
-        Console.WriteLine("Оба клиента подключены");
-
-        // Одновременно отправляем сообщения с обеих сторон
-        var tasks = new List<Task>();
-        for (int i = 1; i <= 3; i++)
-        {
-            var i1 = i;
-            tasks.Add(client1.SendMessage(8, $"Сообщение {i1} от клиента 7"));
-            tasks.Add(client2.SendMessage(7, $"Сообщение {i1} от клиента 8"));
-        }
-
-        await Task.WhenAll(tasks);
-        await Task.Delay(1000); // Даем время на получение всех сообщений
-
-        Console.WriteLine("\nСообщения клиента 7:");
-        foreach (var (message, time) in client1.GetMessages(8))
-        {
-            Console.WriteLine($"[{time}] {message}");
-        }
-
-        Console.WriteLine("\nСообщения клиента 8:");
-        foreach (var (message, time) in client2.GetMessages(7))
-        {
-            Console.WriteLine($"[{time}] {message}");
-        }
-
-        Console.WriteLine("\nТест завершен");
-        await client1.DisposeAsync();
-        await client2.DisposeAsync();
-    }
-
-    static async Task RunLongMessageTest()
-    {
-        Console.WriteLine("\n=== Тест длинных сообщений ===\n");
-
-        var client1 = new ChatsHandler(9, () => { }, "ws://localhost:8080/ws/");
-        var client2 = new ChatsHandler(10, () => { }, "ws://localhost:8080/ws/");
-
-        await client1.StartSetUp();
-        await client2.StartSetUp();
-        Console.WriteLine("Оба клиента подключены");
-
-        // Создаем длинное сообщение
-        var longMessage = new string('A', 1000) + new string('B', 1000) + new string('C', 1000);
-        await client1.SendMessage(10, longMessage);
-        Console.WriteLine("Отправлено длинное сообщение");
-
-        await Task.Delay(1000);
-
-        var messages = client2.GetMessages(9);
-        Console.WriteLine($"\nПолучено сообщение длиной {messages.First().Item1.Length} символов");
-        Console.WriteLine($"Сообщение получено корректно: {messages.First().Item1 == longMessage}");
-
-        Console.WriteLine("\nТест завершен");
-        await client1.DisposeAsync();
-        await client2.DisposeAsync();
-    }
-
-    static async Task RunMultipleClientsTest()
-    {
-        Console.WriteLine("\n=== Тест множества клиентов ===\n");
-
-        var clients = new List<ChatsHandler>();
-        var clientCount = 5;
-        
-        // Создаем и подключаем клиентов
-        for (int i = 0; i < clientCount; i++)
-        {
-            var client = new ChatsHandler(11 + i, () => { }, "ws://localhost:8080/ws/");
-            await client.StartSetUp();
-            clients.Add(client);
-            Console.WriteLine($"Клиент {11 + i} подключен");
-        }
-
-        // Каждый клиент отправляет сообщение всем остальным
-        foreach (var sender in clients)
-        {
-            foreach (var receiver in clients)
-            {
-                if (sender != receiver)
-                {
-                    await sender.SendMessage(receiver.GetType().GetField("_myId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(receiver) as int? ?? 0,
-                        $"Привет от клиента {sender.GetType().GetField("_myId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(sender)}!");
-                }
-            }
-        }
-
-        await Task.Delay(1000);
-
-        // Проверяем, что каждый клиент получил сообщения от всех остальных
-        foreach (var receiver in clients)
-        {
-            Console.WriteLine($"\nСообщения для клиента {receiver.GetType().GetField("_myId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(receiver)}:");
-            foreach (var sender in clients)
-            {
-                if (sender != receiver)
-                {
-                    var messages = receiver.GetMessages(sender.GetType().GetField("_myId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(sender) as int? ?? 0);
-                    foreach (var (message, time) in messages)
-                    {
-                        Console.WriteLine($"[{time}] {message}");
-                    }
-                }
-            }
-        }
-
-        Console.WriteLine("\nТест завершен");
-        foreach (var client in clients)
-        {
-            await client.DisposeAsync();
+            Console.WriteLine(msg);
         }
     }
 
-    static async Task RunMessageOrderTest()
+    static async Task TestMessageDeleting()
     {
-        Console.WriteLine("\n=== Тест порядка сообщений ===\n");
+        Console.WriteLine("\n--- Тест удаления сообщений ---");
+        var url = "ws://localhost:8081/ws/";
+        var Fridmak = new Chats(22, url);
+        var Mot1x = new Chats(52, url);
 
-        var client1 = new ChatsHandler(16, () => { }, "ws://localhost:8080/ws/");
-        var client2 = new ChatsHandler(17, () => { }, "ws://localhost:8080/ws/");
+        await Fridmak.RunAsync();
+        await Mot1x.RunAsync();
 
-        await client1.StartSetUp();
-        await client2.StartSetUp();
-        Console.WriteLine("Оба клиента подключены");
+        // Fridmak отправляет сообщение
+        await Fridmak.SendMessageAsync(52, "Message to Delete");
+        await Task.Delay(200);
 
-        // Отправляем сообщения с метками
-        for (int i = 1; i <= 10; i++)
+        var messages = Mot1x.GetMessages(22);
+        var messageToDelete = messages.FirstOrDefault();
+        if (messageToDelete != default)
         {
-            await client1.SendMessage(17, $"Сообщение {i}");
-            await Task.Delay(10); // Небольшая задержка между сообщениями
+            // Fridmak удаляет сообщение
+            await Fridmak.DeleteMessage(52, messageToDelete.Item2);
         }
 
-        await Task.Delay(1000);
-
-        var messages = client2.GetMessages(16);
-        Console.WriteLine("\nПроверяем порядок сообщений:");
-        int expectedNumber = 1;
-        foreach (var (message, time) in messages)
+        await Task.Delay(200);
+        Console.WriteLine("Сообщения у Mot1x (должно быть пусто):");
+        foreach (var msg in Mot1x.GetMessages(22))
         {
-            var currentNumber = int.Parse(message.Split(' ')[1]);
-            Console.WriteLine($"[{time}] {message} - {(currentNumber == expectedNumber ? "OK" : "ОШИБКА ПОРЯДКА")}");
-            expectedNumber++;
-        }
-
-        Console.WriteLine("\nТест завершен");
-        await client1.DisposeAsync();
-        await client2.DisposeAsync();
-    }
-
-    static async Task RunStressTest()
-    {
-        Console.WriteLine("\n=== Стресс-тест ===\n");
-
-        var client1 = new ChatsHandler(18, () => { }, "ws://localhost:8080/ws/");
-        var client2 = new ChatsHandler(19, () => { }, "ws://localhost:8080/ws/");
-
-        await client1.StartSetUp();
-        await client2.StartSetUp();
-        Console.WriteLine("Оба клиента подключены");
-
-        var messageCount = 100;
-        var tasks = new List<Task>();
-        var sentMessages = new ConcurrentBag<string>();
-
-        // Быстро отправляем много сообщений
-        for (int i = 1; i <= messageCount; i++)
-        {
-            var message = $"Стресс-сообщение {i}";
-            sentMessages.Add(message);
-            tasks.Add(client1.SendMessage(19, message));
-            if (i % 10 == 0) // Небольшая пауза каждые 10 сообщений
-                await Task.Delay(10);
-        }
-
-        await Task.WhenAll(tasks);
-        await Task.Delay(2000); // Даем время на получение всех сообщений
-
-        var receivedMessages = client2.GetMessages(18).Select(m => m.Item1).ToList();
-        var missingMessages = sentMessages.Except(receivedMessages).ToList();
-        var unexpectedMessages = receivedMessages.Except(sentMessages).ToList();
-
-        Console.WriteLine($"\nОтправлено сообщений: {messageCount}");
-        Console.WriteLine($"Получено сообщений: {receivedMessages.Count}");
-        Console.WriteLine($"Потеряно сообщений: {missingMessages.Count}");
-        Console.WriteLine($"Неожиданных сообщений: {unexpectedMessages.Count}");
-
-        if (missingMessages.Any())
-        {
-            Console.WriteLine("\nПотерянные сообщения:");
-            foreach (var msg in missingMessages.Take(5))
-            {
-                Console.WriteLine(msg);
-            }
-        }
-
-        Console.WriteLine("\nТест завершен");
-        await client1.DisposeAsync();
-        await client2.DisposeAsync();
-    }
-
-    static async Task RunDisconnectReconnectTest()
-    {
-        Console.WriteLine("\n=== Тест отключения и переподключения ===\n");
-
-        var client1 = new ChatsHandler(20, () => { }, "ws://localhost:8080/ws/");
-        var client2 = new ChatsHandler(21, () => { }, "ws://localhost:8080/ws/");
-
-        await client1.StartSetUp();
-        await client2.StartSetUp();
-        Console.WriteLine("Оба клиента подключены");
-
-        // Отправляем сообщение до отключения
-        await client1.SendMessage(21, "Сообщение до отключения");
-        Console.WriteLine("Отправлено сообщение до отключения");
-
-        // Отключаем и создаем новый экземпляр клиента
-        await client1.DisposeAsync();
-        client1 = new ChatsHandler(20, () => { }, "ws://localhost:8080/ws/");
-        await client1.StartSetUp();
-        Console.WriteLine("Клиент 1 переподключен");
-
-        // Отправляем сообщение после переподключения
-        await client1.SendMessage(21, "Сообщение после переподключения");
-        Console.WriteLine("Отправлено сообщение после переподключения");
-
-        await Task.Delay(1000);
-
-        Console.WriteLine("\nСообщения клиента 2:");
-        foreach (var (message, time) in client2.GetMessages(20))
-        {
-            Console.WriteLine($"[{time}] {message}");
-        }
-
-        Console.WriteLine("\nТест завершен");
-        await client1.DisposeAsync();
-        await client2.DisposeAsync();
-    }
-
-    static async Task RunChatHistoryTest()
-    {
-        Console.WriteLine("\n=== Тест истории чата ===\n");
-
-        var client1 = new ChatsHandler(22, () => { }, "ws://localhost:8080/ws/");
-        var client2 = new ChatsHandler(23, () => { }, "ws://localhost:8080/ws/");
-
-        await client1.StartSetUp();
-        Console.WriteLine("Клиент 1 подключен");
-
-        // Отправляем несколько сообщений когда второй клиент оффлайн
-        for (int i = 1; i <= 3; i++)
-        {
-            await client1.SendMessage(23, $"Оффлайн сообщение {i}");
-            await Task.Delay(100);
-        }
-        Console.WriteLine("Отправлены сообщения оффлайн клиенту");
-
-        // Подключаем второго клиента
-        await client2.StartSetUp();
-        Console.WriteLine("Клиент 2 подключен");
-
-        // Проверяем, получил ли второй клиент оффлайн сообщения
-        Console.WriteLine("\nИстория сообщений клиента 2:");
-        foreach (var (message, time) in client2.GetMessages(22))
-        {
-            Console.WriteLine($"[{time}] {message}");
-        }
-
-        // Отправляем ответные сообщения
-        for (int i = 1; i <= 2; i++)
-        {
-            await client2.SendMessage(22, $"Ответное сообщение {i}");
-            await Task.Delay(100);
-        }
-        Console.WriteLine("\nОтправлены ответные сообщения");
-
-        await Task.Delay(1000);
-
-        // Проверяем полную историю у обоих клиентов
-        Console.WriteLine("\nПолная история клиента 1:");
-        foreach (var (message, time) in client1.GetMessages(23))
-        {
-            Console.WriteLine($"[{time}] {message}");
-        }
-
-        Console.WriteLine("\nПолная история клиента 2:");
-        foreach (var (message, time) in client2.GetMessages(22))
-        {
-            Console.WriteLine($"[{time}] {message}");
-        }
-
-        Console.WriteLine("\nТест завершен");
-        await client1.DisposeAsync();
-        await client2.DisposeAsync();
-    }
-
-    // Commented out old tests
-    /*
-    private static async Task TestYourData()
-    {
-        // ...
-    }
-
-    private static async Task TestReconnection()
-    {
-        // ...
-    }
-
-    private static async Task TestMultipleMessages()
-    {
-        // ...
-    }
-
-    private static async Task TestMultipleClients()
-    {
-        // ...
-    }
-
-    private static async Task TestServerUnavailable()
-    {
-        // ...
-    }
-
-    private static async Task TestNewMessages()
-    {
-        // ...
-    }
-    */
-
-    public static void AssertMessages(string clientName, List<string> actualMessages, List<string> expectedMessages)
-    {
-        foreach (var expected in expectedMessages)
-        {
-            if (!actualMessages.Any(m => m.StartsWith(expected)))
-            {
-                Console.WriteLine($"Ошибка: Сообщение для {clientName} не найдено: \"{expected}\"");
-            }
-            else
-            {
-                Console.WriteLine($"Сообщение для {clientName} успешно найдено: \"{expected}\"");
-            }
+            Console.WriteLine(msg);
         }
     }
-    
-    public static string FormatChatContents(Dictionary<int, List<(string message, string time)>> chatContents)
+
+    static async Task TestMarkAsRead()
     {
-        var formattedChat = new StringBuilder();
+        Console.WriteLine("\n--- Тест отметки сообщений как прочитанных ---");
+        var url = "ws://localhost:8081/ws/";
+        var Fridmak = new Chats(22, url);
+        var Mot1x = new Chats(52, url);
 
-        foreach (var entry in chatContents)
-        {
-            int clientId = entry.Key;
-            var messages = entry.Value;
+        await Fridmak.RunAsync();
+        await Mot1x.RunAsync();
 
-            formattedChat.AppendLine($"Chat with Client ID: {clientId}");
-            foreach (var (message, time) in messages)
-            {
-                formattedChat.AppendLine($"[{time}] {message}");
-            }
-            formattedChat.AppendLine();
-        }
+        // Fridmak отправляет сообщение Mot1x
+        await Fridmak.SendMessageAsync(52, "Unread Message");
+        await Task.Delay(200);
 
-        return formattedChat.ToString().Trim();
+        Console.WriteLine($"Количество непрочитанных сообщений у Mot1x: {Mot1x.GetUnreadCount(22)}");
+
+        // Mot1x помечает сообщения как прочитанные
+        Mot1x.MarkAsRead(22);
+        Console.WriteLine($"Количество непрочитанных сообщений у Mot1x после отметки: {Mot1x.GetUnreadCount(22)}");
     }
 
-    public static string FormatChatContents(Dictionary<int, List<string>> chats)
+    static async Task TestChatReconnection()
     {
-        var sb = new StringBuilder();
-        foreach (var chat in chats)
+        Console.WriteLine("\n--- Тест восстановления подключения ---");
+        var url = "ws://localhost:8081/ws/";
+        var Fridmak = new Chats(22, url);
+
+        await Fridmak.RunAsync();
+        Console.WriteLine($"Статус подключения Fridmak: {Fridmak.IsConnected}");
+
+        // Принудительно разрываем соединение
+        await Fridmak.StopAsync();
+        Console.WriteLine($"Статус подключения Fridmak после остановки: {Fridmak.IsConnected}");
+
+        // Восстанавливаем соединение
+        await Fridmak.ReconnectAsync();
+        Console.WriteLine($"Статус подключения Fridmak после восстановления: {Fridmak.IsConnected}");
+    }
+
+    static async Task TestRestoringMessages()
+    {
+        Console.WriteLine("\n--- Тест восстановления сообщений ---");
+        var url = "ws://localhost:8081/ws/";
+        var Fridmak = new Chats(22, url);
+        var Mot1x = new Chats(52, url);
+
+        await Fridmak.RunAsync();
+        await Mot1x.RunAsync();
+
+        // Fridmak отправляет сообщение
+        await Fridmak.SendMessageAsync(52, "Message to Restore");
+        await Task.Delay(200);
+
+        // Получаем сообщение у Mot1x
+        var messages = Mot1x.GetMessages(22);
+        var messageToRestore = messages.FirstOrDefault();
+        if (messageToRestore != default)
         {
-            sb.AppendLine($"Чат с клиентом {chat.Key}:");
-            foreach (var message in chat.Value)
-            {
-                sb.AppendLine($"  {message}");
-            }
+            // Восстанавливаем сообщение
+            await Mot1x.RestoreMessage(22, messageToRestore.Item1, messageToRestore.Item2);
         }
-        return sb.ToString();
+
+        Console.WriteLine("Сообщения у Mot1x после восстановления:");
+        foreach (var msg in Mot1x.GetMessages(22))
+        {
+            Console.WriteLine(msg);
+        }
     }
 }

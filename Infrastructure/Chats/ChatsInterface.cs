@@ -40,13 +40,7 @@ public class Chats : IAsyncDisposable
 
     protected virtual void OnNewMessagesReceived(List<int> newMessages) =>
         NewMessagesReceived?.Invoke(this, newMessages);
-
-
-    private async Task StopAsync()
-    {
-        _isRunning = false;
-        await Task.CompletedTask;
-    }
+    
 
     public async Task<bool> SendMessageAsync(int userId, string message)
     {
@@ -87,5 +81,9 @@ public class Chats : IAsyncDisposable
 
     public async Task StopChat() => await DisposeAsync();
 
-    public async Task StopASync() => await _chatsHandler.StopAsync();
+    public async Task StopAsync()
+    {
+        _isRunning = false;
+        await _chatsHandler.StopAsync();
+    }
 }
