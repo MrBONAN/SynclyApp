@@ -118,10 +118,7 @@ public class ViewModel : INotifyPropertyChanged
 
     public async Task LoadMessagesAsync()
     {
-        await Task.Delay(10000);
-        Messages.Add(new Message(ChatPartner.Id, CurrentUser.Id, "Привет", DateTime.UtcNow, LayoutOptions.Start));
-        await Task.Delay(10000);
-        Messages.Add(new Message(ChatPartner.Id, CurrentUser.Id, "Спасибо :)", DateTime.UtcNow, LayoutOptions.Start));
+        
     }
 
     public void SendMessage(string messageText, DateTime date)

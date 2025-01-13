@@ -44,7 +44,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         SettingsList =
         [
             //new Setting("Подключения", "connections_icon.png", new ConnectionsBottomSheet.Sheet()),
-            new Setting("Приватность", "privacy_icon.png", new ConnectionsBottomSheet.Sheet()),
+            //new Setting("Приватность", "privacy_icon.png", new ConnectionsBottomSheet.Sheet()),
             new Setting("Вид карты", "appearance_icon.png", new AppearanceBottomSheet.Sheet()),
             new Setting("Выход из аккаунта", "exit_icon.png", new Exit.Sheet())
         ];
